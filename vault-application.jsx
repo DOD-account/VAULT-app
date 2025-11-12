@@ -93,7 +93,7 @@ const LogOut = ({ className, size = 24 }) => (
 
 
 
-export default function VaultApp() {
+function VaultApp() {
   const [activeSection, setActiveSection] = useState('profil');
   const [credits] = useState(3);
   const [dossierOuvert] = useState('Jean Dupont');
