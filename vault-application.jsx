@@ -158,21 +158,21 @@ function VaultApp() {
       <footer className="bg-white border-t mt-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex flex-col sm:flex-row justify-center items-center space-y-2 sm:space-y-0 sm:space-x-6 mb-4">
-            <button className="text-gray-600 hover:text-blue-600 text-sm transition-colors">
+            <a href="securite-rgpd.html" className="text-gray-600 hover:text-blue-600 text-sm transition-colors">
               Sécurité & RGPD
-            </button>
+            </a>
             <span className="hidden sm:inline text-gray-300">•</span>
-            <button className="text-gray-600 hover:text-blue-600 text-sm transition-colors">
+            <a href="mentions-legales.html" className="text-gray-600 hover:text-blue-600 text-sm transition-colors">
               Mentions légales
-            </button>
+            </a>
             <span className="hidden sm:inline text-gray-300">•</span>
-            <button className="text-gray-600 hover:text-blue-600 text-sm transition-colors">
+            <a href="faq.html" className="text-gray-600 hover:text-blue-600 text-sm transition-colors">
               FAQ
-            </button>
+            </a>
             <span className="hidden sm:inline text-gray-300">•</span>
-            <button className="text-gray-600 hover:text-blue-600 text-sm transition-colors">
+            <a href="contact.html" className="text-gray-600 hover:text-blue-600 text-sm transition-colors">
               Contactez-nous
-            </button>
+            </a>
           </div>
           <p className="text-center text-gray-500 text-sm">
             VAULT 2025 - Tous droits réservés
