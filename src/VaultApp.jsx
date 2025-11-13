@@ -286,7 +286,6 @@ export default function VaultApp() {
                 <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
                   VAULT
                 </h1>
-                <p className="text-xs text-gray-500 font-medium">Plateforme Expert Retraite</p>
               </div>
             </div>
             
