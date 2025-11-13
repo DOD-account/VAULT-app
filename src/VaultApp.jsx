@@ -1091,13 +1091,10 @@ export default function VaultApp() {
                           <table className="w-full text-sm">
                             <thead>
                               <tr className="bg-gradient-to-r from-indigo-600 to-blue-600 text-white">
-                                <th className="py-3 px-4 text-left font-bold">Âge de départ</th>
-                                <th className="py-3 px-4 text-left font-bold">Date de liquidation</th>
-                                <th className="py-3 px-4 text-center font-bold">Trimestres</th>
-                                <th className="py-3 px-4 text-center font-bold">Décote/Surcote</th>
-                                <th className="py-3 px-4 text-right font-bold">Pension mensuelle brute</th>
-                                <th className="py-3 px-4 text-right font-bold">Pension mensuelle nette</th>
-                                <th className="py-3 px-4 text-right font-bold">Pension annuelle nette</th>
+                                <th className="py-3 px-4 text-left font-bold sticky left-0 bg-indigo-600">Critère</th>
+                                {[62, 63, 64, 65, 66, 67].map(age => (
+                                  <th key={age} className="py-3 px-4 text-center font-bold">{age} ans</th>
+                                ))}
                               </tr>
                             </thead>
                             <tbody>
@@ -1129,7 +1126,7 @@ export default function VaultApp() {
 
                                   let coefficient = 1.0;
                                   let decoteLabel = 'Taux plein';
-                                  let rowColor = 'bg-green-50';
+                                  let colColor = 'bg-green-50';
 
                                   if (age < 64 && trimestresValides < trimestresRequis) {
                                     // Décote
@@ -1137,7 +1134,7 @@ export default function VaultApp() {
                                     const tauxDecote = trimestresManquants * 0.0125;
                                     coefficient = 1 - tauxDecote;
                                     decoteLabel = `-${(tauxDecote * 100).toFixed(2)}%`;
-                                    rowColor = 'bg-red-50';
+                                    colColor = 'bg-red-50';
                                   } else if (age >= 67 || (age >= 64 && trimestresValides >= trimestresRequis)) {
                                     // Taux plein ou surcote
                                     if (age > 64 && trimestresValides >= trimestresRequis) {
@@ -1145,15 +1142,15 @@ export default function VaultApp() {
                                       const tauxSurcote = trimestresSupplementaires * 0.0125;
                                       coefficient = 1 + tauxSurcote;
                                       decoteLabel = `+${(tauxSurcote * 100).toFixed(2)}%`;
-                                      rowColor = 'bg-blue-50';
+                                      colColor = 'bg-blue-50';
                                     }
                                   } else if (age === 64 && trimestresValides >= trimestresRequis) {
                                     decoteLabel = 'Taux plein';
-                                    rowColor = 'bg-green-50';
+                                    colColor = 'bg-green-50';
                                   } else {
                                     // Entre 62 et 64 ans avec trimestres suffisants
                                     decoteLabel = 'Taux plein';
-                                    rowColor = 'bg-green-50';
+                                    colColor = 'bg-green-50';
                                   }
 
                                   const pensionBruteMensuelleFinal = pensionBruteMensuelle * coefficient;
@@ -1168,37 +1165,62 @@ export default function VaultApp() {
                                     pensionBruteMensuelleFinal,
                                     pensionNetteMensuelle,
                                     pensionNetteAnnuelle,
-                                    rowColor
+                                    colColor
                                   });
                                 }
 
-                                return simulations.map((sim, idx) => (
-                                  <tr key={idx} className={`border-b border-gray-200 ${sim.rowColor} hover:brightness-95 transition`}>
-                                    <td className="py-3 px-4 font-bold text-gray-800">{sim.age} ans</td>
-                                    <td className="py-3 px-4 text-gray-700">{sim.dateLiquidationStr}</td>
-                                    <td className="py-3 px-4 text-center">
-                                      <span className={`font-bold ${sim.trimestresValides >= trimestresRequis ? 'text-green-600' : 'text-orange-600'}`}>
-                                        {sim.trimestresValides}/{trimestresRequis}
+                                const rows = [
+                                  {
+                                    label: 'Date de liquidation',
+                                    values: simulations.map(s => s.dateLiquidationStr)
+                                  },
+                                  {
+                                    label: 'Trimestres',
+                                    values: simulations.map(s => (
+                                      <span className={`font-bold ${s.trimestresValides >= trimestresRequis ? 'text-green-600' : 'text-orange-600'}`}>
+                                        {s.trimestresValides}/{trimestresRequis}
                                       </span>
-                                    </td>
-                                    <td className="py-3 px-4 text-center">
+                                    ))
+                                  },
+                                  {
+                                    label: 'Décote/Surcote',
+                                    values: simulations.map(s => (
                                       <span className={`px-2 py-1 rounded-full text-xs font-bold ${
-                                        sim.decoteLabel.startsWith('-') ? 'bg-red-200 text-red-800' :
-                                        sim.decoteLabel.startsWith('+') ? 'bg-blue-200 text-blue-800' :
+                                        s.decoteLabel.startsWith('-') ? 'bg-red-200 text-red-800' :
+                                        s.decoteLabel.startsWith('+') ? 'bg-blue-200 text-blue-800' :
                                         'bg-green-200 text-green-800'
                                       }`}>
-                                        {sim.decoteLabel}
+                                        {s.decoteLabel}
                                       </span>
+                                    ))
+                                  },
+                                  {
+                                    label: 'Pension mensuelle brute',
+                                    values: simulations.map(s => `${s.pensionBruteMensuelleFinal.toFixed(2)} €`)
+                                  },
+                                  {
+                                    label: 'Pension mensuelle nette',
+                                    values: simulations.map(s => `${s.pensionNetteMensuelle.toFixed(2)} €`)
+                                  },
+                                  {
+                                    label: 'Pension annuelle nette',
+                                    values: simulations.map(s => `${s.pensionNetteAnnuelle.toFixed(2)} €`)
+                                  }
+                                ];
+
+                                return rows.map((row, rowIdx) => (
+                                  <tr key={rowIdx} className="border-b border-gray-200 hover:bg-gray-50 transition">
+                                    <td className="py-3 px-4 font-bold text-gray-700 bg-gray-50 sticky left-0">
+                                      {row.label}
                                     </td>
-                                    <td className="py-3 px-4 text-right font-semibold text-gray-800">
-                                      {sim.pensionBruteMensuelleFinal.toFixed(2)} €
-                                    </td>
-                                    <td className="py-3 px-4 text-right font-semibold text-indigo-700">
-                                      {sim.pensionNetteMensuelle.toFixed(2)} €
-                                    </td>
-                                    <td className="py-3 px-4 text-right font-bold text-indigo-900">
-                                      {sim.pensionNetteAnnuelle.toFixed(2)} €
-                                    </td>
+                                    {row.values.map((value, colIdx) => (
+                                      <td
+                                        key={colIdx}
+                                        className={`py-3 px-4 text-center ${simulations[colIdx].colColor}`}
+                                      >
+                                        {value}
+                                      </td>
+                                    ))}
                                   </tr>
                                 ));
                               })()}
