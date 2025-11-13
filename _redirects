@@ -1,0 +1,4 @@
+# Redirections Netlify pour Single Page Application
+# Redirige toutes les routes vers index.html pour que React Router fonctionne
+
+/*    /index.html   200

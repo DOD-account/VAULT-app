@@ -54,13 +54,15 @@ VAULT est une application SaaS complète pour la gestion et l'analyse de dossier
 - Sélecteur de dossiers dans le menu
 - Données isolées par client
 
-## 🚀 Installation
+## 🚀 Installation & Déploiement
 
-### Prérequis
+### Installation Locale
+
+#### Prérequis
 - Node.js 16+ 
 - npm ou yarn
 
-### Étapes d'installation
+#### Étapes d'installation
 
 1. **Cloner le repository**
 ```bash
@@ -82,6 +84,20 @@ npm run dev
 ```
 http://localhost:5173
 ```
+
+### ☁️ Déploiement sur Netlify
+
+[![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy)
+
+**Configuration automatique avec GitHub + Netlify** :
+- ✅ Build command : `npm run build`
+- ✅ Publish directory : `dist`
+- ✅ Fichier `netlify.toml` inclus
+- ✅ Redirections SPA configurées
+- ✅ Headers de sécurité activés
+- ✅ HTTPS gratuit et automatique
+
+**Guide détaillé** : Voir [DEPLOIEMENT_NETLIFY.md](DEPLOIEMENT_NETLIFY.md)
 
 ## 📦 Structure du projet
 
