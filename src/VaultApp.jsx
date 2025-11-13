@@ -77,7 +77,8 @@ export default function VaultApp() {
     prenom: 'Jean',
     civilite: 'M.',
     numeroSecu: '1 66 04 75 123 456 78',
-    nombreEnfants: 2
+    nombreEnfants: 2,
+    dateNaissance: '04/04/1970' // Pour calculer les âges de départ
   });
   
   const [enfants, setEnfants] = useState([
@@ -273,6 +274,84 @@ export default function VaultApp() {
     }));
   };
 
+  // Fonction pour calculer la pension selon l'âge de départ
+  const calculerPensionParAge = (carriere, ageDepart) => {
+    const totalTrimestres = carriere.data.reduce((sum, ligne) => sum + ligne.trimestres, 0);
+    const totalPointsBase = carriere.data.reduce((sum, ligne) => sum + ligne.pointsBase, 0);
+    const totalPointsComplementaires = carriere.data.reduce((sum, ligne) => sum + ligne.pointsComplementaires, 0);
+
+    const valeurPointBase = 0.6734;
+    const valeurPointComplementaire = 1.4159;
+    const trimestresRequis = 172;
+    const ageTauxPlein = 64;
+    const ageTauxPleinAuto = 67;
+
+    // Calcul de la pension de base (sans décote/surcote)
+    const pensionBaseMensuelle = totalPointsBase * valeurPointBase;
+    const pensionComplMensuelle = totalPointsComplementaires * valeurPointComplementaire;
+    const pensionBruteMensuelle = pensionBaseMensuelle + pensionComplMensuelle;
+
+    let coefficient = 1; // Coefficient de décote/surcote
+    let typeCoefficient = 'Taux plein';
+
+    // Logique de décote/surcote
+    if (ageDepart < ageTauxPleinAuto) {
+      const trimestresManquants = Math.max(0, trimestresRequis - totalTrimestres);
+      const trimestresManquantsAge = (ageTauxPlein - ageDepart) * 4;
+
+      if (trimestresManquants > 0 || ageDepart < ageTauxPlein) {
+        // Décote : on prend le minimum entre trimestres manquants et trimestres jusqu'à l'âge du taux plein
+        const trimestresDecote = Math.min(trimestresManquants, trimestresManquantsAge, 20); // Max 20 trimestres de décote
+        const tauxDecote = trimestresDecote * 0.0125; // 1,25% par trimestre
+        coefficient = 1 - tauxDecote;
+        typeCoefficient = `Décote -${(tauxDecote * 100).toFixed(2)}%`;
+      }
+    }
+
+    // Surcote si départ après l'âge du taux plein ET avec tous les trimestres
+    if (ageDepart > ageTauxPlein && totalTrimestres >= trimestresRequis) {
+      const trimestresSurcote = (ageDepart - ageTauxPlein) * 4;
+      const tauxSurcote = trimestresSurcote * 0.0125; // 1,25% par trimestre
+      coefficient = 1 + tauxSurcote;
+      typeCoefficient = `Surcote +${(tauxSurcote * 100).toFixed(2)}%`;
+    }
+
+    // Taux plein automatique à 67 ans
+    if (ageDepart >= ageTauxPleinAuto) {
+      if (ageDepart === ageTauxPleinAuto && totalTrimestres < trimestresRequis) {
+        coefficient = 1;
+        typeCoefficient = 'Taux plein (âge)';
+      }
+    }
+
+    // Application du coefficient
+    const pensionBruteMensuelleFinale = pensionBruteMensuelle * coefficient;
+    const pensionBruteAnnuelle = pensionBruteMensuelleFinale * 12;
+    const pensionNetteAnnuelle = pensionBruteAnnuelle * 0.9; // -10% prélèvements sociaux
+    const pensionNetteMensuelle = pensionNetteAnnuelle / 12;
+
+    // Calcul du total perçu sur 20 ans (espérance de vie moyenne après la retraite)
+    const totalPercu20ans = pensionNetteAnnuelle * 20;
+
+    // Calcul de la date de départ estimée
+    const dateNaiss = profil.dateNaissance.split('/');
+    const anneeNaissance = parseInt(dateNaiss[2]);
+    const anneeDepart = anneeNaissance + ageDepart;
+    const dateDepart = `${dateNaiss[0]}/${dateNaiss[1]}/${anneeDepart}`;
+
+    return {
+      age: ageDepart,
+      dateDepart,
+      trimestres: totalTrimestres,
+      coefficient,
+      typeCoefficient,
+      pensionBruteMensuelle: pensionBruteMensuelleFinale,
+      pensionNetteMensuelle,
+      pensionNetteAnnuelle,
+      totalPercu20ans
+    };
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
       <nav className="bg-white shadow-lg border-b-4 border-blue-600 sticky top-0 z-50">
@@ -458,10 +537,11 @@ export default function VaultApp() {
                 {Object.entries(profil).map(([key, value]) => (
                   <div key={key} className="group">
                     <label className="block text-sm font-semibold text-gray-600 mb-2 uppercase tracking-wide">
-                      {key === 'nom' ? 'Nom' : 
-                       key === 'prenom' ? 'Prénom' : 
-                       key === 'civilite' ? 'Civilité' : 
-                       key === 'numeroSecu' ? 'N° Sécurité sociale' : 
+                      {key === 'nom' ? 'Nom' :
+                       key === 'prenom' ? 'Prénom' :
+                       key === 'civilite' ? 'Civilité' :
+                       key === 'numeroSecu' ? 'N° Sécurité sociale' :
+                       key === 'dateNaissance' ? 'Date de naissance' :
                        'Nombre d\'enfants'}
                     </label>
                     <div className="flex items-center gap-2">
@@ -950,6 +1030,85 @@ export default function VaultApp() {
                           <p className="text-sm font-semibold text-pink-800 mb-1">Points complémentaires</p>
                           <p className="text-3xl font-bold text-pink-600">{totalPointsComplementaires.toFixed(0)}</p>
                           <p className="text-xs text-pink-600 mt-1">AGIRC-ARRCO</p>
+                        </div>
+                      </div>
+
+                      {/* Tableau des gains par âge de départ */}
+                      <div className="p-4 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-lg border-2 border-indigo-300">
+                        <h4 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                          <TrendingUp className="w-5 h-5 text-indigo-600" />
+                          Simulation des gains selon l'âge de départ à la retraite
+                        </h4>
+
+                        <div className="overflow-x-auto">
+                          <table className="w-full text-sm">
+                            <thead>
+                              <tr className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white">
+                                <th className="py-3 px-4 text-left font-bold">Âge</th>
+                                <th className="py-3 px-4 text-left font-bold">Date de départ</th>
+                                <th className="py-3 px-4 text-center font-bold">Trimestres</th>
+                                <th className="py-3 px-4 text-left font-bold">Décote/Surcote</th>
+                                <th className="py-3 px-4 text-right font-bold">Pension brute<br/>(mois)</th>
+                                <th className="py-3 px-4 text-right font-bold">Pension nette<br/>(mois)</th>
+                                <th className="py-3 px-4 text-right font-bold">Pension nette<br/>(an)</th>
+                                <th className="py-3 px-4 text-right font-bold">Total perçu<br/>(20 ans)</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {[62, 63, 64, 65, 66, 67, 68, 69, 70].map((age, index) => {
+                                const projection = calculerPensionParAge(carriere, age);
+                                const isOptimal = age === 64 && projection.trimestres >= 172;
+                                const isTauxPleinAuto = age === 67;
+
+                                return (
+                                  <tr
+                                    key={age}
+                                    className={`border-b border-indigo-100 ${
+                                      isOptimal ? 'bg-green-100 font-bold' :
+                                      isTauxPleinAuto && projection.trimestres < 172 ? 'bg-yellow-100' :
+                                      index % 2 === 0 ? 'bg-white' : 'bg-indigo-50'
+                                    } hover:bg-indigo-200 transition`}
+                                  >
+                                    <td className="py-3 px-4 font-bold text-gray-800">
+                                      {age} ans
+                                      {isOptimal && <span className="ml-2 text-xs bg-green-600 text-white px-2 py-1 rounded-full">Optimal</span>}
+                                    </td>
+                                    <td className="py-3 px-4 text-gray-700">{projection.dateDepart}</td>
+                                    <td className="py-3 px-4 text-center font-medium text-gray-800">{projection.trimestres}</td>
+                                    <td className="py-3 px-4">
+                                      <span className={`px-2 py-1 rounded-full text-xs font-bold ${
+                                        projection.typeCoefficient.includes('Décote') ? 'bg-red-100 text-red-700' :
+                                        projection.typeCoefficient.includes('Surcote') ? 'bg-green-100 text-green-700' :
+                                        'bg-blue-100 text-blue-700'
+                                      }`}>
+                                        {projection.typeCoefficient}
+                                      </span>
+                                    </td>
+                                    <td className="py-3 px-4 text-right font-medium text-gray-800">
+                                      {projection.pensionBruteMensuelle.toFixed(2)} €
+                                    </td>
+                                    <td className="py-3 px-4 text-right font-bold text-indigo-700">
+                                      {projection.pensionNetteMensuelle.toFixed(2)} €
+                                    </td>
+                                    <td className="py-3 px-4 text-right font-bold text-purple-700">
+                                      {projection.pensionNetteAnnuelle.toFixed(2)} €
+                                    </td>
+                                    <td className="py-3 px-4 text-right font-bold text-green-700">
+                                      {projection.totalPercu20ans.toLocaleString('fr-FR', {minimumFractionDigits: 2, maximumFractionDigits: 2})} €
+                                    </td>
+                                  </tr>
+                                );
+                              })}
+                            </tbody>
+                          </table>
+                        </div>
+
+                        <div className="mt-4 p-3 bg-white rounded-lg border border-indigo-200">
+                          <p className="text-xs text-gray-600">
+                            <strong>Légende :</strong> Les calculs sont basés sur les trimestres et points actuellement validés dans ce scénario.
+                            L'âge optimal correspond à 64 ans avec le taux plein (172 trimestres).
+                            Le total perçu sur 20 ans est une estimation basée sur une espérance de vie moyenne.
+                          </p>
                         </div>
                       </div>
 
