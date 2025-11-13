@@ -77,6 +77,7 @@ export default function VaultApp() {
     prenom: 'Jean',
     civilite: 'M.',
     numeroSecu: '1 66 04 75 123 456 78',
+    dateNaissance: '15/04/1966',
     nombreEnfants: 2
   });
   
@@ -457,10 +458,11 @@ export default function VaultApp() {
                 {Object.entries(profil).map(([key, value]) => (
                   <div key={key} className="group">
                     <label className="block text-sm font-semibold text-gray-600 mb-2 uppercase tracking-wide">
-                      {key === 'nom' ? 'Nom' : 
-                       key === 'prenom' ? 'Prénom' : 
-                       key === 'civilite' ? 'Civilité' : 
-                       key === 'numeroSecu' ? 'N° Sécurité sociale' : 
+                      {key === 'nom' ? 'Nom' :
+                       key === 'prenom' ? 'Prénom' :
+                       key === 'civilite' ? 'Civilité' :
+                       key === 'numeroSecu' ? 'N° Sécurité sociale' :
+                       key === 'dateNaissance' ? 'Date de naissance' :
                        'Nombre d\'enfants'}
                     </label>
                     <div className="flex items-center gap-2">
@@ -1076,6 +1078,145 @@ export default function VaultApp() {
                               Une fois à la retraite au <strong>taux plein</strong>, vous pouvez reprendre une activité professionnelle sans limitation de revenus tout en cumulant votre pension. Si vous partez avec décote, le cumul est plafonné (environ 20 000€/an selon votre situation).
                             </p>
                           </div>
+                        </div>
+                      </div>
+
+                      <div className="p-4 bg-gradient-to-r from-indigo-50 to-blue-50 rounded-lg border-2 border-indigo-300 mt-6">
+                        <h4 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                          <TrendingUp className="w-5 h-5 text-indigo-600" />
+                          Simulations selon l'âge de départ
+                        </h4>
+
+                        <div className="overflow-x-auto">
+                          <table className="w-full text-sm">
+                            <thead>
+                              <tr className="bg-gradient-to-r from-indigo-600 to-blue-600 text-white">
+                                <th className="py-3 px-4 text-left font-bold">Âge de départ</th>
+                                <th className="py-3 px-4 text-left font-bold">Date de liquidation</th>
+                                <th className="py-3 px-4 text-center font-bold">Trimestres</th>
+                                <th className="py-3 px-4 text-center font-bold">Décote/Surcote</th>
+                                <th className="py-3 px-4 text-right font-bold">Pension mensuelle brute</th>
+                                <th className="py-3 px-4 text-right font-bold">Pension mensuelle nette</th>
+                                <th className="py-3 px-4 text-right font-bold">Pension annuelle nette</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {(() => {
+                                // Parser la date de naissance
+                                const [jour, mois, annee] = profil.dateNaissance.split('/').map(Number);
+                                const dateNaissance = new Date(annee, mois - 1, jour);
+
+                                // Calculs de base
+                                const totalPointsBase = carriere.data.reduce((sum, ligne) => sum + ligne.pointsBase, 0);
+                                const totalPointsComplementaires = carriere.data.reduce((sum, ligne) => sum + ligne.pointsComplementaires, 0);
+                                const valeurPointBase = 0.6734;
+                                const valeurPointComplementaire = 1.4159;
+
+                                const pensionBaseMensuelle = totalPointsBase * valeurPointBase;
+                                const pensionComplementaireMensuelle = totalPointsComplementaires * valeurPointComplementaire;
+                                const pensionBruteMensuelle = pensionBaseMensuelle + pensionComplementaireMensuelle;
+
+                                const trimestresRequis = 172;
+                                const trimestresValides = carriere.data.reduce((sum, ligne) => sum + ligne.trimestres, 0);
+
+                                // Générer les simulations de 62 à 67 ans
+                                const simulations = [];
+                                for (let age = 62; age <= 67; age++) {
+                                  const dateLiquidation = new Date(dateNaissance);
+                                  dateLiquidation.setFullYear(dateLiquidation.getFullYear() + age);
+
+                                  const dateLiquidationStr = `${String(dateLiquidation.getDate()).padStart(2, '0')}/${String(dateLiquidation.getMonth() + 1).padStart(2, '0')}/${dateLiquidation.getFullYear()}`;
+
+                                  let coefficient = 1.0;
+                                  let decoteLabel = 'Taux plein';
+                                  let rowColor = 'bg-green-50';
+
+                                  if (age < 64 && trimestresValides < trimestresRequis) {
+                                    // Décote
+                                    const trimestresManquants = Math.min(trimestresRequis - trimestresValides, 20);
+                                    const tauxDecote = trimestresManquants * 0.0125;
+                                    coefficient = 1 - tauxDecote;
+                                    decoteLabel = `-${(tauxDecote * 100).toFixed(2)}%`;
+                                    rowColor = 'bg-red-50';
+                                  } else if (age >= 67 || (age >= 64 && trimestresValides >= trimestresRequis)) {
+                                    // Taux plein ou surcote
+                                    if (age > 64 && trimestresValides >= trimestresRequis) {
+                                      const trimestresSupplementaires = Math.min((age - 64) * 4, 20);
+                                      const tauxSurcote = trimestresSupplementaires * 0.0125;
+                                      coefficient = 1 + tauxSurcote;
+                                      decoteLabel = `+${(tauxSurcote * 100).toFixed(2)}%`;
+                                      rowColor = 'bg-blue-50';
+                                    }
+                                  } else if (age === 64 && trimestresValides >= trimestresRequis) {
+                                    decoteLabel = 'Taux plein';
+                                    rowColor = 'bg-green-50';
+                                  } else {
+                                    // Entre 62 et 64 ans avec trimestres suffisants
+                                    decoteLabel = 'Taux plein';
+                                    rowColor = 'bg-green-50';
+                                  }
+
+                                  const pensionBruteMensuelleFinal = pensionBruteMensuelle * coefficient;
+                                  const pensionNetteMensuelle = pensionBruteMensuelleFinal * 0.9;
+                                  const pensionNetteAnnuelle = pensionNetteMensuelle * 12;
+
+                                  simulations.push({
+                                    age,
+                                    dateLiquidationStr,
+                                    trimestresValides,
+                                    decoteLabel,
+                                    pensionBruteMensuelleFinal,
+                                    pensionNetteMensuelle,
+                                    pensionNetteAnnuelle,
+                                    rowColor
+                                  });
+                                }
+
+                                return simulations.map((sim, idx) => (
+                                  <tr key={idx} className={`border-b border-gray-200 ${sim.rowColor} hover:brightness-95 transition`}>
+                                    <td className="py-3 px-4 font-bold text-gray-800">{sim.age} ans</td>
+                                    <td className="py-3 px-4 text-gray-700">{sim.dateLiquidationStr}</td>
+                                    <td className="py-3 px-4 text-center">
+                                      <span className={`font-bold ${sim.trimestresValides >= trimestresRequis ? 'text-green-600' : 'text-orange-600'}`}>
+                                        {sim.trimestresValides}/{trimestresRequis}
+                                      </span>
+                                    </td>
+                                    <td className="py-3 px-4 text-center">
+                                      <span className={`px-2 py-1 rounded-full text-xs font-bold ${
+                                        sim.decoteLabel.startsWith('-') ? 'bg-red-200 text-red-800' :
+                                        sim.decoteLabel.startsWith('+') ? 'bg-blue-200 text-blue-800' :
+                                        'bg-green-200 text-green-800'
+                                      }`}>
+                                        {sim.decoteLabel}
+                                      </span>
+                                    </td>
+                                    <td className="py-3 px-4 text-right font-semibold text-gray-800">
+                                      {sim.pensionBruteMensuelleFinal.toFixed(2)} €
+                                    </td>
+                                    <td className="py-3 px-4 text-right font-semibold text-indigo-700">
+                                      {sim.pensionNetteMensuelle.toFixed(2)} €
+                                    </td>
+                                    <td className="py-3 px-4 text-right font-bold text-indigo-900">
+                                      {sim.pensionNetteAnnuelle.toFixed(2)} €
+                                    </td>
+                                  </tr>
+                                ));
+                              })()}
+                            </tbody>
+                          </table>
+                        </div>
+
+                        <div className="mt-4 p-3 bg-white rounded-lg border border-indigo-200">
+                          <p className="text-xs text-gray-600">
+                            <strong>Légende :</strong>
+                            <span className="ml-2 inline-block w-3 h-3 bg-red-50 border border-red-200"></span> <span className="text-xs">Avec décote</span>
+                            <span className="ml-3 inline-block w-3 h-3 bg-green-50 border border-green-200"></span> <span className="text-xs">Taux plein</span>
+                            <span className="ml-3 inline-block w-3 h-3 bg-blue-50 border border-blue-200"></span> <span className="text-xs">Avec surcote</span>
+                          </p>
+                          <p className="text-xs text-gray-600 mt-2">
+                            <strong>Note :</strong> Les calculs sont basés sur les trimestres validés dans ce scénario.
+                            Décote : 1,25% par trimestre manquant (max 20 trimestres). Surcote : 1,25% par trimestre au-delà de 64 ans avec taux plein.
+                          </p>
                         </div>
                       </div>
                     </div>
