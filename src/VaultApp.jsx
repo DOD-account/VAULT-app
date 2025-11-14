@@ -1387,43 +1387,18 @@ export default function VaultApp() {
                       <div className="p-4 bg-white border-2 border-indigo-300 rounded-lg">
                         <div className="flex justify-between items-center mb-4">
                           <h4 className="text-lg font-bold text-gray-800">Simulations selon l'âge de départ</h4>
-                          <div className="flex gap-2">
-                            <button
-                              onClick={() => downloadExcel(carriere, scenarios)}
-                              className="flex items-center gap-2 px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-sm"
-                              title="Télécharger le tableau en Excel"
-                            >
-                              <Download className="w-4 h-4" />
-                              Excel
-                            </button>
-                            <button
-                              onClick={() => downloadWord(carriere)}
-                              className="flex items-center gap-2 px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm"
-                              title="Télécharger les recommandations en Word"
-                            >
-                              <Download className="w-4 h-4" />
-                              Word
-                            </button>
-                            <button
-                              onClick={() => downloadPDF(carriere, scenarios)}
-                              className="flex items-center gap-2 px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition text-sm"
-                              title="Télécharger le rapport complet en PDF"
-                            >
-                              <Download className="w-4 h-4" />
-                              PDF
-                            </button>
-                            <button
-                              onClick={() => setShowDateSelector(!showDateSelector)}
-                              className="flex items-center gap-2 px-3 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition text-sm"
-                            >
-                              <Plus className="w-4 h-4" />
-                              Ajouter une date
-                            </button>
-                          </div>
+                          <button
+                            onClick={() => setShowDateSelector(!showDateSelector)}
+                            className="flex items-center gap-2 px-3 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition text-sm"
+                          >
+                            <Plus className="w-4 h-4" />
+                            Ajouter une date
+                          </button>
                         </div>
 
                         {showDateSelector && (
                           <div className="mb-4 p-4 bg-indigo-50 rounded-lg border border-indigo-200">
+                            <h5 className="font-semibold text-indigo-900 mb-3">Ajouter une date de départ supplémentaire dans la simulation</h5>
                             <div className="flex gap-3 items-end">
                               <div className="flex-1">
                                 <label className="block text-sm font-semibold text-gray-700 mb-1">Mois</label>
@@ -1474,53 +1449,129 @@ export default function VaultApp() {
                         )}
 
                         <div className="overflow-x-auto">
-                          <table className="w-full text-sm">
+                          <table className="w-full text-sm border-collapse">
                             <thead>
-                              <tr className="border-b-2 border-gray-300">
-                                <th className="py-3 px-4 text-left font-bold text-gray-700">Âge de départ</th>
-                                <th className="py-3 px-4 text-right font-bold text-gray-700">Pension mensuelle</th>
-                                <th className="py-3 px-4 text-right font-bold text-gray-700">Pension annuelle</th>
-                                <th className="py-3 px-4 text-right font-bold text-gray-700">Coefficient</th>
-                                <th className="py-3 px-4 text-right font-bold text-gray-700">Gain cumulé (jusqu'à 85 ans)</th>
-                                <th className="py-3 px-4 text-center font-bold text-gray-700">Actions</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {scenarios.map((scenario, idx) => {
-                                const isBest = scenario.gainCumule === bestScenario.gainCumule;
-                                return (
-                                  <tr
-                                    key={scenario.customId || idx}
-                                    className={`border-b border-gray-200 ${
-                                      isBest ? 'bg-yellow-50 font-semibold' : 'hover:bg-gray-50'
-                                    }`}
-                                  >
-                                    <td className="py-3 px-4">
-                                      <div className="flex items-center gap-2">
-                                        <span className="font-bold text-gray-800">{scenario.age} ans</span>
+                              <tr>
+                                <th className="py-3 px-4 text-left font-bold text-gray-700 border-b-2 border-gray-300"></th>
+                                {scenarios.map((scenario, idx) => {
+                                  const isBest = scenario.gainCumule === bestScenario.gainCumule;
+                                  return (
+                                    <th
+                                      key={scenario.customId || idx}
+                                      className={`py-3 px-4 text-center font-bold border-b-2 border-gray-300 ${
+                                        isBest ? 'bg-yellow-50' : ''
+                                      }`}
+                                    >
+                                      <div className="flex flex-col items-center gap-1">
+                                        <span className="text-gray-800">{scenario.age} ans</span>
                                         {scenario.label && (
-                                          <span className="text-xs text-gray-500">({scenario.label})</span>
+                                          <span className="text-xs text-gray-500 font-normal">({scenario.label})</span>
                                         )}
                                         {isBest && (
-                                          <span className="px-2 py-1 bg-yellow-400 text-yellow-900 rounded-full text-xs font-bold">
+                                          <span className="px-2 py-1 bg-yellow-400 text-yellow-900 rounded-full text-xs mt-1">
                                             OPTIMAL
                                           </span>
                                         )}
                                       </div>
+                                    </th>
+                                  );
+                                })}
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr className="border-b border-gray-200">
+                                <td className="py-3 px-4 font-semibold text-gray-700">Date de départ <span className="text-xs font-normal text-gray-500">(âge)</span></td>
+                                {scenarios.map((scenario, idx) => {
+                                  const isBest = scenario.gainCumule === bestScenario.gainCumule;
+                                  const monthNames = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'];
+                                  const currentYear = 2024;
+                                  const currentAge = 58;
+                                  const yearOfDeparture = currentYear + (scenario.age - currentAge);
+                                  return (
+                                    <td
+                                      key={scenario.customId || idx}
+                                      className={`py-3 px-4 text-center ${isBest ? 'bg-yellow-50' : ''}`}
+                                    >
+                                      {scenario.label ? (
+                                        <div>
+                                          <div className="text-gray-800">{scenario.label}</div>
+                                          <div className="text-xs text-gray-500 mt-1">({scenario.age} ans)</div>
+                                        </div>
+                                      ) : (
+                                        <div>
+                                          <div className="text-gray-800">01/01/{yearOfDeparture}</div>
+                                          <div className="text-xs text-gray-500 mt-1">({scenario.age} ans)</div>
+                                        </div>
+                                      )}
                                     </td>
-                                    <td className="py-3 px-4 text-right text-gray-800">
+                                  );
+                                })}
+                              </tr>
+                              <tr className="border-b border-gray-200">
+                                <td className="py-3 px-4 font-semibold text-gray-700">Pension mensuelle</td>
+                                {scenarios.map((scenario, idx) => {
+                                  const isBest = scenario.gainCumule === bestScenario.gainCumule;
+                                  return (
+                                    <td
+                                      key={scenario.customId || idx}
+                                      className={`py-3 px-4 text-center ${isBest ? 'bg-yellow-50 font-semibold' : ''}`}
+                                    >
                                       {formatNumber(Math.round(scenario.pensionMensuelle))} €
                                     </td>
-                                    <td className="py-3 px-4 text-right text-gray-800">
+                                  );
+                                })}
+                              </tr>
+                              <tr className="border-b border-gray-200">
+                                <td className="py-3 px-4 font-semibold text-gray-700">Pension annuelle</td>
+                                {scenarios.map((scenario, idx) => {
+                                  const isBest = scenario.gainCumule === bestScenario.gainCumule;
+                                  return (
+                                    <td
+                                      key={scenario.customId || idx}
+                                      className={`py-3 px-4 text-center ${isBest ? 'bg-yellow-50 font-semibold' : ''}`}
+                                    >
                                       {formatNumber(Math.round(scenario.pensionAnnuelle))} €
                                     </td>
-                                    <td className="py-3 px-4 text-right text-gray-600">
+                                  );
+                                })}
+                              </tr>
+                              <tr className="border-b border-gray-200">
+                                <td className="py-3 px-4 font-semibold text-gray-700">Coefficient</td>
+                                {scenarios.map((scenario, idx) => {
+                                  const isBest = scenario.gainCumule === bestScenario.gainCumule;
+                                  return (
+                                    <td
+                                      key={scenario.customId || idx}
+                                      className={`py-3 px-4 text-center text-gray-600 ${isBest ? 'bg-yellow-50' : ''}`}
+                                    >
                                       {(scenario.coefficient * 100).toFixed(1)} %
                                     </td>
-                                    <td className="py-3 px-4 text-right font-bold text-blue-700">
+                                  );
+                                })}
+                              </tr>
+                              <tr className="border-b border-gray-200">
+                                <td className="py-3 px-4 font-semibold text-gray-700">Gain cumulé (jusqu'à 85 ans)</td>
+                                {scenarios.map((scenario, idx) => {
+                                  const isBest = scenario.gainCumule === bestScenario.gainCumule;
+                                  return (
+                                    <td
+                                      key={scenario.customId || idx}
+                                      className={`py-3 px-4 text-center font-bold text-blue-700 ${isBest ? 'bg-yellow-50' : ''}`}
+                                    >
                                       {formatNumber(Math.round(scenario.gainCumule))} €
                                     </td>
-                                    <td className="py-3 px-4 text-center">
+                                  );
+                                })}
+                              </tr>
+                              <tr>
+                                <td className="py-3 px-4 font-semibold text-gray-700">Actions</td>
+                                {scenarios.map((scenario, idx) => {
+                                  const isBest = scenario.gainCumule === bestScenario.gainCumule;
+                                  return (
+                                    <td
+                                      key={scenario.customId || idx}
+                                      className={`py-3 px-4 text-center ${isBest ? 'bg-yellow-50' : ''}`}
+                                    >
                                       {scenario.customId && (
                                         <button
                                           onClick={() => removeCustomDate(scenario.customId)}
@@ -1530,11 +1581,40 @@ export default function VaultApp() {
                                         </button>
                                       )}
                                     </td>
-                                  </tr>
-                                );
-                              })}
+                                  );
+                                })}
+                              </tr>
                             </tbody>
                           </table>
+                          <p className="text-xs text-gray-500 mt-3 italic">* Les pensions sont nettes de prélèvements sociaux et avant imposition sur le revenu</p>
+                        </div>
+
+                        {/* Boutons de téléchargement en bas */}
+                        <div className="flex justify-end gap-2 mt-4 pt-4 border-t border-gray-200">
+                          <button
+                            onClick={() => downloadExcel(carriere, scenarios)}
+                            className="flex items-center gap-2 px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-sm"
+                            title="Télécharger le tableau en Excel"
+                          >
+                            <Download className="w-4 h-4" />
+                            Excel
+                          </button>
+                          <button
+                            onClick={() => downloadWord(carriere)}
+                            className="flex items-center gap-2 px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm"
+                            title="Télécharger les recommandations en Word"
+                          >
+                            <Download className="w-4 h-4" />
+                            Word
+                          </button>
+                          <button
+                            onClick={() => downloadPDF(carriere, scenarios)}
+                            className="flex items-center gap-2 px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition text-sm"
+                            title="Télécharger le rapport complet en PDF"
+                          >
+                            <Download className="w-4 h-4" />
+                            PDF
+                          </button>
                         </div>
                       </div>
 
