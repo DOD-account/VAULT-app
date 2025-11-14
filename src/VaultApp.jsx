@@ -69,6 +69,8 @@ export default function VaultApp() {
   const [showCarriereForm, setShowCarriereForm] = useState(false);
   const [nouveauNomCarriere, setNouveauNomCarriere] = useState('');
   const [carriereToDelete, setCarriereToDelete] = useState(null);
+  const [showAddYearForm, setShowAddYearForm] = useState(false);
+  const [newYear, setNewYear] = useState('');
   const [editingLigne, setEditingLigne] = useState(null);
   const [tempLigneData, setTempLigneData] = useState(null);
   
@@ -218,6 +220,48 @@ export default function VaultApp() {
       setCarriereActive(1);
     }
     setCarriereToDelete(null);
+  };
+
+  const ajouterAnnee = () => {
+    const year = parseInt(newYear);
+    if (year && year >= 1950 && year <= 2100) {
+      setCarrieres(carrieres.map(c => {
+        if (c.id === carriereActive) {
+          // Vérifier si l'année existe déjà
+          if (c.data.some(ligne => ligne.annee === year)) {
+            alert(`L'année ${year} existe déjà dans ce scénario.`);
+            return c;
+          }
+
+          const newLigne = {
+            annee: year,
+            debut: '01/01',
+            fin: '31/12',
+            activite: 'Salarié',
+            salaireDefplafonne: 0,
+            salairePlafonne: 0,
+            trimestres: 4,
+            regimeBase: 'CNAV',
+            pointsBase: 0,
+            regimeComplementaire: 'AGIRC-ARRCO',
+            pointsComplementaires: 0
+          };
+
+          const sortedData = [...c.data, newLigne].sort((a, b) => a.annee - b.annee);
+
+          return {
+            ...c,
+            data: sortedData
+          };
+        }
+        return c;
+      }));
+
+      setNewYear('');
+      setShowAddYearForm(false);
+    } else {
+      alert('Veuillez entrer une année valide entre 1950 et 2100.');
+    }
   };
 
   const startEditLigne = (ligne) => {
@@ -997,13 +1041,22 @@ export default function VaultApp() {
                   </div>
                   Scénarios de carrière
                 </h2>
-                <button
-                  onClick={() => setShowCarriereForm(true)}
-                  className="flex items-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition"
-                >
-                  <Plus className="w-5 h-5" />
-                  Nouveau scénario
-                </button>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setShowAddYearForm(true)}
+                    className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
+                  >
+                    <Plus className="w-5 h-5" />
+                    Ajouter une année
+                  </button>
+                  <button
+                    onClick={() => setShowCarriereForm(true)}
+                    className="flex items-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition"
+                  >
+                    <Plus className="w-5 h-5" />
+                    Nouveau scénario
+                  </button>
+                </div>
               </div>
 
               <div className="flex gap-2 mb-6 flex-wrap">
@@ -1030,6 +1083,41 @@ export default function VaultApp() {
                   </div>
                 ))}
               </div>
+
+              {showAddYearForm && (
+                <div className="mb-6 p-4 bg-green-50 rounded-lg border-2 border-green-200">
+                  <h3 className="font-bold text-gray-800 mb-3">Ajouter une nouvelle année</h3>
+                  <div className="flex gap-2">
+                    <input
+                      type="number"
+                      value={newYear}
+                      onChange={(e) => setNewYear(e.target.value)}
+                      placeholder="Année (ex: 2025)..."
+                      min="1950"
+                      max="2100"
+                      className="flex-1 px-4 py-2 border-2 border-green-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400"
+                    />
+                    <button
+                      onClick={ajouterAnnee}
+                      className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
+                    >
+                      Ajouter
+                    </button>
+                    <button
+                      onClick={() => {
+                        setShowAddYearForm(false);
+                        setNewYear('');
+                      }}
+                      className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition"
+                    >
+                      Annuler
+                    </button>
+                  </div>
+                  <p className="text-xs text-gray-600 mt-2">
+                    Cette année sera ajoutée au scénario actif avec des valeurs par défaut que vous pourrez ensuite modifier.
+                  </p>
+                </div>
+              )}
 
               {showCarriereForm && (
                 <div className="mb-6 p-4 bg-orange-50 rounded-lg border-2 border-orange-200">
@@ -1297,16 +1385,6 @@ export default function VaultApp() {
                                       >
                                         <Edit2 className="w-3 h-3" />
                                       </button>
-                                      {hasError && (
-                                        <div className="relative group">
-                                          <span className="text-red-600 font-bold cursor-help">⚠</span>
-                                          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:block w-64 p-2 bg-red-600 text-white text-xs rounded shadow-lg z-10">
-                                            {incoherences.map((msg, idx) => (
-                                              <div key={idx}>• {msg}</div>
-                                            ))}
-                                          </div>
-                                        </div>
-                                      )}
                                     </div>
                                   </td>
                                 </>
@@ -1343,7 +1421,7 @@ export default function VaultApp() {
               const trimestresRequis = 172;
 
               // Calcul des simulations selon l'âge de départ
-              const calculateRetirementScenario = (age) => {
+              const calculateRetirementScenario = (age, months = 0) => {
                 const ageAtFullRate = 64;
                 const trimestresManquants = Math.max(0, trimestresRequis - totalTrimestres);
 
@@ -1371,6 +1449,7 @@ export default function VaultApp() {
 
                 return {
                   age,
+                  months,
                   type,
                   coefficient,
                   pensionMensuelle,
@@ -1380,16 +1459,25 @@ export default function VaultApp() {
               };
 
               const scenarios = [
-                calculateRetirementScenario(60),
-                calculateRetirementScenario(62),
-                calculateRetirementScenario(64),
-                calculateRetirementScenario(67),
+                calculateRetirementScenario(60, 0),
+                calculateRetirementScenario(62, 0),
+                calculateRetirementScenario(64, 0),
+                calculateRetirementScenario(67, 0),
                 ...customDates.map(date => {
                   const year = parseInt(date.year);
+                  const month = parseInt(date.month);
                   const currentYear = 2024;
+                  const currentMonth = 11; // Mois actuel approximatif
                   const currentAge = 58; // Âge actuel approximatif basé sur les données
-                  const age = currentAge + (year - currentYear);
-                  return { ...calculateRetirementScenario(age), customId: date.id, label: date.label };
+
+                  const yearsElapsed = year - currentYear;
+                  const monthsElapsed = month - currentMonth;
+                  const totalMonths = (yearsElapsed * 12) + monthsElapsed;
+
+                  const ageYears = currentAge + Math.floor(totalMonths / 12);
+                  const ageMonths = totalMonths % 12;
+
+                  return { ...calculateRetirementScenario(ageYears, ageMonths), customId: date.id, label: date.label };
                 })
               ];
 
@@ -1508,7 +1596,9 @@ export default function VaultApp() {
                                       }`}
                                     >
                                       <div className="flex flex-col items-center gap-1">
-                                        <span className="text-gray-800">{scenario.age} ans</span>
+                                        <span className="text-gray-800">
+                                          {scenario.age} ans{scenario.months > 0 && ` et ${scenario.months} mois`}
+                                        </span>
                                         {scenario.label && (
                                           <span className="text-xs text-gray-500 font-normal">({scenario.label})</span>
                                         )}
@@ -1540,12 +1630,16 @@ export default function VaultApp() {
                                       {scenario.label ? (
                                         <div>
                                           <div className="text-gray-800">{scenario.label}</div>
-                                          <div className="text-xs text-gray-500 mt-1">({scenario.age} ans)</div>
+                                          <div className="text-xs text-gray-500 mt-1">
+                                            ({scenario.age} ans{scenario.months > 0 && ` et ${scenario.months} mois`})
+                                          </div>
                                         </div>
                                       ) : (
                                         <div>
                                           <div className="text-gray-800">01/01/{yearOfDeparture}</div>
-                                          <div className="text-xs text-gray-500 mt-1">({scenario.age} ans)</div>
+                                          <div className="text-xs text-gray-500 mt-1">
+                                            ({scenario.age} ans{scenario.months > 0 && ` et ${scenario.months} mois`})
+                                          </div>
                                         </div>
                                       )}
                                     </td>
@@ -1830,77 +1924,9 @@ export default function VaultApp() {
                 </div>
                 Suivi du dossier
               </h2>
-              
+
               <div className="space-y-6">
-                {/* Timeline de suivi */}
-                <div className="relative border-l-4 border-indigo-200 pl-6 space-y-6">
-                  <div className="relative">
-                    <div className="absolute -left-8 w-6 h-6 bg-green-500 rounded-full border-4 border-white"></div>
-                    <div className="bg-green-50 rounded-lg p-4 border border-green-200">
-                      <div className="flex justify-between items-start mb-2">
-                        <h3 className="font-bold text-green-900">Dossier créé</h3>
-                        <span className="text-xs text-green-600">15/10/2025</span>
-                      </div>
-                      <p className="text-sm text-gray-700">Le dossier de Jean Dupont a été créé avec succès.</p>
-                    </div>
-                  </div>
-
-                  <div className="relative">
-                    <div className="absolute -left-8 w-6 h-6 bg-blue-500 rounded-full border-4 border-white"></div>
-                    <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
-                      <div className="flex justify-between items-start mb-2">
-                        <h3 className="font-bold text-blue-900">Documents reçus</h3>
-                        <span className="text-xs text-blue-600">22/10/2025</span>
-                      </div>
-                      <p className="text-sm text-gray-700">Réception du relevé de carrière et des bulletins de salaire.</p>
-                      <ul className="mt-2 text-xs text-gray-600 space-y-1">
-                        <li>• Relevé de carrière CNAV</li>
-                        <li>• 3 derniers bulletins de salaire</li>
-                      </ul>
-                    </div>
-                  </div>
-
-                  <div className="relative">
-                    <div className="absolute -left-8 w-6 h-6 bg-orange-500 rounded-full border-4 border-white"></div>
-                    <div className="bg-orange-50 rounded-lg p-4 border border-orange-200">
-                      <div className="flex justify-between items-start mb-2">
-                        <h3 className="font-bold text-orange-900">Analyse en cours</h3>
-                        <span className="text-xs text-orange-600">05/11/2025</span>
-                      </div>
-                      <p className="text-sm text-gray-700">Analyse des données de carrière et détection d'incohérences.</p>
-                      <div className="mt-3 flex items-center gap-2">
-                        <div className="flex-1 bg-orange-200 rounded-full h-2">
-                          <div className="bg-orange-600 h-2 rounded-full" style={{width: '65%'}}></div>
-                        </div>
-                        <span className="text-xs font-semibold text-orange-700">65%</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="relative">
-                    <div className="absolute -left-8 w-6 h-6 bg-gray-300 rounded-full border-4 border-white"></div>
-                    <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                      <div className="flex justify-between items-start mb-2">
-                        <h3 className="font-bold text-gray-600">Simulation pension</h3>
-                        <span className="text-xs text-gray-500">En attente</span>
-                      </div>
-                      <p className="text-sm text-gray-500">Calcul des projections de retraite.</p>
-                    </div>
-                  </div>
-
-                  <div className="relative">
-                    <div className="absolute -left-8 w-6 h-6 bg-gray-300 rounded-full border-4 border-white"></div>
-                    <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                      <div className="flex justify-between items-start mb-2">
-                        <h3 className="font-bold text-gray-600">Rapport final</h3>
-                        <span className="text-xs text-gray-500">En attente</span>
-                      </div>
-                      <p className="text-sm text-gray-500">Génération du rapport complet et recommandations.</p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Anomalies détectées */}
+                {/* Anomalies détectées - EN PREMIER */}
                 {(() => {
                   const carriere = carrieres.find(c => c.id === carriereActive);
                   if (!carriere) return null;
@@ -1916,7 +1942,23 @@ export default function VaultApp() {
                     }
                   });
 
-                  if (toutesLesErreurs.length === 0) return null;
+                  if (toutesLesErreurs.length === 0) {
+                    return (
+                      <div className="bg-green-50 border-2 border-green-300 rounded-lg p-6">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 bg-green-600 text-white rounded-full flex items-center justify-center">
+                            <Check className="w-5 h-5" />
+                          </div>
+                          <div>
+                            <h3 className="font-bold text-green-900 text-lg">Aucune anomalie détectée</h3>
+                            <p className="text-sm text-green-800 mt-1">
+                              Les données de carrière du scénario "{carriere.nom}" sont cohérentes.
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  }
 
                   return (
                     <div className="bg-red-50 border-2 border-red-300 rounded-lg p-6">
@@ -1958,42 +2000,46 @@ export default function VaultApp() {
                   );
                 })()}
 
-                {/* Statistiques du dossier */}
-                <div className="grid grid-cols-3 gap-4 mt-8">
-                  <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-4 border border-blue-200">
-                    <p className="text-sm font-semibold text-blue-800 mb-1">Temps écoulé</p>
-                    <p className="text-2xl font-bold text-blue-600">29 jours</p>
+                {/* Rubriques à construire */}
+                <div className="bg-gray-50 border-2 border-gray-300 rounded-lg p-6">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-8 h-8 bg-gray-600 text-white rounded-full flex items-center justify-center">
+                      <ClipboardList className="w-5 h-5" />
+                    </div>
+                    <h3 className="font-bold text-gray-900 text-lg">Rubriques à construire</h3>
                   </div>
-                  <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg p-4 border border-purple-200">
-                    <p className="text-sm font-semibold text-purple-800 mb-1">Documents analysés</p>
-                    <p className="text-2xl font-bold text-purple-600">4/6</p>
-                  </div>
-                  <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-4 border border-green-200">
-                    <p className="text-sm font-semibold text-green-800 mb-1">Progression</p>
-                    <p className="text-2xl font-bold text-green-600">65%</p>
-                  </div>
-                </div>
-
-                {/* Actions rapides */}
-                <div className="bg-indigo-50 rounded-lg p-6 border-2 border-indigo-200 mt-6">
-                  <h3 className="font-bold text-indigo-900 mb-4">Actions rapides</h3>
-                  <div className="grid grid-cols-2 gap-3">
-                    <button className="flex items-center gap-2 px-4 py-3 bg-white rounded-lg hover:bg-indigo-100 transition border border-indigo-300">
-                      <Upload className="w-4 h-4 text-indigo-600" />
-                      <span className="text-sm font-medium text-gray-700">Ajouter un document</span>
-                    </button>
-                    <button className="flex items-center gap-2 px-4 py-3 bg-white rounded-lg hover:bg-indigo-100 transition border border-indigo-300">
-                      <MessageCircle className="w-4 h-4 text-indigo-600" />
-                      <span className="text-sm font-medium text-gray-700">Contacter le conseiller</span>
-                    </button>
-                    <button className="flex items-center gap-2 px-4 py-3 bg-white rounded-lg hover:bg-indigo-100 transition border border-indigo-300">
-                      <Download className="w-4 h-4 text-indigo-600" />
-                      <span className="text-sm font-medium text-gray-700">Télécharger le rapport</span>
-                    </button>
-                    <button className="flex items-center gap-2 px-4 py-3 bg-white rounded-lg hover:bg-indigo-100 transition border border-indigo-300">
-                      <Bell className="w-4 h-4 text-indigo-600" />
-                      <span className="text-sm font-medium text-gray-700">Gérer les notifications</span>
-                    </button>
+                  <p className="text-sm text-gray-700 mb-4">
+                    Les sections suivantes sont en cours de développement et seront bientôt disponibles :
+                  </p>
+                  <div className="space-y-3">
+                    <div className="bg-white rounded-lg p-4 border border-gray-300 flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+                        <span className="font-medium text-gray-800">Timeline de suivi du dossier</span>
+                      </div>
+                      <span className="text-xs text-gray-500 bg-gray-200 px-2 py-1 rounded">À venir</span>
+                    </div>
+                    <div className="bg-white rounded-lg p-4 border border-gray-300 flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+                        <span className="font-medium text-gray-800">Statistiques du dossier</span>
+                      </div>
+                      <span className="text-xs text-gray-500 bg-gray-200 px-2 py-1 rounded">À venir</span>
+                    </div>
+                    <div className="bg-white rounded-lg p-4 border border-gray-300 flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+                        <span className="font-medium text-gray-800">Actions rapides</span>
+                      </div>
+                      <span className="text-xs text-gray-500 bg-gray-200 px-2 py-1 rounded">À venir</span>
+                    </div>
+                    <div className="bg-white rounded-lg p-4 border border-gray-300 flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+                        <span className="font-medium text-gray-800">Historique des modifications</span>
+                      </div>
+                      <span className="text-xs text-gray-500 bg-gray-200 px-2 py-1 rounded">À venir</span>
+                    </div>
                   </div>
                 </div>
               </div>
