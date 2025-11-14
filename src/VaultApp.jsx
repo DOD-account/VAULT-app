@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { User, Briefcase, TrendingUp, Edit2, Check, X, LogOut, Plus, MessageCircle, CreditCard, Upload, FileText, Users, ChevronDown, ChevronUp, Eye, Download, Bell, Settings, LayoutDashboard, ClipboardList } from 'lucide-react';
+import { User, Briefcase, TrendingUp, Edit2, Check, X, LogOut, Plus, MessageCircle, CreditCard, Upload, FileText, Users, ChevronDown, ChevronUp, Eye, Download, Bell, Settings, LayoutDashboard, ClipboardList, AlertCircle } from 'lucide-react';
 
 export default function VaultApp() {
   const [activeSection, setActiveSection] = useState('profil');
@@ -1087,12 +1087,50 @@ export default function VaultApp() {
                 const carriere = carrieres.find(c => c.id === carriereActive);
                 if (!carriere) return null;
 
+                // Récupération de toutes les erreurs
+                const toutesLesErreurs = [];
+                carriere.data.forEach(ligne => {
+                  const messages = checkLigneIncoherence(ligne);
+                  if (messages.length > 0) {
+                    toutesLesErreurs.push({
+                      annee: ligne.annee,
+                      messages: messages
+                    });
+                  }
+                });
+
                 return (
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-sm">
-                      <thead>
-                        <tr className="bg-gradient-to-r from-orange-500 to-red-500 text-white">
-                          <th className="py-3 px-2 text-left font-bold">Année</th>
+                  <div>
+                    {/* Encadré récapitulatif des erreurs */}
+                    {toutesLesErreurs.length > 0 && (
+                      <div className="mb-6 p-4 bg-red-50 border-2 border-red-300 rounded-lg">
+                        <div className="flex items-center gap-2 mb-3">
+                          <AlertCircle className="w-5 h-5 text-red-600" />
+                          <h3 className="font-bold text-red-900">
+                            {toutesLesErreurs.length} {toutesLesErreurs.length > 1 ? 'anomalies détectées' : 'anomalie détectée'} dans ce scénario
+                          </h3>
+                        </div>
+                        <div className="space-y-2">
+                          {toutesLesErreurs.map((erreur, idx) => (
+                            <div key={idx} className="flex gap-3 items-start">
+                              <span className="font-bold text-red-700 min-w-[60px]">Année {erreur.annee} :</span>
+                              <ul className="list-disc list-inside text-sm text-red-800">
+                                {erreur.messages.map((msg, msgIdx) => (
+                                  <li key={msgIdx}>{msg}</li>
+                                ))}
+                              </ul>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-sm">
+                        <thead>
+                          <tr className="bg-gradient-to-r from-orange-500 to-red-500 text-white">
+                            <th className="py-3 px-2 text-left font-bold w-12"></th>
+                            <th className="py-3 px-2 text-left font-bold">Année</th>
                           <th className="py-3 px-2 text-left font-bold">Début</th>
                           <th className="py-3 px-2 text-left font-bold">Fin</th>
                           <th className="py-3 px-2 text-left font-bold">Activité</th>
@@ -1115,11 +1153,14 @@ export default function VaultApp() {
                             <tr
                               key={index}
                               className={`border-b border-gray-200 ${
-                                hasError ? 'bg-red-50' : index % 2 === 0 ? 'bg-white' : 'bg-gray-50'
+                                hasError ? 'bg-red-100 border-l-4 border-l-red-600' : index % 2 === 0 ? 'bg-white' : 'bg-gray-50'
                               } hover:bg-blue-50 transition`}
                             >
                               {editingLigne === ligne.annee ? (
                                 <>
+                                  <td className="py-2 px-2 text-center">
+                                    {hasError && <AlertCircle className="w-4 h-4 text-red-600 inline" />}
+                                  </td>
                                   <td className="py-2 px-2 font-bold text-gray-700">{ligne.annee}</td>
                                   <td className="py-2 px-2">
                                     <input
@@ -1220,7 +1261,10 @@ export default function VaultApp() {
                                 </>
                               ) : (
                                 <>
-                                  <td className="py-2 px-2 font-bold text-gray-700">{ligne.annee}</td>
+                                  <td className="py-2 px-2 text-center">
+                                    {hasError && <AlertCircle className="w-4 h-4 text-red-600 inline" />}
+                                  </td>
+                                  <td className={`py-2 px-2 font-bold ${hasError ? 'text-red-700' : 'text-gray-700'}`}>{ligne.annee}</td>
                                   <td className="py-2 px-2 text-gray-600">{ligne.debut}</td>
                                   <td className="py-2 px-2 text-gray-600">{ligne.fin}</td>
                                   <td className="py-2 px-2">
@@ -1273,6 +1317,7 @@ export default function VaultApp() {
                       </tbody>
                     </table>
                   </div>
+                </div>
                 );
               })()}
             </div>
@@ -1854,6 +1899,64 @@ export default function VaultApp() {
                     </div>
                   </div>
                 </div>
+
+                {/* Anomalies détectées */}
+                {(() => {
+                  const carriere = carrieres.find(c => c.id === carriereActive);
+                  if (!carriere) return null;
+
+                  const toutesLesErreurs = [];
+                  carriere.data.forEach(ligne => {
+                    const messages = checkLigneIncoherence(ligne);
+                    if (messages.length > 0) {
+                      toutesLesErreurs.push({
+                        annee: ligne.annee,
+                        messages: messages
+                      });
+                    }
+                  });
+
+                  if (toutesLesErreurs.length === 0) return null;
+
+                  return (
+                    <div className="bg-red-50 border-2 border-red-300 rounded-lg p-6">
+                      <div className="flex items-center gap-3 mb-4">
+                        <AlertCircle className="w-6 h-6 text-red-600" />
+                        <h3 className="font-bold text-red-900 text-lg">
+                          Anomalies à corriger ({toutesLesErreurs.length})
+                        </h3>
+                      </div>
+                      <p className="text-sm text-red-800 mb-4">
+                        Les incohérences suivantes ont été détectées dans le scénario "{carriere.nom}" et doivent être corrigées :
+                      </p>
+                      <div className="space-y-3">
+                        {toutesLesErreurs.map((erreur, idx) => (
+                          <div key={idx} className="bg-white rounded-lg p-4 border border-red-200">
+                            <div className="flex gap-3 items-start">
+                              <div className="w-8 h-8 bg-red-600 text-white rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0">
+                                {idx + 1}
+                              </div>
+                              <div className="flex-1">
+                                <p className="font-bold text-red-900 mb-2">Année {erreur.annee}</p>
+                                <ul className="list-disc list-inside space-y-1">
+                                  {erreur.messages.map((msg, msgIdx) => (
+                                    <li key={msgIdx} className="text-sm text-red-800">{msg}</li>
+                                  ))}
+                                </ul>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="mt-4 flex items-center gap-2 text-sm text-red-700">
+                        <AlertCircle className="w-4 h-4" />
+                        <span className="font-semibold">
+                          Ces anomalies peuvent impacter le calcul de votre pension. Veuillez les corriger dans la section "Carrières".
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })()}
 
                 {/* Statistiques du dossier */}
                 <div className="grid grid-cols-3 gap-4 mt-8">
