@@ -300,6 +300,373 @@ export default function VaultApp() {
     setCustomDates(customDates.filter(d => d.id !== id));
   };
 
+  // Fonction pour télécharger le tableau des simulations en Excel (CSV)
+  const downloadExcel = (carriere, scenarios) => {
+    const totalTrimestres = carriere.data.reduce((sum, ligne) => sum + ligne.trimestres, 0);
+    const totalPointsBase = carriere.data.reduce((sum, ligne) => sum + ligne.pointsBase, 0);
+    const totalPointsComplementaires = carriere.data.reduce((sum, ligne) => sum + ligne.pointsComplementaires, 0);
+
+    // En-têtes CSV
+    let csv = '\uFEFF'; // BOM pour UTF-8
+    csv += `Simulations selon l'âge de départ - ${carriere.nom}\n\n`;
+    csv += `Trimestres validés:,${totalTrimestres}\n`;
+    csv += `Points régime de base:,${Math.round(totalPointsBase)}\n`;
+    csv += `Points complémentaires:,${Math.round(totalPointsComplementaires)}\n\n`;
+
+    csv += 'Âge de départ,Pension mensuelle (€),Pension annuelle (€),Coefficient (%),Gain cumulé jusqu\'à 85 ans (€),Statut\n';
+
+    scenarios.forEach(scenario => {
+      const isBest = scenario.gainCumule === Math.max(...scenarios.map(s => s.gainCumule));
+      csv += `${scenario.age} ans,`;
+      csv += `${Math.round(scenario.pensionMensuelle)},`;
+      csv += `${Math.round(scenario.pensionAnnuelle)},`;
+      csv += `${(scenario.coefficient * 100).toFixed(1)},`;
+      csv += `${Math.round(scenario.gainCumule)},`;
+      csv += `${isBest ? 'OPTIMAL' : scenario.type}\n`;
+    });
+
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `simulation_retraite_${carriere.nom.replace(/\s/g, '_')}.csv`;
+    link.click();
+  };
+
+  // Fonction pour télécharger les recommandations en Word (HTML)
+  const downloadWord = (carriere) => {
+    const totalTrimestres = carriere.data.reduce((sum, ligne) => sum + ligne.trimestres, 0);
+    const trimestresRequis = 172;
+
+    const anomalies = [];
+    carriere.data.forEach(ligne => {
+      const messages = checkLigneIncoherence(ligne);
+      if (messages.length > 0) {
+        anomalies.push(`Année ${ligne.annee}: ${messages.join(', ')}`);
+      }
+    });
+
+    let html = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Recommandations - ${carriere.nom}</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 40px; line-height: 1.6; }
+    h1 { color: #1e40af; border-bottom: 3px solid #1e40af; padding-bottom: 10px; }
+    h2 { color: #2563eb; margin-top: 30px; }
+    .recommendation { margin: 20px 0; padding: 15px; border-left: 4px solid #3b82f6; background-color: #eff6ff; }
+    .recommendation h3 { margin-top: 0; color: #1e40af; }
+    strong { color: #1e40af; }
+  </style>
+</head>
+<body>
+  <h1>Analyse du scénario - ${carriere.nom}</h1>
+
+  <div class="recommendation">
+    <h3>1. Situation du scénario</h3>
+    <p>${totalTrimestres >= trimestresRequis ?
+      `Vous disposez de <strong>${formatNumber(totalTrimestres)} trimestres</strong>, ce qui est suffisant pour bénéficier du <strong>taux plein</strong> (${formatNumber(trimestresRequis)} trimestres requis). Vous pouvez partir à la retraite dès 64 ans sans décote.` :
+      `Vous disposez de <strong>${formatNumber(totalTrimestres)} trimestres sur ${formatNumber(trimestresRequis)} requis</strong>. Il vous manque <strong>${formatNumber(trimestresRequis - totalTrimestres)} trimestres</strong> pour le taux plein. Un départ anticipé entraînera une décote sur votre pension.`
+    }</p>
+  </div>
+
+  <div class="recommendation">
+    <h3>2. Anomalies et incohérences</h3>
+    ${anomalies.length > 0 ?
+      '<ul>' + anomalies.map(msg => `<li>${msg}</li>`).join('') + '</ul>' :
+      '<p>✓ Aucune anomalie détectée dans ce scénario de carrière.</p>'
+    }
+  </div>
+
+  <div class="recommendation">
+    <h3>3. Rachat de trimestres</h3>
+    <p>${totalTrimestres < trimestresRequis ?
+      `Vous pouvez racheter jusqu'à <strong>12 trimestres</strong> pour compléter votre carrière. Le coût varie selon votre âge et revenus (estimé entre ${formatNumber(3000)}€ et ${formatNumber(6000)}€ par trimestre). Racheter <strong>${Math.min(trimestresRequis - totalTrimestres, 12)} trimestres</strong> vous permettrait d'atteindre le taux plein.` :
+      `Vous avez déjà le nombre de trimestres requis. Le rachat de trimestres supplémentaires peut néanmoins augmenter votre pension via la surcote (1,25% par trimestre au-delà de 64 ans).`
+    }</p>
+  </div>
+
+  <div class="recommendation">
+    <h3>4. Retraite progressive</h3>
+    <p>À partir de <strong>60 ans</strong>, vous pouvez bénéficier d'une retraite progressive en réduisant votre temps de travail (entre 40% et 80%) tout en percevant une fraction de votre pension. Cela permet une transition en douceur vers la retraite complète.</p>
+  </div>
+
+  <div class="recommendation">
+    <h3>5. Carrière longue</h3>
+    <p>Si vous avez commencé à travailler avant <strong>20 ans</strong> et justifiez d'une longue carrière, vous pourriez partir dès <strong>60 ans</strong> sans décote avec au moins 5 trimestres avant 20 ans et ${formatNumber(trimestresRequis)} trimestres cotisés. Vérifiez votre relevé de carrière pour cette option.</p>
+  </div>
+
+  <div class="recommendation">
+    <h3>6. Cumul emploi-retraite</h3>
+    <p>Une fois à la retraite au <strong>taux plein</strong>, vous pouvez reprendre une activité professionnelle sans limitation de revenus tout en cumulant votre pension. Si vous partez avec décote, le cumul est plafonné (environ ${formatNumber(20000)}€/an selon votre situation).</p>
+  </div>
+</body>
+</html>`;
+
+    const blob = new Blob([html], { type: 'application/msword' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `recommandations_${carriere.nom.replace(/\s/g, '_')}.doc`;
+    link.click();
+  };
+
+  // Fonction pour télécharger le rapport complet en PDF (HTML à imprimer)
+  const downloadPDF = (carriere, scenarios) => {
+    const totalTrimestres = carriere.data.reduce((sum, ligne) => sum + ligne.trimestres, 0);
+    const totalPointsBase = carriere.data.reduce((sum, ligne) => sum + ligne.pointsBase, 0);
+    const totalPointsComplementaires = carriere.data.reduce((sum, ligne) => sum + ligne.pointsComplementaires, 0);
+    const trimestresRequis = 172;
+
+    const valeurPointBase = 0.6734;
+    const valeurPointComplementaire = 1.4159;
+    const pensionBase = totalPointsBase * valeurPointBase * 12;
+    const pensionComplementaire = totalPointsComplementaires * valeurPointComplementaire * 12;
+    const pensionBruteAnnuelle = pensionBase + pensionComplementaire;
+    const pensionNetteAnnuelleBase = pensionBruteAnnuelle * 0.9;
+
+    const anomalies = [];
+    carriere.data.forEach(ligne => {
+      const messages = checkLigneIncoherence(ligne);
+      if (messages.length > 0) {
+        anomalies.push(`Année ${ligne.annee}: ${messages.join(', ')}`);
+      }
+    });
+
+    const bestScenario = scenarios.reduce((best, current) =>
+      current.gainCumule > best.gainCumule ? current : best
+    , scenarios[0]);
+
+    let html = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Rapport de projection retraite - ${carriere.nom}</title>
+  <style>
+    @page { margin: 2cm; }
+    body {
+      font-family: Arial, sans-serif;
+      line-height: 1.5;
+      color: #333;
+    }
+    h1 {
+      color: #1e40af;
+      border-bottom: 3px solid #1e40af;
+      padding-bottom: 10px;
+      margin-bottom: 20px;
+    }
+    h2 {
+      color: #2563eb;
+      margin-top: 30px;
+      border-left: 4px solid #3b82f6;
+      padding-left: 10px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+    }
+    th {
+      background-color: #1e40af;
+      color: white;
+      padding: 10px;
+      text-align: left;
+      font-weight: bold;
+    }
+    td {
+      padding: 8px;
+      border-bottom: 1px solid #ddd;
+    }
+    tr:nth-child(even) { background-color: #f9fafb; }
+    .highlight {
+      background-color: #fef3c7 !important;
+      font-weight: bold;
+    }
+    .recommendation {
+      margin: 15px 0;
+      padding: 15px;
+      border-left: 4px solid #3b82f6;
+      background-color: #eff6ff;
+      page-break-inside: avoid;
+    }
+    .recommendation h3 {
+      margin-top: 0;
+      color: #1e40af;
+      font-size: 14px;
+    }
+    .stats {
+      display: flex;
+      justify-content: space-between;
+      margin: 20px 0;
+    }
+    .stat-box {
+      flex: 1;
+      margin: 0 10px;
+      padding: 15px;
+      border: 2px solid #3b82f6;
+      border-radius: 8px;
+      text-align: center;
+    }
+    .stat-value {
+      font-size: 24px;
+      font-weight: bold;
+      color: #1e40af;
+    }
+    .stat-label {
+      font-size: 12px;
+      color: #6b7280;
+    }
+    strong { color: #1e40af; }
+    @media print {
+      body { margin: 0; }
+      .no-print { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <h1>Rapport de projection retraite</h1>
+  <p><strong>Scénario :</strong> ${carriere.nom}</p>
+  <p><strong>Date d'édition :</strong> ${new Date().toLocaleDateString('fr-FR')}</p>
+
+  <h2>1. Simulations selon l'âge de départ</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Âge de départ</th>
+        <th style="text-align: right;">Pension mensuelle</th>
+        <th style="text-align: right;">Pension annuelle</th>
+        <th style="text-align: right;">Coefficient</th>
+        <th style="text-align: right;">Gain cumulé (85 ans)</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${scenarios.map(scenario => `
+        <tr class="${scenario.gainCumule === bestScenario.gainCumule ? 'highlight' : ''}">
+          <td>${scenario.age} ans ${scenario.gainCumule === bestScenario.gainCumule ? '⭐ OPTIMAL' : ''}</td>
+          <td style="text-align: right;">${formatNumber(Math.round(scenario.pensionMensuelle))} €</td>
+          <td style="text-align: right;">${formatNumber(Math.round(scenario.pensionAnnuelle))} €</td>
+          <td style="text-align: right;">${(scenario.coefficient * 100).toFixed(1)} %</td>
+          <td style="text-align: right;">${formatNumber(Math.round(scenario.gainCumule))} €</td>
+        </tr>
+      `).join('')}
+    </tbody>
+  </table>
+
+  <h2>2. Analyse du scénario</h2>
+
+  <div class="recommendation">
+    <h3>Situation du scénario</h3>
+    <p>${totalTrimestres >= trimestresRequis ?
+      `Vous disposez de <strong>${formatNumber(totalTrimestres)} trimestres</strong>, ce qui est suffisant pour bénéficier du <strong>taux plein</strong> (${formatNumber(trimestresRequis)} trimestres requis). Vous pouvez partir à la retraite dès 64 ans sans décote.` :
+      `Vous disposez de <strong>${formatNumber(totalTrimestres)} trimestres sur ${formatNumber(trimestresRequis)} requis</strong>. Il vous manque <strong>${formatNumber(trimestresRequis - totalTrimestres)} trimestres</strong> pour le taux plein. Un départ anticipé entraînera une décote sur votre pension.`
+    }</p>
+  </div>
+
+  <div class="recommendation">
+    <h3>Anomalies et incohérences</h3>
+    ${anomalies.length > 0 ?
+      '<ul>' + anomalies.map(msg => `<li>${msg}</li>`).join('') + '</ul>' :
+      '<p>✓ Aucune anomalie détectée dans ce scénario de carrière.</p>'
+    }
+  </div>
+
+  <div class="recommendation">
+    <h3>Rachat de trimestres</h3>
+    <p>${totalTrimestres < trimestresRequis ?
+      `Vous pouvez racheter jusqu'à <strong>12 trimestres</strong> pour compléter votre carrière. Le coût varie selon votre âge et revenus (estimé entre ${formatNumber(3000)}€ et ${formatNumber(6000)}€ par trimestre). Racheter <strong>${Math.min(trimestresRequis - totalTrimestres, 12)} trimestres</strong> vous permettrait d'atteindre le taux plein.` :
+      `Vous avez déjà le nombre de trimestres requis. Le rachat de trimestres supplémentaires peut néanmoins augmenter votre pension via la surcote (1,25% par trimestre au-delà de 64 ans).`
+    }</p>
+  </div>
+
+  <div class="recommendation">
+    <h3>Retraite progressive</h3>
+    <p>À partir de <strong>60 ans</strong>, vous pouvez bénéficier d'une retraite progressive en réduisant votre temps de travail (entre 40% et 80%) tout en percevant une fraction de votre pension. Cela permet une transition en douceur vers la retraite complète.</p>
+  </div>
+
+  <div class="recommendation">
+    <h3>Carrière longue</h3>
+    <p>Si vous avez commencé à travailler avant <strong>20 ans</strong> et justifiez d'une longue carrière, vous pourriez partir dès <strong>60 ans</strong> sans décote avec au moins 5 trimestres avant 20 ans et ${formatNumber(trimestresRequis)} trimestres cotisés. Vérifiez votre relevé de carrière pour cette option.</p>
+  </div>
+
+  <div class="recommendation">
+    <h3>Cumul emploi-retraite</h3>
+    <p>Une fois à la retraite au <strong>taux plein</strong>, vous pouvez reprendre une activité professionnelle sans limitation de revenus tout en cumulant votre pension. Si vous partez avec décote, le cumul est plafonné (environ ${formatNumber(20000)}€/an selon votre situation).</p>
+  </div>
+
+  <h2>3. Analyse de la pension</h2>
+
+  <div class="stats">
+    <div class="stat-box">
+      <div class="stat-value">${formatNumber(totalTrimestres)}</div>
+      <div class="stat-label">Trimestres validés<br>(sur ${formatNumber(trimestresRequis)} requis)</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-value">${formatNumber(Math.round(totalPointsBase))}</div>
+      <div class="stat-label">Points régime de base<br>CNAV</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-value">${formatNumber(Math.round(totalPointsComplementaires))}</div>
+      <div class="stat-label">Points complémentaires<br>AGIRC-ARRCO</div>
+    </div>
+  </div>
+
+  <h3>Calcul détaillé de la pension</h3>
+  <table>
+    <tbody>
+      <tr>
+        <td>Pension régime de base (mensuelle)</td>
+        <td style="text-align: right;"><strong>${formatNumber(Math.round(pensionBase / 12))} €</strong></td>
+      </tr>
+      <tr>
+        <td style="padding-left: 30px; font-size: 12px; color: #6b7280;">
+          ${formatNumber(Math.round(totalPointsBase))} points × ${valeurPointBase} € = ${formatNumber(Math.round(totalPointsBase * valeurPointBase))} €/mois
+        </td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>Pension complémentaire (mensuelle)</td>
+        <td style="text-align: right;"><strong>${formatNumber(Math.round(pensionComplementaire / 12))} €</strong></td>
+      </tr>
+      <tr>
+        <td style="padding-left: 30px; font-size: 12px; color: #6b7280;">
+          ${formatNumber(Math.round(totalPointsComplementaires))} points × ${valeurPointComplementaire} € = ${formatNumber(Math.round(totalPointsComplementaires * valeurPointComplementaire))} €/mois
+        </td>
+        <td></td>
+      </tr>
+      <tr style="background-color: #dbeafe;">
+        <td><strong>Pension brute annuelle (taux plein)</strong></td>
+        <td style="text-align: right;"><strong style="font-size: 18px;">${formatNumber(Math.round(pensionBruteAnnuelle))} €</strong></td>
+      </tr>
+      <tr>
+        <td>Prélèvements sociaux (≈10%)</td>
+        <td style="text-align: right; color: #dc2626;"><strong>- ${formatNumber(Math.round(pensionBruteAnnuelle * 0.1))} €</strong></td>
+      </tr>
+      <tr style="background-color: #dcfce7;">
+        <td><strong>Pension nette avant IR (taux plein)</strong></td>
+        <td style="text-align: right;"><strong style="font-size: 18px; color: #16a34a;">${formatNumber(Math.round(pensionNetteAnnuelleBase))} €</strong></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p style="margin-top: 40px; text-align: center; color: #6b7280; font-size: 12px;">
+    Document généré par VAULT - Plateforme Expert Retraite<br>
+    ${new Date().toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+  </p>
+
+  <script>
+    window.onload = function() {
+      window.print();
+    };
+  </script>
+</body>
+</html>`;
+
+    const newWindow = window.open('', '_blank');
+    newWindow.document.write(html);
+    newWindow.document.close();
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
       <nav className="bg-white shadow-lg border-b-4 border-blue-600 sticky top-0 z-50">
@@ -1020,13 +1387,39 @@ export default function VaultApp() {
                       <div className="p-4 bg-white border-2 border-indigo-300 rounded-lg">
                         <div className="flex justify-between items-center mb-4">
                           <h4 className="text-lg font-bold text-gray-800">Simulations selon l'âge de départ</h4>
-                          <button
-                            onClick={() => setShowDateSelector(!showDateSelector)}
-                            className="flex items-center gap-2 px-3 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition text-sm"
-                          >
-                            <Plus className="w-4 h-4" />
-                            Ajouter une date
-                          </button>
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => downloadExcel(carriere, scenarios)}
+                              className="flex items-center gap-2 px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-sm"
+                              title="Télécharger le tableau en Excel"
+                            >
+                              <Download className="w-4 h-4" />
+                              Excel
+                            </button>
+                            <button
+                              onClick={() => downloadWord(carriere)}
+                              className="flex items-center gap-2 px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm"
+                              title="Télécharger les recommandations en Word"
+                            >
+                              <Download className="w-4 h-4" />
+                              Word
+                            </button>
+                            <button
+                              onClick={() => downloadPDF(carriere, scenarios)}
+                              className="flex items-center gap-2 px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition text-sm"
+                              title="Télécharger le rapport complet en PDF"
+                            >
+                              <Download className="w-4 h-4" />
+                              PDF
+                            </button>
+                            <button
+                              onClick={() => setShowDateSelector(!showDateSelector)}
+                              className="flex items-center gap-2 px-3 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition text-sm"
+                            >
+                              <Plus className="w-4 h-4" />
+                              Ajouter une date
+                            </button>
+                          </div>
                         </div>
 
                         {showDateSelector && (
