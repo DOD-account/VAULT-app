@@ -795,6 +795,10 @@ export default function VaultApp() {
                         <User className="w-4 h-4 text-gray-400" />
                         <span>Paul Durand</span>
                       </button>
+                      <button className="w-full text-left px-4 py-2 hover:bg-blue-50 rounded-lg flex items-center gap-2 text-sm text-gray-600">
+                        <User className="w-4 h-4 text-gray-400" />
+                        <span>M. Ibanez</span>
+                      </button>
                       <div className="border-t border-gray-200 my-2"></div>
                       <button className="w-full text-left px-4 py-2 hover:bg-blue-50 rounded-lg flex items-center gap-2 text-sm text-blue-600 font-medium">
                         <Plus className="w-4 h-4" />
