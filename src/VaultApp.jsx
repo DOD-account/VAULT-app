@@ -101,6 +101,10 @@ export default function VaultApp() {
   const [selectedFile, setSelectedFile] = useState(null);
   const [expandedCarrieres, setExpandedCarrieres] = useState({});
   const [showNotifications, setShowNotifications] = useState(false);
+  const [showDateSelector, setShowDateSelector] = useState(false);
+  const [selectedMonth, setSelectedMonth] = useState('01');
+  const [selectedYear, setSelectedYear] = useState('2025');
+  const [customDates, setCustomDates] = useState([]);
   
   const [notifications] = useState([
     {
@@ -271,6 +275,29 @@ export default function VaultApp() {
       ...prev,
       [id]: !prev[id]
     }));
+  };
+
+  const formatNumber = (num) => {
+    return num.toLocaleString('fr-FR');
+  };
+
+  const addCustomDate = () => {
+    if (selectedMonth && selectedYear) {
+      const newDate = {
+        id: Date.now(),
+        month: selectedMonth,
+        year: selectedYear,
+        label: `${selectedMonth}/${selectedYear}`
+      };
+      setCustomDates([...customDates, newDate]);
+      setShowDateSelector(false);
+      setSelectedMonth('01');
+      setSelectedYear('2025');
+    }
+  };
+
+  const removeCustomDate = (id) => {
+    setCustomDates(customDates.filter(d => d.id !== id));
   };
 
   return (
@@ -892,16 +919,71 @@ export default function VaultApp() {
               const totalTrimestres = carriere.data.reduce((sum, ligne) => sum + ligne.trimestres, 0);
               const totalPointsBase = carriere.data.reduce((sum, ligne) => sum + ligne.pointsBase, 0);
               const totalPointsComplementaires = carriere.data.reduce((sum, ligne) => sum + ligne.pointsComplementaires, 0);
-              
+
               const valeurPointBase = 0.6734;
               const valeurPointComplementaire = 1.4159;
-              
+
               const pensionBase = totalPointsBase * valeurPointBase * 12;
               const pensionComplementaire = totalPointsComplementaires * valeurPointComplementaire * 12;
               const pensionBruteAnnuelle = pensionBase + pensionComplementaire;
               const pensionNetteAnnuelleBase = pensionBruteAnnuelle * 0.9;
-              
+
               const trimestresRequis = 172;
+
+              // Calcul des simulations selon l'âge de départ
+              const calculateRetirementScenario = (age) => {
+                const ageAtFullRate = 64;
+                const trimestresManquants = Math.max(0, trimestresRequis - totalTrimestres);
+
+                let coefficient = 1;
+                let type = 'Taux plein';
+
+                if (age < ageAtFullRate && trimestresManquants > 0) {
+                  // Décote
+                  const trimestresDecote = Math.min(20, trimestresManquants);
+                  coefficient = 1 - (trimestresDecote * 0.0125);
+                  type = 'Décote';
+                } else if (age > ageAtFullRate || (age === ageAtFullRate && totalTrimestres >= trimestresRequis)) {
+                  // Surcote
+                  const anneesSupp = age - ageAtFullRate;
+                  const trimestresSurcote = anneesSupp * 4;
+                  coefficient = 1 + (trimestresSurcote * 0.0125);
+                  type = 'Surcote';
+                }
+
+                const pension = pensionNetteAnnuelleBase * coefficient;
+                const pensionMensuelle = pension / 12;
+                const esperanceVie = 85;
+                const anneesRetraite = esperanceVie - age;
+                const gainCumule = pension * anneesRetraite;
+
+                return {
+                  age,
+                  type,
+                  coefficient,
+                  pensionMensuelle,
+                  pensionAnnuelle: pension,
+                  gainCumule
+                };
+              };
+
+              const scenarios = [
+                calculateRetirementScenario(60),
+                calculateRetirementScenario(62),
+                calculateRetirementScenario(64),
+                calculateRetirementScenario(67),
+                ...customDates.map(date => {
+                  const year = parseInt(date.year);
+                  const currentYear = 2024;
+                  const currentAge = 58; // Âge actuel approximatif basé sur les données
+                  const age = currentAge + (year - currentYear);
+                  return { ...calculateRetirementScenario(age), customId: date.id, label: date.label };
+                })
+              ];
+
+              const bestScenario = scenarios.reduce((best, current) =>
+                current.gainCumule > best.gainCumule ? current : best
+              , scenarios[0]);
 
               return (
                 <div key={carriere.id} className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
@@ -915,12 +997,12 @@ export default function VaultApp() {
                       </div>
                       <div className="text-left">
                         <h3 className="text-xl font-bold text-gray-800">{carriere.nom}</h3>
-                        <p className="text-sm text-gray-600">{totalTrimestres} trimestres validés</p>
+                        <p className="text-sm text-gray-600">{formatNumber(totalTrimestres)} trimestres validés</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-4">
                       <div className="text-right">
-                        <p className="text-2xl font-bold text-blue-600">{pensionNetteAnnuelleBase.toFixed(0)} €</p>
+                        <p className="text-2xl font-bold text-blue-600">{formatNumber(Math.round(pensionNetteAnnuelleBase))} €</p>
                         <p className="text-xs text-gray-500">Pension nette annuelle estimée</p>
                       </div>
                       {isExpanded ? (
@@ -933,64 +1015,140 @@ export default function VaultApp() {
 
                   {isExpanded && (
                     <div className="p-6 border-t border-gray-200 space-y-6">
-                      <div className="grid grid-cols-3 gap-4">
-                        <div className="p-4 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg border border-blue-200">
-                          <p className="text-sm font-semibold text-blue-800 mb-1">Trimestres validés</p>
-                          <p className="text-3xl font-bold text-blue-600">{totalTrimestres}</p>
-                          <p className="text-xs text-blue-600 mt-1">sur {trimestresRequis} requis</p>
+
+                      {/* 1. SIMULATIONS SELON L'ÂGE DE DÉPART */}
+                      <div className="p-4 bg-white border-2 border-indigo-300 rounded-lg">
+                        <div className="flex justify-between items-center mb-4">
+                          <h4 className="text-lg font-bold text-gray-800">Simulations selon l'âge de départ</h4>
+                          <button
+                            onClick={() => setShowDateSelector(!showDateSelector)}
+                            className="flex items-center gap-2 px-3 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition text-sm"
+                          >
+                            <Plus className="w-4 h-4" />
+                            Ajouter une date
+                          </button>
                         </div>
 
-                        <div className="p-4 bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg border border-purple-200">
-                          <p className="text-sm font-semibold text-purple-800 mb-1">Points régime de base</p>
-                          <p className="text-3xl font-bold text-purple-600">{totalPointsBase.toFixed(0)}</p>
-                          <p className="text-xs text-purple-600 mt-1">CNAV</p>
-                        </div>
+                        {showDateSelector && (
+                          <div className="mb-4 p-4 bg-indigo-50 rounded-lg border border-indigo-200">
+                            <div className="flex gap-3 items-end">
+                              <div className="flex-1">
+                                <label className="block text-sm font-semibold text-gray-700 mb-1">Mois</label>
+                                <select
+                                  value={selectedMonth}
+                                  onChange={(e) => setSelectedMonth(e.target.value)}
+                                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                                >
+                                  <option value="01">Janvier</option>
+                                  <option value="02">Février</option>
+                                  <option value="03">Mars</option>
+                                  <option value="04">Avril</option>
+                                  <option value="05">Mai</option>
+                                  <option value="06">Juin</option>
+                                  <option value="07">Juillet</option>
+                                  <option value="08">Août</option>
+                                  <option value="09">Septembre</option>
+                                  <option value="10">Octobre</option>
+                                  <option value="11">Novembre</option>
+                                  <option value="12">Décembre</option>
+                                </select>
+                              </div>
+                              <div className="flex-1">
+                                <label className="block text-sm font-semibold text-gray-700 mb-1">Année</label>
+                                <input
+                                  type="number"
+                                  value={selectedYear}
+                                  onChange={(e) => setSelectedYear(e.target.value)}
+                                  min="2025"
+                                  max="2045"
+                                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                                />
+                              </div>
+                              <button
+                                onClick={addCustomDate}
+                                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
+                              >
+                                Ajouter
+                              </button>
+                              <button
+                                onClick={() => setShowDateSelector(false)}
+                                className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition"
+                              >
+                                Annuler
+                              </button>
+                            </div>
+                          </div>
+                        )}
 
-                        <div className="p-4 bg-gradient-to-br from-pink-50 to-pink-100 rounded-lg border border-pink-200">
-                          <p className="text-sm font-semibold text-pink-800 mb-1">Points complémentaires</p>
-                          <p className="text-3xl font-bold text-pink-600">{totalPointsComplementaires.toFixed(0)}</p>
-                          <p className="text-xs text-pink-600 mt-1">AGIRC-ARRCO</p>
+                        <div className="overflow-x-auto">
+                          <table className="w-full text-sm">
+                            <thead>
+                              <tr className="border-b-2 border-gray-300">
+                                <th className="py-3 px-4 text-left font-bold text-gray-700">Âge de départ</th>
+                                <th className="py-3 px-4 text-right font-bold text-gray-700">Pension mensuelle</th>
+                                <th className="py-3 px-4 text-right font-bold text-gray-700">Pension annuelle</th>
+                                <th className="py-3 px-4 text-right font-bold text-gray-700">Coefficient</th>
+                                <th className="py-3 px-4 text-right font-bold text-gray-700">Gain cumulé (jusqu'à 85 ans)</th>
+                                <th className="py-3 px-4 text-center font-bold text-gray-700">Actions</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {scenarios.map((scenario, idx) => {
+                                const isBest = scenario.gainCumule === bestScenario.gainCumule;
+                                return (
+                                  <tr
+                                    key={scenario.customId || idx}
+                                    className={`border-b border-gray-200 ${
+                                      isBest ? 'bg-yellow-50 font-semibold' : 'hover:bg-gray-50'
+                                    }`}
+                                  >
+                                    <td className="py-3 px-4">
+                                      <div className="flex items-center gap-2">
+                                        <span className="font-bold text-gray-800">{scenario.age} ans</span>
+                                        {scenario.label && (
+                                          <span className="text-xs text-gray-500">({scenario.label})</span>
+                                        )}
+                                        {isBest && (
+                                          <span className="px-2 py-1 bg-yellow-400 text-yellow-900 rounded-full text-xs font-bold">
+                                            OPTIMAL
+                                          </span>
+                                        )}
+                                      </div>
+                                    </td>
+                                    <td className="py-3 px-4 text-right text-gray-800">
+                                      {formatNumber(Math.round(scenario.pensionMensuelle))} €
+                                    </td>
+                                    <td className="py-3 px-4 text-right text-gray-800">
+                                      {formatNumber(Math.round(scenario.pensionAnnuelle))} €
+                                    </td>
+                                    <td className="py-3 px-4 text-right text-gray-600">
+                                      {(scenario.coefficient * 100).toFixed(1)} %
+                                    </td>
+                                    <td className="py-3 px-4 text-right font-bold text-blue-700">
+                                      {formatNumber(Math.round(scenario.gainCumule))} €
+                                    </td>
+                                    <td className="py-3 px-4 text-center">
+                                      {scenario.customId && (
+                                        <button
+                                          onClick={() => removeCustomDate(scenario.customId)}
+                                          className="p-1 bg-red-500 text-white rounded hover:bg-red-600"
+                                        >
+                                          <X className="w-3 h-3" />
+                                        </button>
+                                      )}
+                                    </td>
+                                  </tr>
+                                );
+                              })}
+                            </tbody>
+                          </table>
                         </div>
                       </div>
 
-                      <div className="p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border-2 border-green-300">
-                        <h4 className="text-lg font-bold text-gray-800 mb-4">Calcul détaillé de la pension</h4>
-                        
-                        <div className="space-y-3">
-                          <div className="flex justify-between items-center pb-2 border-b border-green-200">
-                            <span className="text-sm text-gray-600">Pension régime de base (mensuelle) :</span>
-                            <span className="font-semibold text-gray-800">{(pensionBase / 12).toFixed(2)} €</span>
-                          </div>
-                          <div className="flex justify-between items-center text-xs text-gray-500 -mt-2 mb-2">
-                            <span>{totalPointsBase.toFixed(0)} points × {valeurPointBase} € = {(totalPointsBase * valeurPointBase).toFixed(2)} €/mois</span>
-                          </div>
-                          
-                          <div className="flex justify-between items-center pb-2 border-b border-green-200">
-                            <span className="text-sm text-gray-600">Pension complémentaire (mensuelle) :</span>
-                            <span className="font-semibold text-gray-800">{(pensionComplementaire / 12).toFixed(2)} €</span>
-                          </div>
-                          <div className="flex justify-between items-center text-xs text-gray-500 -mt-2 mb-2">
-                            <span>{totalPointsComplementaires.toFixed(0)} points × {valeurPointComplementaire} € = {(totalPointsComplementaires * valeurPointComplementaire).toFixed(2)} €/mois</span>
-                          </div>
-                          
-                          <div className="flex justify-between items-center pt-2 border-t-2 border-green-400">
-                            <span className="font-bold text-gray-800">Pension brute annuelle (taux plein) :</span>
-                            <span className="text-xl font-bold text-blue-700">{pensionBruteAnnuelle.toFixed(2)} €</span>
-                          </div>
-                          <div className="flex justify-between items-center mb-2">
-                            <span className="text-sm text-gray-600">Prélèvements sociaux (≈10%) :</span>
-                            <span className="font-semibold text-red-600">- {(pensionBruteAnnuelle * 0.1).toFixed(2)} €</span>
-                          </div>
-                          <div className="flex justify-between items-center pt-2 border-t-2 border-blue-300">
-                            <span className="font-bold text-gray-800">Pension nette avant IR (taux plein) :</span>
-                            <span className="text-xl font-bold text-green-700">{pensionNetteAnnuelleBase.toFixed(2)} €</span>
-                          </div>
-                        </div>
-                      </div>
-
+                      {/* 2. ANALYSE DU SCÉNARIO */}
                       <div className="p-4 bg-white border-2 border-gray-200 rounded-lg">
                         <h4 className="text-lg font-bold text-gray-800 mb-4">Analyse du scénario</h4>
-                        
+
                         <div className="space-y-4">
                           <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
                             <h5 className="font-bold text-blue-900 mb-2 flex items-center gap-2">
@@ -999,9 +1157,9 @@ export default function VaultApp() {
                             </h5>
                             <p className="text-sm text-gray-700">
                               {totalTrimestres >= trimestresRequis ? (
-                                <>Vous disposez de <strong>{totalTrimestres} trimestres</strong>, ce qui est suffisant pour bénéficier du <strong>taux plein</strong> (172 trimestres requis). Vous pouvez partir à la retraite dès 64 ans sans décote.</>
+                                <>Vous disposez de <strong>{formatNumber(totalTrimestres)} trimestres</strong>, ce qui est suffisant pour bénéficier du <strong>taux plein</strong> ({formatNumber(trimestresRequis)} trimestres requis). Vous pouvez partir à la retraite dès 64 ans sans décote.</>
                               ) : (
-                                <>Vous disposez de <strong>{totalTrimestres} trimestres sur {trimestresRequis} requis</strong>. Il vous manque <strong>{trimestresRequis - totalTrimestres} trimestres</strong> pour le taux plein. Un départ anticipé entraînera une décote sur votre pension.</>
+                                <>Vous disposez de <strong>{formatNumber(totalTrimestres)} trimestres sur {formatNumber(trimestresRequis)} requis</strong>. Il vous manque <strong>{formatNumber(trimestresRequis - totalTrimestres)} trimestres</strong> pour le taux plein. Un départ anticipé entraînera une décote sur votre pension.</>
                               )}
                             </p>
                           </div>
@@ -1020,7 +1178,7 @@ export default function VaultApp() {
                                     anomalies.push(`Année ${ligne.annee}: ${messages.join(', ')}`);
                                   }
                                 });
-                                
+
                                 return anomalies.length > 0 ? (
                                   <ul className="list-disc list-inside space-y-1">
                                     {anomalies.map((msg, idx) => (
@@ -1041,7 +1199,7 @@ export default function VaultApp() {
                             </h5>
                             <p className="text-sm text-gray-700">
                               {totalTrimestres < trimestresRequis ? (
-                                <>Vous pouvez racheter jusqu'à <strong>12 trimestres</strong> pour compléter votre carrière. Le coût varie selon votre âge et revenus (estimé entre 3 000€ et 6 000€ par trimestre). Racheter <strong>{Math.min(trimestresRequis - totalTrimestres, 12)} trimestres</strong> vous permettrait d'atteindre le taux plein.</>
+                                <>Vous pouvez racheter jusqu'à <strong>12 trimestres</strong> pour compléter votre carrière. Le coût varie selon votre âge et revenus (estimé entre {formatNumber(3000)}€ et {formatNumber(6000)}€ par trimestre). Racheter <strong>{Math.min(trimestresRequis - totalTrimestres, 12)} trimestres</strong> vous permettrait d'atteindre le taux plein.</>
                               ) : (
                                 <>Vous avez déjà le nombre de trimestres requis. Le rachat de trimestres supplémentaires peut néanmoins augmenter votre pension via la surcote (1,25% par trimestre au-delà de 64 ans).</>
                               )}
@@ -1064,7 +1222,7 @@ export default function VaultApp() {
                               Carrière longue
                             </h5>
                             <p className="text-sm text-gray-700">
-                              Si vous avez commencé à travailler avant <strong>20 ans</strong> et justifiez d'une longue carrière, vous pourriez partir dès <strong>60 ans</strong> sans décote avec au moins 5 trimestres avant 20 ans et {trimestresRequis} trimestres cotisés. Vérifiez votre relevé de carrière pour cette option.
+                              Si vous avez commencé à travailler avant <strong>20 ans</strong> et justifiez d'une longue carrière, vous pourriez partir dès <strong>60 ans</strong> sans décote avec au moins 5 trimestres avant 20 ans et {formatNumber(trimestresRequis)} trimestres cotisés. Vérifiez votre relevé de carrière pour cette option.
                             </p>
                           </div>
 
@@ -1074,8 +1232,66 @@ export default function VaultApp() {
                               Cumul emploi-retraite
                             </h5>
                             <p className="text-sm text-gray-700">
-                              Une fois à la retraite au <strong>taux plein</strong>, vous pouvez reprendre une activité professionnelle sans limitation de revenus tout en cumulant votre pension. Si vous partez avec décote, le cumul est plafonné (environ 20 000€/an selon votre situation).
+                              Une fois à la retraite au <strong>taux plein</strong>, vous pouvez reprendre une activité professionnelle sans limitation de revenus tout en cumulant votre pension. Si vous partez avec décote, le cumul est plafonné (environ {formatNumber(20000)}€/an selon votre situation).
                             </p>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* 3. ANALYSE DE LA PENSION */}
+                      <div className="p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border-2 border-green-300">
+                        <h4 className="text-lg font-bold text-gray-800 mb-4">Analyse de la pension</h4>
+
+                        <div className="grid grid-cols-3 gap-4 mb-6">
+                          <div className="p-4 bg-white rounded-lg border border-blue-200 shadow-sm">
+                            <p className="text-sm font-semibold text-blue-800 mb-1">Trimestres validés</p>
+                            <p className="text-3xl font-bold text-blue-600">{formatNumber(totalTrimestres)}</p>
+                            <p className="text-xs text-blue-600 mt-1">sur {formatNumber(trimestresRequis)} requis</p>
+                          </div>
+
+                          <div className="p-4 bg-white rounded-lg border border-purple-200 shadow-sm">
+                            <p className="text-sm font-semibold text-purple-800 mb-1">Points régime de base</p>
+                            <p className="text-3xl font-bold text-purple-600">{formatNumber(Math.round(totalPointsBase))}</p>
+                            <p className="text-xs text-purple-600 mt-1">CNAV</p>
+                          </div>
+
+                          <div className="p-4 bg-white rounded-lg border border-pink-200 shadow-sm">
+                            <p className="text-sm font-semibold text-pink-800 mb-1">Points complémentaires</p>
+                            <p className="text-3xl font-bold text-pink-600">{formatNumber(Math.round(totalPointsComplementaires))}</p>
+                            <p className="text-xs text-pink-600 mt-1">AGIRC-ARRCO</p>
+                          </div>
+                        </div>
+
+                        <div className="space-y-3 bg-white p-4 rounded-lg border border-green-200">
+                          <h5 className="font-bold text-gray-800 mb-3">Calcul détaillé de la pension</h5>
+
+                          <div className="flex justify-between items-center pb-2 border-b border-green-200">
+                            <span className="text-sm text-gray-600">Pension régime de base (mensuelle) :</span>
+                            <span className="font-semibold text-gray-800">{formatNumber(Math.round(pensionBase / 12))} €</span>
+                          </div>
+                          <div className="flex justify-between items-center text-xs text-gray-500 -mt-2 mb-2">
+                            <span>{formatNumber(Math.round(totalPointsBase))} points × {valeurPointBase} € = {formatNumber(Math.round(totalPointsBase * valeurPointBase))} €/mois</span>
+                          </div>
+
+                          <div className="flex justify-between items-center pb-2 border-b border-green-200">
+                            <span className="text-sm text-gray-600">Pension complémentaire (mensuelle) :</span>
+                            <span className="font-semibold text-gray-800">{formatNumber(Math.round(pensionComplementaire / 12))} €</span>
+                          </div>
+                          <div className="flex justify-between items-center text-xs text-gray-500 -mt-2 mb-2">
+                            <span>{formatNumber(Math.round(totalPointsComplementaires))} points × {valeurPointComplementaire} € = {formatNumber(Math.round(totalPointsComplementaires * valeurPointComplementaire))} €/mois</span>
+                          </div>
+
+                          <div className="flex justify-between items-center pt-2 border-t-2 border-green-400">
+                            <span className="font-bold text-gray-800">Pension brute annuelle (taux plein) :</span>
+                            <span className="text-xl font-bold text-blue-700">{formatNumber(Math.round(pensionBruteAnnuelle))} €</span>
+                          </div>
+                          <div className="flex justify-between items-center mb-2">
+                            <span className="text-sm text-gray-600">Prélèvements sociaux (≈10%) :</span>
+                            <span className="font-semibold text-red-600">- {formatNumber(Math.round(pensionBruteAnnuelle * 0.1))} €</span>
+                          </div>
+                          <div className="flex justify-between items-center pt-2 border-t-2 border-blue-300">
+                            <span className="font-bold text-gray-800">Pension nette avant IR (taux plein) :</span>
+                            <span className="text-xl font-bold text-green-700">{formatNumber(Math.round(pensionNetteAnnuelleBase))} €</span>
                           </div>
                         </div>
                       </div>
