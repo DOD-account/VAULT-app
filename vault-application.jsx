@@ -96,7 +96,7 @@ const LogOut = ({ className, size = 24 }) => (
 export default function VaultApp() {
   const [activeSection, setActiveSection] = useState('profil');
   const [credits] = useState(3);
-  const [dossierOuvert] = useState('Jean Dupont');
+  const [dossierOuvert] = useState('M. IBANEZ');
   const [showDossierMenu, setShowDossierMenu] = useState(false);
   
   const [carrieres, setCarrieres] = useState([
@@ -822,7 +822,7 @@ export default function VaultApp() {
             <div className="mt-8">
               <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
                 <p className="text-sm text-blue-800">
-                  <strong>Informations :</strong> Jean Dupont est né en 1966. Sa carrière débute en 1988 et ses droits sont enregistrés jusqu'en 2024.
+                  <strong>Informations :</strong> M. IBANEZ est né en 1966. Sa carrière débute en 1988 et ses droits sont enregistrés jusqu'en 2024.
                 </p>
               </div>
 

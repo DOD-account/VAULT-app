@@ -4,7 +4,7 @@ import { User, Briefcase, TrendingUp, Edit2, Check, X, LogOut, Plus, MessageCirc
 export default function VaultApp() {
   const [activeSection, setActiveSection] = useState('profil');
   const [credits, setCredits] = useState(3);
-  const [dossierOuvert, setDossierOuvert] = useState('Jean Dupont');
+  const [dossierOuvert, setDossierOuvert] = useState('M. IBANEZ');
   const [showDossierMenu, setShowDossierMenu] = useState(false);
   
   const [carrieres, setCarrieres] = useState([
@@ -347,7 +347,7 @@ export default function VaultApp() {
                       <div className="border-t border-gray-200 my-2"></div>
                       <button className="w-full text-left px-4 py-2 hover:bg-blue-50 rounded-lg flex items-center gap-2 text-sm">
                         <User className="w-4 h-4 text-blue-600" />
-                        <span className="font-medium">Jean Dupont</span>
+                        <span className="font-medium">M. IBANEZ</span>
                       </button>
                       <button className="w-full text-left px-4 py-2 hover:bg-blue-50 rounded-lg flex items-center gap-2 text-sm text-gray-600">
                         <User className="w-4 h-4 text-gray-400" />
@@ -1107,7 +1107,7 @@ export default function VaultApp() {
                         <h3 className="font-bold text-green-900">Dossier créé</h3>
                         <span className="text-xs text-green-600">15/10/2025</span>
                       </div>
-                      <p className="text-sm text-gray-700">Le dossier de Jean Dupont a été créé avec succès.</p>
+                      <p className="text-sm text-gray-700">Le dossier de M. IBANEZ a été créé avec succès.</p>
                     </div>
                   </div>
 
