@@ -199,11 +199,11 @@ export default function VaultApp() {
           debut: '01/01/2024',
           fin: '31/12/2024',
           employeur: 'Centrale achats',
-          activite: 'Salarié du privé',
+          activite: 'Salarié',
           revenu: 132982,
           trimestres: 0,
           regimeBase: 'CNAV',
-          pointsBase: 'N/A',
+          pointsBase: 0,
           regimeComplementaire: 'Agirc-Arrco',
           pointsComplementaires: 1000.10
         },
@@ -212,11 +212,11 @@ export default function VaultApp() {
           debut: '01/01/2024',
           fin: '31/12/2024',
           employeur: 'UNIVERSITE PARIS 8',
-          activite: 'Agent salarié non titulaire',
+          activite: 'Agent non titulaire',
           revenu: 25842,
           trimestres: 0,
           regimeBase: 'CNAV',
-          pointsBase: 'N/A',
+          pointsBase: 0,
           regimeComplementaire: 'Ircantec',
           pointsComplementaires: 718.00
         }
@@ -457,31 +457,59 @@ export default function VaultApp() {
     const carriere = carrieres.find(c => c.id === carriereActive);
     if (!carriere || carriere.data.length === 0) return;
 
-    // Trouver la dernière ligne (non-synthèse)
+    // Trouver la dernière année (non-synthèse)
     const derniereAnnee = Math.max(...carriere.data.filter(l => l.activite !== 'Synthèse').map(l => l.annee));
-    const dernieresLignes = carriere.data.filter(l => l.annee === derniereAnnee && l.activite !== 'Synthèse');
+    const lignesDerniereAnnee = carriere.data.filter(l => l.annee === derniereAnnee && l.activite !== 'Synthèse');
+    const syntheseDerniereAnnee = carriere.data.find(l => l.annee === derniereAnnee && l.activite === 'Synthèse');
 
-    if (dernieresLignes.length === 0) return;
+    if (lignesDerniereAnnee.length === 0) return;
 
-    // Prendre la dernière ligne comme modèle
-    const derniereLigne = dernieresLignes[dernieresLignes.length - 1];
+    const nouvelleAnnee = derniereAnnee + 1;
+    const nouvellesLignes = [];
 
-    // Créer une nouvelle ligne pour l'année suivante
-    const nouvelleLigne = {
-      ...derniereLigne,
-      annee: derniereAnnee + 1,
-      debut: `01/01/${derniereAnnee + 1}`,
-      fin: `31/12/${derniereAnnee + 1}`,
-      revenu: Math.round(derniereLigne.revenu * (1 + tauxInflation / 100)),
-      pointsBase: typeof derniereLigne.pointsBase === 'number' ? Math.round(derniereLigne.pointsBase * (1 + tauxInflation / 100) * 100) / 100 : 'N/A',
-      pointsComplementaires: typeof derniereLigne.pointsComplementaires === 'number' ? Math.round(derniereLigne.pointsComplementaires * (1 + tauxInflation / 100) * 100) / 100 : 'N/A'
-    };
+    // Calculer les totaux pour la synthèse
+    let totalRevenu = 0;
+    let totalTrimestres = 0;
+
+    // Dupliquer toutes les lignes de la dernière année
+    lignesDerniereAnnee.forEach(ligne => {
+      const revenuAjuste = Math.round(ligne.revenu * (1 + tauxInflation / 100));
+      const pointsBaseAjustes = typeof ligne.pointsBase === 'number' ? Math.round(ligne.pointsBase * (1 + tauxInflation / 100) * 100) / 100 : ligne.pointsBase;
+      const pointsComplAjustes = typeof ligne.pointsComplementaires === 'number' ? Math.round(ligne.pointsComplementaires * (1 + tauxInflation / 100) * 100) / 100 : ligne.pointsComplementaires;
+
+      nouvellesLignes.push({
+        ...ligne,
+        annee: nouvelleAnnee,
+        debut: `01/01/${nouvelleAnnee}`,
+        fin: `31/12/${nouvelleAnnee}`,
+        revenu: revenuAjuste,
+        pointsBase: pointsBaseAjustes,
+        pointsComplementaires: pointsComplAjustes
+      });
+
+      totalRevenu += revenuAjuste;
+      totalTrimestres += ligne.trimestres;
+    });
+
+    // Si l'année originale avait une synthèse, créer une synthèse pour la nouvelle année
+    if (syntheseDerniereAnnee && lignesDerniereAnnee.length > 1) {
+      const nouvelleSynthese = {
+        ...syntheseDerniereAnnee,
+        annee: nouvelleAnnee,
+        debut: `01/01/${nouvelleAnnee}`,
+        fin: `31/12/${nouvelleAnnee}`,
+        revenu: totalRevenu,
+        trimestres: totalTrimestres,
+        employeur: `SYNTHÈSE ANNÉE ${nouvelleAnnee}`
+      };
+      nouvellesLignes.unshift(nouvelleSynthese); // Ajouter la synthèse au début
+    }
 
     setCarrieres(carrieres.map(c => {
       if (c.id === carriereActive) {
         return {
           ...c,
-          data: [...c.data, nouvelleLigne]
+          data: [...c.data, ...nouvellesLignes]
         };
       }
       return c;
@@ -505,38 +533,70 @@ export default function VaultApp() {
     const trimestresManquants = trimestresRequis - totalTrimestres;
     const anneesNecessaires = Math.ceil(trimestresManquants / 4);
 
-    // Trouver la dernière ligne (non-synthèse)
+    // Trouver la dernière année (non-synthèse)
     const derniereAnnee = Math.max(...carriere.data.filter(l => l.activite !== 'Synthèse').map(l => l.annee));
-    const dernieresLignes = carriere.data.filter(l => l.annee === derniereAnnee && l.activite !== 'Synthèse');
+    const lignesDerniereAnnee = carriere.data.filter(l => l.annee === derniereAnnee && l.activite !== 'Synthèse');
+    const syntheseDerniereAnnee = carriere.data.find(l => l.annee === derniereAnnee && l.activite === 'Synthèse');
 
-    if (dernieresLignes.length === 0) return;
+    if (lignesDerniereAnnee.length === 0) return;
 
-    // Prendre la dernière ligne comme modèle
-    const derniereLigne = dernieresLignes[dernieresLignes.length - 1];
+    // Créer les nouvelles lignes pour toutes les années nécessaires
+    const toutesNouvellesLignes = [];
 
-    // Créer les nouvelles lignes
-    const nouvellesLignes = [];
     for (let i = 1; i <= anneesNecessaires; i++) {
-      const annee = derniereAnnee + i;
+      const nouvelleAnnee = derniereAnnee + i;
       const facteurInflation = Math.pow(1 + tauxInflation / 100, i);
+      const trimestresAAjouter = i === anneesNecessaires ? (trimestresManquants % 4 || 4) : 4;
 
-      nouvellesLignes.push({
-        ...derniereLigne,
-        annee: annee,
-        debut: `01/01/${annee}`,
-        fin: `31/12/${annee}`,
-        revenu: Math.round(derniereLigne.revenu * facteurInflation),
-        trimestres: i === anneesNecessaires ? (trimestresManquants % 4 || 4) : 4,
-        pointsBase: typeof derniereLigne.pointsBase === 'number' ? Math.round(derniereLigne.pointsBase * facteurInflation * 100) / 100 : 'N/A',
-        pointsComplementaires: typeof derniereLigne.pointsComplementaires === 'number' ? Math.round(derniereLigne.pointsComplementaires * facteurInflation * 100) / 100 : 'N/A'
+      let totalRevenu = 0;
+      let totalTrimestres = 0;
+
+      // Dupliquer toutes les lignes de la dernière année
+      lignesDerniereAnnee.forEach((ligne, index) => {
+        const revenuAjuste = Math.round(ligne.revenu * facteurInflation);
+        const pointsBaseAjustes = typeof ligne.pointsBase === 'number' ? Math.round(ligne.pointsBase * facteurInflation * 100) / 100 : ligne.pointsBase;
+        const pointsComplAjustes = typeof ligne.pointsComplementaires === 'number' ? Math.round(ligne.pointsComplementaires * facteurInflation * 100) / 100 : ligne.pointsComplementaires;
+
+        // Pour la dernière année, seule la première ligne d'activité aura les trimestres manquants
+        const trimestresLigne = (i === anneesNecessaires && index === 0) ? trimestresAAjouter : 0;
+
+        toutesNouvellesLignes.push({
+          ...ligne,
+          annee: nouvelleAnnee,
+          debut: `01/01/${nouvelleAnnee}`,
+          fin: `31/12/${nouvelleAnnee}`,
+          revenu: revenuAjuste,
+          trimestres: trimestresLigne,
+          pointsBase: pointsBaseAjustes,
+          pointsComplementaires: pointsComplAjustes
+        });
+
+        totalRevenu += revenuAjuste;
+        totalTrimestres += trimestresLigne;
       });
+
+      // Si l'année originale avait une synthèse, créer une synthèse pour la nouvelle année
+      if (syntheseDerniereAnnee && lignesDerniereAnnee.length > 1) {
+        const nouvelleSynthese = {
+          ...syntheseDerniereAnnee,
+          annee: nouvelleAnnee,
+          debut: `01/01/${nouvelleAnnee}`,
+          fin: `31/12/${nouvelleAnnee}`,
+          revenu: totalRevenu,
+          trimestres: totalTrimestres,
+          employeur: `SYNTHÈSE ANNÉE ${nouvelleAnnee}`
+        };
+        // Insérer la synthèse avant les lignes de détail de cette année
+        const indexInsertionSynthese = toutesNouvellesLignes.length - lignesDerniereAnnee.length;
+        toutesNouvellesLignes.splice(indexInsertionSynthese, 0, nouvelleSynthese);
+      }
     }
 
     setCarrieres(carrieres.map(c => {
       if (c.id === carriereActive) {
         return {
           ...c,
-          data: [...c.data, ...nouvellesLignes]
+          data: [...c.data, ...toutesNouvellesLignes]
         };
       }
       return c;
@@ -1161,15 +1221,15 @@ export default function VaultApp() {
                                     {isSynthese ? (
                                       <div className="flex flex-col gap-1">
                                         <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-medium">
-                                          Salarié du privé
+                                          Salarié
                                         </span>
                                         <span className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-medium">
-                                          Agent salarié non titulaire
+                                          Agent non titulaire
                                         </span>
                                       </div>
                                     ) : (
                                       <span className={`px-2 py-1 rounded text-xs font-medium ${
-                                        ligne.activite === 'Agent salarié non titulaire'
+                                        ligne.activite === 'Agent non titulaire'
                                           ? 'bg-green-100 text-green-700'
                                           : 'bg-blue-100 text-blue-700'
                                       }`}>
