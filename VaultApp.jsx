@@ -897,8 +897,8 @@ export default function VaultApp() {
                           const isYearExpanded = expandedYears[ligne.annee];
 
                           // Vérifier si cette ligne est un détail d'une année avec synthèse
-                          const previousLigne = index > 0 ? carriere.data[index - 1] : null;
-                          const isDetail = previousLigne && previousLigne.annee === ligne.annee && previousLigne.activite === 'Synthèse' && !isSynthese;
+                          const hasSyntheseForYear = carriere.data.some(l => l.annee === ligne.annee && l.activite === 'Synthèse');
+                          const isDetail = hasSyntheseForYear && !isSynthese;
 
                           // Vérifier s'il y a d'autres lignes suivantes avec la même année (pour savoir si on doit afficher le chevron)
                           const nextLigne = index < carriere.data.length - 1 ? carriere.data[index + 1] : null;
