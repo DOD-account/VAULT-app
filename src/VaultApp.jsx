@@ -252,6 +252,7 @@ export default function VaultApp() {
   const [carriereToDelete, setCarriereToDelete] = useState(null);
   const [editingLigne, setEditingLigne] = useState(null);
   const [tempLigneData, setTempLigneData] = useState(null);
+  const [expandedYears, setExpandedYears] = useState({});
   
   const [profil, setProfil] = useState({
     nom: 'Bellanger',
@@ -433,6 +434,13 @@ export default function VaultApp() {
     }
 
     return messages;
+  };
+
+  const toggleExpandYear = (year) => {
+    setExpandedYears(prev => ({
+      ...prev,
+      [year]: !prev[year]
+    }));
   };
 
   const toggleExpandCarriere = (id) => {
@@ -885,12 +893,30 @@ export default function VaultApp() {
                         {carriere.data.map((ligne, index) => {
                           const incoherences = checkLigneIncoherence(ligne);
                           const hasError = incoherences.length > 0;
+                          const isSynthese = ligne.activite === 'Synthèse';
+                          const isYearExpanded = expandedYears[ligne.annee];
+
+                          // Vérifier si cette ligne est un détail d'une année avec synthèse
+                          const previousLigne = index > 0 ? carriere.data[index - 1] : null;
+                          const isDetail = previousLigne && previousLigne.annee === ligne.annee && previousLigne.activite === 'Synthèse' && !isSynthese;
+
+                          // Vérifier s'il y a d'autres lignes suivantes avec la même année (pour savoir si on doit afficher le chevron)
+                          const nextLigne = index < carriere.data.length - 1 ? carriere.data[index + 1] : null;
+                          const hasDetails = isSynthese && nextLigne && nextLigne.annee === ligne.annee;
+
+                          // Si c'est une ligne de détail et que l'année n'est pas déployée, ne pas afficher
+                          if (isDetail && !isYearExpanded) {
+                            return null;
+                          }
 
                           return (
                             <tr
                               key={index}
                               className={`border-b border-gray-200 ${
-                                hasError ? 'bg-red-50' : index % 2 === 0 ? 'bg-white' : 'bg-gray-50'
+                                hasError ? 'bg-red-50' :
+                                isSynthese ? 'bg-blue-50 font-semibold' :
+                                isDetail ? 'bg-gray-100' :
+                                index % 2 === 0 ? 'bg-white' : 'bg-gray-50'
                               } hover:bg-blue-50 transition`}
                             >
                               {editingLigne === ligne.annee ? (
@@ -1007,6 +1033,19 @@ export default function VaultApp() {
                                           </div>
                                         </div>
                                       )}
+                                      {hasDetails && (
+                                        <button
+                                          onClick={() => toggleExpandYear(ligne.annee)}
+                                          className="text-blue-600 hover:text-blue-800 focus:outline-none"
+                                        >
+                                          {isYearExpanded ? (
+                                            <ChevronDown className="w-4 h-4" />
+                                          ) : (
+                                            <ChevronUp className="w-4 h-4" />
+                                          )}
+                                        </button>
+                                      )}
+                                      {isDetail && <span className="text-gray-400 text-xs ml-2">↳</span>}
                                       <span>{ligne.annee}</span>
                                     </div>
                                   </td>
