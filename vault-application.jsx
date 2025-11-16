@@ -150,15 +150,15 @@ export default function VaultApp() {
   const [tempLigneData, setTempLigneData] = useState(null);
   
   const [profil, setProfil] = useState({
-    nom: 'Dupont',
+    nom: 'Bellanger',
     prenom: 'Jean',
     civilite: 'M.',
     numeroSecu: '1 66 04 75 123 456 78'
   });
-  
+
   const [enfants, setEnfants] = useState([
-    { id: 1, prenom: 'Sophie', nom: 'Dupont', dateNaissance: '15/03/2015' },
-    { id: 2, prenom: 'Lucas', nom: 'Dupont', dateNaissance: '22/08/2018' }
+    { id: 1, prenom: 'Sophie', nom: 'Bellanger', dateNaissance: '15/03/2015' },
+    { id: 2, prenom: 'Lucas', nom: 'Bellanger', dateNaissance: '22/08/2018' }
   ]);
   
   const [documents] = useState([
