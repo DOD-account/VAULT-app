@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { User, Briefcase, TrendingUp, Edit2, Check, X, LogOut, Plus, MessageCircle, CreditCard, Upload, FileText, Users, ChevronDown, ChevronUp, Eye, Download, Bell, Settings, LayoutDashboard, ClipboardList } from 'lucide-react';
+import { User, Briefcase, TrendingUp, Edit2, Check, X, LogOut, Plus, MessageCircle, CreditCard, Upload, FileText, Users, ChevronDown, ChevronUp, Eye, Download, Bell, Settings, LayoutDashboard, ClipboardList, FlaskConical } from 'lucide-react';
 
 export default function VaultApp() {
   const [activeSection, setActiveSection] = useState('profil');
@@ -442,6 +442,17 @@ export default function VaultApp() {
           >
             <ClipboardList className="w-5 h-5" />
             Suivi dossier
+          </button>
+          <button
+            onClick={() => setActiveSection('test')}
+            className={`flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all transform hover:scale-105 ${
+              activeSection === 'test'
+                ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg'
+                : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-200'
+            }`}
+          >
+            <FlaskConical className="w-5 h-5" />
+            Test
           </button>
         </div>
 
@@ -1407,6 +1418,29 @@ export default function VaultApp() {
                 </div>
               </div>
             )}
+          </div>
+        )}
+
+        {activeSection === 'test' && (
+          <div className="space-y-6">
+            <div className="bg-white rounded-xl shadow-lg p-8 border border-gray-200">
+              <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-3">
+                <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                  <FlaskConical className="w-6 h-6 text-purple-600" />
+                </div>
+                Test
+              </h2>
+
+              <div className="flex items-center justify-center py-20">
+                <div className="text-center">
+                  <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <FlaskConical className="w-12 h-12 text-gray-400" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-gray-600 mb-2">Contenu à venir</h3>
+                  <p className="text-gray-500">Cette section est en cours de développement.</p>
+                </div>
+              </div>
+            </div>
           </div>
         )}
       </div>
