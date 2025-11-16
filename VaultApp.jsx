@@ -987,6 +987,56 @@ export default function VaultApp() {
                 ))}
               </div>
 
+              {(() => {
+                // Calculer l'âge à partir du numéro de sécurité sociale
+                const numeroSecu = profil.numeroSecu.replace(/\s/g, '');
+                const anneeNaissance = parseInt('19' + numeroSecu.substring(1, 3));
+                const moisNaissance = parseInt(numeroSecu.substring(3, 5));
+
+                const today = new Date(2025, 10, 16); // 16 novembre 2025
+                const birthDate = new Date(anneeNaissance, moisNaissance - 1, 1);
+
+                let ageAnnees = today.getFullYear() - birthDate.getFullYear();
+                let ageMois = today.getMonth() - birthDate.getMonth();
+
+                if (ageMois < 0) {
+                  ageAnnees--;
+                  ageMois += 12;
+                }
+
+                // Calculer l'âge du taux plein (64 ans pour une personne née en 1966)
+                const ageTauxPlein = 64;
+                const anneeTauxPlein = anneeNaissance + ageTauxPlein;
+                const moisNom = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'][moisNaissance - 1];
+
+                // Calculer le total des trimestres
+                const carriere = carrieres.find(c => c.id === carriereActive);
+                const totalTrimestres = carriere ? carriere.data.reduce((sum, ligne) => sum + ligne.trimestres, 0) : 0;
+                const trimestresRequis = 172;
+
+                return (
+                  <div className="grid grid-cols-3 gap-4 mb-6">
+                    <div className="p-4 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg border-2 border-blue-200">
+                      <p className="text-sm font-semibold text-blue-800 mb-1">Âge actuel</p>
+                      <p className="text-3xl font-bold text-blue-600">{ageAnnees} ans</p>
+                      <p className="text-sm text-blue-600 mt-1">{ageMois} mois</p>
+                    </div>
+
+                    <div className="p-4 bg-gradient-to-br from-green-50 to-green-100 rounded-lg border-2 border-green-200">
+                      <p className="text-sm font-semibold text-green-800 mb-1">Trimestres validés</p>
+                      <p className="text-3xl font-bold text-green-600">{totalTrimestres}</p>
+                      <p className="text-sm text-green-600 mt-1">sur {trimestresRequis} requis</p>
+                    </div>
+
+                    <div className="p-4 bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg border-2 border-purple-200">
+                      <p className="text-sm font-semibold text-purple-800 mb-1">Âge du taux plein</p>
+                      <p className="text-3xl font-bold text-purple-600">{ageTauxPlein} ans</p>
+                      <p className="text-sm text-purple-600 mt-1">{moisNom} {anneeTauxPlein}</p>
+                    </div>
+                  </div>
+                );
+              })()}
+
               {showCarriereForm && (
                 <div className="mb-6 p-4 bg-orange-50 rounded-lg border-2 border-orange-200">
                   <h3 className="font-bold text-gray-800 mb-3">Créer un nouveau scénario</h3>
@@ -1043,55 +1093,8 @@ export default function VaultApp() {
                 const carriere = carrieres.find(c => c.id === carriereActive);
                 if (!carriere) return null;
 
-                // Calculer l'âge à partir du numéro de sécurité sociale
-                const numeroSecu = profil.numeroSecu.replace(/\s/g, '');
-                const anneeNaissance = parseInt('19' + numeroSecu.substring(1, 3));
-                const moisNaissance = parseInt(numeroSecu.substring(3, 5));
-
-                const today = new Date(2025, 10, 16); // 16 novembre 2025
-                const birthDate = new Date(anneeNaissance, moisNaissance - 1, 1);
-
-                let ageAnnees = today.getFullYear() - birthDate.getFullYear();
-                let ageMois = today.getMonth() - birthDate.getMonth();
-
-                if (ageMois < 0) {
-                  ageAnnees--;
-                  ageMois += 12;
-                }
-
-                // Calculer l'âge du taux plein (64 ans pour une personne née en 1966)
-                const ageTauxPlein = 64;
-                const anneeTauxPlein = anneeNaissance + ageTauxPlein;
-                const dateTauxPlein = new Date(anneeTauxPlein, moisNaissance - 1, 1);
-                const moisNom = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'][moisNaissance - 1];
-
-                // Calculer le total des trimestres
-                const totalTrimestres = carriere.data.reduce((sum, ligne) => sum + ligne.trimestres, 0);
-                const trimestresRequis = 172;
-
                 return (
-                  <>
-                    <div className="grid grid-cols-3 gap-4 mb-6">
-                      <div className="p-4 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg border-2 border-blue-200">
-                        <p className="text-sm font-semibold text-blue-800 mb-1">Âge actuel</p>
-                        <p className="text-3xl font-bold text-blue-600">{ageAnnees} ans</p>
-                        <p className="text-sm text-blue-600 mt-1">{ageMois} mois</p>
-                      </div>
-
-                      <div className="p-4 bg-gradient-to-br from-green-50 to-green-100 rounded-lg border-2 border-green-200">
-                        <p className="text-sm font-semibold text-green-800 mb-1">Trimestres validés</p>
-                        <p className="text-3xl font-bold text-green-600">{totalTrimestres}</p>
-                        <p className="text-sm text-green-600 mt-1">sur {trimestresRequis} requis</p>
-                      </div>
-
-                      <div className="p-4 bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg border-2 border-purple-200">
-                        <p className="text-sm font-semibold text-purple-800 mb-1">Âge du taux plein</p>
-                        <p className="text-3xl font-bold text-purple-600">{ageTauxPlein} ans</p>
-                        <p className="text-sm text-purple-600 mt-1">{moisNom} {anneeTauxPlein}</p>
-                      </div>
-                    </div>
-
-                    <div className="overflow-x-auto">
+                  <div className="overflow-x-auto">
                     <table className="w-full text-sm">
                       <thead>
                         <tr className="bg-gradient-to-r from-orange-500 to-red-500 text-white">
@@ -1337,7 +1340,7 @@ export default function VaultApp() {
                         Simuler la suite de la carrière
                       </button>
                     </div>
-                  </>
+                  </div>
                 );
               })()}
 
