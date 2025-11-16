@@ -824,7 +824,14 @@ export default function VaultApp() {
                             className={(hasError ? 'bg-red-50 border-l-4 border-red-400' : (index % 2 === 0 ? 'bg-white' : 'bg-gray-50')) + ' hover:bg-blue-50 cursor-pointer transition'}
                             onClick={() => openEditLigne(carriereActive, index)}
                           >
-                            <td className="px-3 py-2 text-sm border-r border-gray-200 font-medium">{ligne.annee}</td>
+                            <td className="px-3 py-2 text-sm border-r border-gray-200 font-medium">
+                              <div className="flex items-center gap-2">
+                                {hasError && (
+                                  <span className="text-red-600 font-bold">⚠️</span>
+                                )}
+                                <span>{ligne.annee}</span>
+                              </div>
+                            </td>
                             <td className="px-3 py-2 text-sm border-r border-gray-200">{ligne.debut}</td>
                             <td className="px-3 py-2 text-sm border-r border-gray-200">{ligne.fin}</td>
                             <td className="px-3 py-2 text-sm border-r border-gray-200">{ligne.activite}</td>
