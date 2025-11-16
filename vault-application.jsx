@@ -279,38 +279,38 @@ export default function VaultApp() {
           fin: '31/12/2024',
           employeur: 'SYNTHÈSE ANNÉE 2024',
           activite: 'Synthèse',
-          revenu: 73000,
+          revenu: 158824,
           trimestres: 4,
-          regimeBase: 'CNAV',
-          pointsBase: 340,
-          regimeComplementaire: 'AGIRC-ARRCO',
-          pointsComplementaires: 2100
+          regimeBase: '',
+          pointsBase: 0,
+          regimeComplementaire: '',
+          pointsComplementaires: 0
         },
         {
           annee: 2024,
           debut: '01/01/2024',
-          fin: '30/06/2024',
-          employeur: 'BIOMATERIAUX GROUP C',
+          fin: '31/12/2024',
+          employeur: 'Centrale achats',
           activite: 'Salarié',
-          revenu: 35000,
-          trimestres: 2,
+          revenu: 132982,
+          trimestres: 0,
           regimeBase: 'CNAV',
-          pointsBase: 160,
-          regimeComplementaire: 'AGIRC-ARRCO',
-          pointsComplementaires: 980
+          pointsBase: 0,
+          regimeComplementaire: 'Agirc-Arrco',
+          pointsComplementaires: 1000.10
         },
         {
           annee: 2024,
-          debut: '01/07/2024',
+          debut: '01/01/2024',
           fin: '31/12/2024',
-          employeur: 'STOCKPLUS SARL',
-          activite: 'Salarié',
-          revenu: 38000,
-          trimestres: 2,
+          employeur: 'UNIVERSITE PARIS 8',
+          activite: 'Agent non titulaire',
+          revenu: 25842,
+          trimestres: 0,
           regimeBase: 'CNAV',
-          pointsBase: 180,
-          regimeComplementaire: 'AGIRC-ARRCO',
-          pointsComplementaires: 1120
+          pointsBase: 0,
+          regimeComplementaire: 'Ircantec',
+          pointsComplementaires: 718.00
         }
       ]
     },
