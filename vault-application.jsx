@@ -1394,9 +1394,204 @@ export default function VaultApp() {
         )}
 
         {activeSection === 'projections' && (
-          <div className="bg-white rounded-xl shadow-lg p-8">
-            <h2 className="text-2xl font-bold text-gray-800 mb-4">Projections</h2>
-            <p className="text-gray-500">Contenu à venir...</p>
+          <div className="space-y-6">
+            {carrieres.map((carriere) => {
+              const isExpanded = expandedCarrieres[carriere.id];
+              const totalTrimestres = carriere.data.reduce((sum, ligne) => sum + ligne.trimestres, 0);
+              const totalPointsBase = carriere.data.reduce((sum, ligne) => sum + ligne.pointsBase, 0);
+              const totalPointsComplementaires = carriere.data.reduce((sum, ligne) => sum + ligne.pointsComplementaires, 0);
+
+              const valeurPointBase = 0.6734;
+              const valeurPointComplementaire = 1.4159;
+
+              const pensionBase = totalPointsBase * valeurPointBase * 12;
+              const pensionComplementaire = totalPointsComplementaires * valeurPointComplementaire * 12;
+              const pensionBruteAnnuelle = pensionBase + pensionComplementaire;
+              const pensionNetteAnnuelleBase = pensionBruteAnnuelle * 0.9;
+
+              const trimestresRequis = 172;
+
+              return (
+                <div key={carriere.id} className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+                  <button
+                    onClick={() => toggleExpandCarriere(carriere.id)}
+                    className="w-full p-6 flex items-center justify-between hover:bg-gray-50 transition"
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+                        <TrendingUp className="w-6 h-6 text-white" />
+                      </div>
+                      <div className="text-left">
+                        <h3 className="text-xl font-bold text-gray-800">{carriere.nom}</h3>
+                        <p className="text-sm text-gray-600">{totalTrimestres} trimestres validés</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-4">
+                      <div className="text-right">
+                        <p className="text-2xl font-bold text-blue-600">{pensionNetteAnnuelleBase.toFixed(0)} €</p>
+                        <p className="text-xs text-gray-500">Pension nette annuelle estimée</p>
+                      </div>
+                      {isExpanded ? (
+                        <ChevronUp className="w-6 h-6 text-gray-400" />
+                      ) : (
+                        <ChevronDown className="w-6 h-6 text-gray-400" />
+                      )}
+                    </div>
+                  </button>
+
+                  {isExpanded && (
+                    <div className="p-6 border-t border-gray-200 space-y-6">
+                      <div className="grid grid-cols-3 gap-4">
+                        <div className="p-4 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg border border-blue-200">
+                          <p className="text-sm font-semibold text-blue-800 mb-1">Trimestres validés</p>
+                          <p className="text-3xl font-bold text-blue-600">{totalTrimestres}</p>
+                          <p className="text-xs text-blue-600 mt-1">sur {trimestresRequis} requis</p>
+                        </div>
+
+                        <div className="p-4 bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg border border-purple-200">
+                          <p className="text-sm font-semibold text-purple-800 mb-1">Points régime de base</p>
+                          <p className="text-3xl font-bold text-purple-600">{totalPointsBase.toFixed(0)}</p>
+                          <p className="text-xs text-purple-600 mt-1">CNAV</p>
+                        </div>
+
+                        <div className="p-4 bg-gradient-to-br from-pink-50 to-pink-100 rounded-lg border border-pink-200">
+                          <p className="text-sm font-semibold text-pink-800 mb-1">Points complémentaires</p>
+                          <p className="text-3xl font-bold text-pink-600">{totalPointsComplementaires.toFixed(0)}</p>
+                          <p className="text-xs text-pink-600 mt-1">AGIRC-ARRCO</p>
+                        </div>
+                      </div>
+
+                      <div className="p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border-2 border-green-300">
+                        <h4 className="text-lg font-bold text-gray-800 mb-4">Calcul détaillé de la pension</h4>
+
+                        <div className="space-y-3">
+                          <div className="flex justify-between items-center pb-2 border-b border-green-200">
+                            <span className="text-sm text-gray-600">Pension régime de base (mensuelle) :</span>
+                            <span className="font-semibold text-gray-800">{(pensionBase / 12).toFixed(2)} €</span>
+                          </div>
+                          <div className="flex justify-between items-center text-xs text-gray-500 -mt-2 mb-2">
+                            <span>{totalPointsBase.toFixed(0)} points × {valeurPointBase} € = {(totalPointsBase * valeurPointBase).toFixed(2)} €/mois</span>
+                          </div>
+
+                          <div className="flex justify-between items-center pb-2 border-b border-green-200">
+                            <span className="text-sm text-gray-600">Pension complémentaire (mensuelle) :</span>
+                            <span className="font-semibold text-gray-800">{(pensionComplementaire / 12).toFixed(2)} €</span>
+                          </div>
+                          <div className="flex justify-between items-center text-xs text-gray-500 -mt-2 mb-2">
+                            <span>{totalPointsComplementaires.toFixed(0)} points × {valeurPointComplementaire} € = {(totalPointsComplementaires * valeurPointComplementaire).toFixed(2)} €/mois</span>
+                          </div>
+
+                          <div className="flex justify-between items-center pt-2 border-t-2 border-green-400">
+                            <span className="font-bold text-gray-800">Pension brute annuelle (taux plein) :</span>
+                            <span className="text-xl font-bold text-blue-700">{pensionBruteAnnuelle.toFixed(2)} €</span>
+                          </div>
+                          <div className="flex justify-between items-center mb-2">
+                            <span className="text-sm text-gray-600">Prélèvements sociaux (≈10%) :</span>
+                            <span className="font-semibold text-red-600">- {(pensionBruteAnnuelle * 0.1).toFixed(2)} €</span>
+                          </div>
+                          <div className="flex justify-between items-center pt-2 border-t-2 border-blue-300">
+                            <span className="font-bold text-gray-800">Pension nette avant IR (taux plein) :</span>
+                            <span className="text-xl font-bold text-green-700">{pensionNetteAnnuelleBase.toFixed(2)} €</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="p-4 bg-white border-2 border-gray-200 rounded-lg">
+                        <h4 className="text-lg font-bold text-gray-800 mb-4">Analyse du scénario</h4>
+
+                        <div className="space-y-4">
+                          <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
+                            <h5 className="font-bold text-blue-900 mb-2 flex items-center gap-2">
+                              <span className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs">1</span>
+                              Situation du scénario
+                            </h5>
+                            <p className="text-sm text-gray-700">
+                              {totalTrimestres >= trimestresRequis ? (
+                                <>Vous disposez de <strong>{totalTrimestres} trimestres</strong>, ce qui est suffisant pour bénéficier du <strong>taux plein</strong> (172 trimestres requis). Vous pouvez partir à la retraite dès 64 ans sans décote.</>
+                              ) : (
+                                <>Vous disposez de <strong>{totalTrimestres} trimestres sur {trimestresRequis} requis</strong>. Il vous manque <strong>{trimestresRequis - totalTrimestres} trimestres</strong> pour le taux plein. Un départ anticipé entraînera une décote sur votre pension.</>
+                              )}
+                            </p>
+                          </div>
+
+                          <div className="p-3 bg-red-50 rounded-lg border border-red-200">
+                            <h5 className="font-bold text-red-900 mb-2 flex items-center gap-2">
+                              <span className="w-6 h-6 bg-red-600 text-white rounded-full flex items-center justify-center text-xs">2</span>
+                              Anomalies et incohérences
+                            </h5>
+                            <div className="text-sm text-gray-700">
+                              {(() => {
+                                const anomalies = [];
+                                carriere.data.forEach(ligne => {
+                                  const messages = checkLigneIncoherence(ligne);
+                                  if (messages.length > 0) {
+                                    anomalies.push(`Année ${ligne.annee}: ${messages.join(', ')}`);
+                                  }
+                                });
+
+                                return anomalies.length > 0 ? (
+                                  <ul className="list-disc list-inside space-y-1">
+                                    {anomalies.map((msg, idx) => (
+                                      <li key={idx}>{msg}</li>
+                                    ))}
+                                  </ul>
+                                ) : (
+                                  <p>✓ Aucune anomalie détectée dans ce scénario de carrière.</p>
+                                );
+                              })()}
+                            </div>
+                          </div>
+
+                          <div className="p-3 bg-purple-50 rounded-lg border border-purple-200">
+                            <h5 className="font-bold text-purple-900 mb-2 flex items-center gap-2">
+                              <span className="w-6 h-6 bg-purple-600 text-white rounded-full flex items-center justify-center text-xs">3</span>
+                              Rachat de trimestres
+                            </h5>
+                            <p className="text-sm text-gray-700">
+                              {totalTrimestres < trimestresRequis ? (
+                                <>Vous pouvez racheter jusqu'à <strong>12 trimestres</strong> pour compléter votre carrière. Le coût varie selon votre âge et revenus (estimé entre 3 000€ et 6 000€ par trimestre). Racheter <strong>{Math.min(trimestresRequis - totalTrimestres, 12)} trimestres</strong> vous permettrait d'atteindre le taux plein.</>
+                              ) : (
+                                <>Vous avez déjà le nombre de trimestres requis. Le rachat de trimestres supplémentaires peut néanmoins augmenter votre pension via la surcote (1,25% par trimestre au-delà de 64 ans).</>
+                              )}
+                            </p>
+                          </div>
+
+                          <div className="p-3 bg-green-50 rounded-lg border border-green-200">
+                            <h5 className="font-bold text-green-900 mb-2 flex items-center gap-2">
+                              <span className="w-6 h-6 bg-green-600 text-white rounded-full flex items-center justify-center text-xs">4</span>
+                              Retraite progressive
+                            </h5>
+                            <p className="text-sm text-gray-700">
+                              À partir de <strong>60 ans</strong>, vous pouvez bénéficier d'une retraite progressive en réduisant votre temps de travail (entre 40% et 80%) tout en percevant une fraction de votre pension. Cela permet une transition en douceur vers la retraite complète.
+                            </p>
+                          </div>
+
+                          <div className="p-3 bg-orange-50 rounded-lg border border-orange-200">
+                            <h5 className="font-bold text-orange-900 mb-2 flex items-center gap-2">
+                              <span className="w-6 h-6 bg-orange-600 text-white rounded-full flex items-center justify-center text-xs">5</span>
+                              Carrière longue
+                            </h5>
+                            <p className="text-sm text-gray-700">
+                              Si vous avez commencé à travailler avant <strong>20 ans</strong> et justifiez d'une longue carrière, vous pourriez partir dès <strong>60 ans</strong> sans décote avec au moins 5 trimestres avant 20 ans et {trimestresRequis} trimestres cotisés. Vérifiez votre relevé de carrière pour cette option.
+                            </p>
+                          </div>
+
+                          <div className="p-3 bg-yellow-50 rounded-lg border border-yellow-200">
+                            <h5 className="font-bold text-yellow-900 mb-2 flex items-center gap-2">
+                              <span className="w-6 h-6 bg-yellow-600 text-white rounded-full flex items-center justify-center text-xs">6</span>
+                              Cumul emploi-retraite
+                            </h5>
+                            <p className="text-sm text-gray-700">
+                              Une fois à la retraite au <strong>taux plein</strong>, vous pouvez reprendre une activité professionnelle sans limitation de revenus tout en cumulant votre pension. Si vous partez avec décote, le cumul est plafonné (environ 20 000€/an selon votre situation).
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
         )}
       </main>
