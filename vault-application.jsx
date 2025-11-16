@@ -272,6 +272,45 @@ export default function VaultApp() {
           pointsBase: 0,
           regimeComplementaire: 'AGIRC-ARRCO',
           pointsComplementaires: 0
+        },
+        {
+          annee: 2024,
+          debut: '01/01/2024',
+          fin: '31/12/2024',
+          employeur: 'SYNTHÈSE ANNÉE 2024',
+          activite: 'Synthèse',
+          revenu: 73000,
+          trimestres: 4,
+          regimeBase: 'CNAV',
+          pointsBase: 340,
+          regimeComplementaire: 'AGIRC-ARRCO',
+          pointsComplementaires: 2100
+        },
+        {
+          annee: 2024,
+          debut: '01/01/2024',
+          fin: '30/06/2024',
+          employeur: 'BIOMATERIAUX GROUP C',
+          activite: 'Salarié',
+          revenu: 35000,
+          trimestres: 2,
+          regimeBase: 'CNAV',
+          pointsBase: 160,
+          regimeComplementaire: 'AGIRC-ARRCO',
+          pointsComplementaires: 980
+        },
+        {
+          annee: 2024,
+          debut: '01/07/2024',
+          fin: '31/12/2024',
+          employeur: 'STOCKPLUS SARL',
+          activite: 'Salarié',
+          revenu: 38000,
+          trimestres: 2,
+          regimeBase: 'CNAV',
+          pointsBase: 180,
+          regimeComplementaire: 'AGIRC-ARRCO',
+          pointsComplementaires: 1120
         }
       ]
     },
