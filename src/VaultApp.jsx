@@ -596,23 +596,16 @@ export default function VaultApp() {
         {activeSection === 'carriere' && (
           <div className="space-y-6">
             <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-200">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-3">
+              <div className="mb-6">
+                <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-3 mb-4">
                   <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
                     <Briefcase className="w-6 h-6 text-orange-600" />
                   </div>
                   Scénarios de carrière
                 </h2>
-                <button
-                  onClick={() => setShowCarriereForm(true)}
-                  className="flex items-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition"
-                >
-                  <Plus className="w-5 h-5" />
-                  Nouveau scénario
-                </button>
               </div>
 
-              <div className="flex gap-2 mb-6 flex-wrap">
+              <div className="flex gap-2 mb-6 flex-wrap items-center">
                 {carrieres.map((carriere) => (
                   <div key={carriere.id} className="relative group">
                     <button
@@ -635,6 +628,13 @@ export default function VaultApp() {
                     )}
                   </div>
                 ))}
+                <button
+                  onClick={() => setShowCarriereForm(true)}
+                  className="flex items-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition"
+                >
+                  <Plus className="w-5 h-5" />
+                  Scénario supplémentaire
+                </button>
               </div>
 
               {showCarriereForm && (
@@ -688,6 +688,69 @@ export default function VaultApp() {
                   </div>
                 </div>
               )}
+
+              {(() => {
+                const carriere = carrieres.find(c => c.id === carriereActive);
+                if (!carriere) return null;
+
+                // Calculer les erreurs de la carrière active
+                const erreursCarriere = [];
+                carriere.data.forEach(ligne => {
+                  const messages = checkLigneIncoherence(ligne);
+                  if (messages.length > 0) {
+                    erreursCarriere.push({
+                      annee: ligne.annee,
+                      messages: messages
+                    });
+                  }
+                });
+
+                return (
+                  <>
+                    {/* Cartouche récapitulatif des erreurs */}
+                    {erreursCarriere.length > 0 ? (
+                      <div className="mb-6 p-4 bg-red-50 rounded-lg border-2 border-red-300">
+                        <div className="flex items-start gap-3">
+                          <div className="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                            <span className="text-white font-bold text-sm">!</span>
+                          </div>
+                          <div className="flex-1">
+                            <h3 className="font-bold text-red-900 mb-2 flex items-center gap-2">
+                              Récapitulatif des erreurs de carrière
+                              <span className="px-2 py-0.5 bg-red-500 text-white rounded-full text-xs font-bold">
+                                {erreursCarriere.length} {erreursCarriere.length === 1 ? 'année' : 'années'} concernée{erreursCarriere.length === 1 ? '' : 's'}
+                              </span>
+                            </h3>
+                            <div className="space-y-2">
+                              {erreursCarriere.map((erreur, idx) => (
+                                <div key={idx} className="bg-white rounded p-2 border border-red-200">
+                                  <p className="font-semibold text-red-800 text-sm mb-1">Année {erreur.annee} :</p>
+                                  <ul className="list-disc list-inside text-xs text-gray-700 space-y-0.5">
+                                    {erreur.messages.map((msg, msgIdx) => (
+                                      <li key={msgIdx}>{msg}</li>
+                                    ))}
+                                  </ul>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="mb-6 p-4 bg-green-50 rounded-lg border-2 border-green-300">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
+                            <Check className="w-5 h-5 text-white" />
+                          </div>
+                          <p className="font-semibold text-green-900">
+                            Aucune erreur détectée dans ce scénario de carrière
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </>
+                );
+              })()}
 
               {(() => {
                 const carriere = carrieres.find(c => c.id === carriereActive);
