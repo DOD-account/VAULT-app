@@ -108,6 +108,7 @@ export default function VaultApp() {
           annee: 2002,
           debut: '25/07/2002',
           fin: '31/08/2002',
+          employeur: '',
           activite: 'Salarié MSA',
           revenu: 1157,
           trimestres: 0,
@@ -122,22 +123,22 @@ export default function VaultApp() {
       id: 2,
       nom: 'Statut PDT de SAS',
       data: [
-        { annee: 2020, debut: '01/01/2020', fin: '31/12/2020', activite: 'PDT SAS', revenu: 45000, trimestres: 4, regimeBase: 'CNAV', pointsBase: 210, regimeComplementaire: 'AGIRC-ARRCO', pointsComplementaires: 1650 },
-        { annee: 2021, debut: '01/01/2021', fin: '31/12/2021', activite: 'PDT SAS', revenu: 47000, trimestres: 4, regimeBase: 'CNAV', pointsBase: 215, regimeComplementaire: 'AGIRC-ARRCO', pointsComplementaires: 1720 },
-        { annee: 2022, debut: '01/01/2022', fin: '31/12/2022', activite: 'PDT SAS', revenu: 49000, trimestres: 2, regimeBase: 'CNAV', pointsBase: 220, regimeComplementaire: 'AGIRC-ARRCO', pointsComplementaires: 1780 },
-        { annee: 2023, debut: '01/01/2023', fin: '31/12/2023', activite: 'PDT SAS', revenu: 51000, trimestres: 4, regimeBase: 'CNAV', pointsBase: 225, regimeComplementaire: 'AGIRC-ARRCO', pointsComplementaires: 1850 },
-        { annee: 2024, debut: '01/01/2024', fin: '31/12/2024', activite: 'PDT SAS', revenu: 53000, trimestres: 4, regimeBase: 'CNAV', pointsBase: 230, regimeComplementaire: 'AGIRC-ARRCO', pointsComplementaires: 1920 }
+        { annee: 2020, debut: '01/01/2020', fin: '31/12/2020', employeur: '', activite: 'PDT SAS', revenu: 45000, trimestres: 4, regimeBase: 'CNAV', pointsBase: 210, regimeComplementaire: 'AGIRC-ARRCO', pointsComplementaires: 1650 },
+        { annee: 2021, debut: '01/01/2021', fin: '31/12/2021', employeur: '', activite: 'PDT SAS', revenu: 47000, trimestres: 4, regimeBase: 'CNAV', pointsBase: 215, regimeComplementaire: 'AGIRC-ARRCO', pointsComplementaires: 1720 },
+        { annee: 2022, debut: '01/01/2022', fin: '31/12/2022', employeur: '', activite: 'PDT SAS', revenu: 49000, trimestres: 2, regimeBase: 'CNAV', pointsBase: 220, regimeComplementaire: 'AGIRC-ARRCO', pointsComplementaires: 1780 },
+        { annee: 2023, debut: '01/01/2023', fin: '31/12/2023', employeur: '', activite: 'PDT SAS', revenu: 51000, trimestres: 4, regimeBase: 'CNAV', pointsBase: 225, regimeComplementaire: 'AGIRC-ARRCO', pointsComplementaires: 1850 },
+        { annee: 2024, debut: '01/01/2024', fin: '31/12/2024', employeur: '', activite: 'PDT SAS', revenu: 53000, trimestres: 4, regimeBase: 'CNAV', pointsBase: 230, regimeComplementaire: 'AGIRC-ARRCO', pointsComplementaires: 1920 }
       ]
     },
     {
       id: 3,
       nom: 'Chômage',
       data: [
-        { annee: 2020, debut: '01/01/2020', fin: '31/12/2020', activite: 'Chômage', revenu: 0, trimestres: 4, regimeBase: 'CNAV', pointsBase: 180, regimeComplementaire: 'AGIRC-ARRCO', pointsComplementaires: 1200 },
-        { annee: 2021, debut: '01/01/2021', fin: '31/12/2021', activite: 'Chômage', revenu: 8000, trimestres: 4, regimeBase: 'CNAV', pointsBase: 180, regimeComplementaire: 'AGIRC-ARRCO', pointsComplementaires: 1200 },
-        { annee: 2022, debut: '01/01/2022', fin: '31/12/2022', activite: 'Chômage', revenu: 15000, trimestres: 4, regimeBase: 'CNAV', pointsBase: 180, regimeComplementaire: 'AGIRC-ARRCO', pointsComplementaires: 1200 },
-        { annee: 2023, debut: '01/01/2023', fin: '31/12/2023', activite: 'Chômage', revenu: 0, trimestres: 3, regimeBase: 'CNAV', pointsBase: 180, regimeComplementaire: 'AGIRC-ARRCO', pointsComplementaires: 1200 },
-        { annee: 2024, debut: '01/01/2024', fin: '31/12/2024', activite: 'Chômage', revenu: 5000, trimestres: 4, regimeBase: 'CNAV', pointsBase: 180, regimeComplementaire: 'AGIRC-ARRCO', pointsComplementaires: 1200 }
+        { annee: 2020, debut: '01/01/2020', fin: '31/12/2020', employeur: '', activite: 'Chômage', revenu: 0, trimestres: 4, regimeBase: 'CNAV', pointsBase: 180, regimeComplementaire: 'AGIRC-ARRCO', pointsComplementaires: 1200 },
+        { annee: 2021, debut: '01/01/2021', fin: '31/12/2021', employeur: '', activite: 'Chômage', revenu: 8000, trimestres: 4, regimeBase: 'CNAV', pointsBase: 180, regimeComplementaire: 'AGIRC-ARRCO', pointsComplementaires: 1200 },
+        { annee: 2022, debut: '01/01/2022', fin: '31/12/2022', employeur: '', activite: 'Chômage', revenu: 15000, trimestres: 4, regimeBase: 'CNAV', pointsBase: 180, regimeComplementaire: 'AGIRC-ARRCO', pointsComplementaires: 1200 },
+        { annee: 2023, debut: '01/01/2023', fin: '31/12/2023', employeur: '', activite: 'Chômage', revenu: 0, trimestres: 3, regimeBase: 'CNAV', pointsBase: 180, regimeComplementaire: 'AGIRC-ARRCO', pointsComplementaires: 1200 },
+        { annee: 2024, debut: '01/01/2024', fin: '31/12/2024', employeur: '', activite: 'Chômage', revenu: 5000, trimestres: 4, regimeBase: 'CNAV', pointsBase: 180, regimeComplementaire: 'AGIRC-ARRCO', pointsComplementaires: 1200 }
       ]
     }
   ]);
@@ -556,7 +557,17 @@ export default function VaultApp() {
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                       />
                     </div>
-                    
+
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-1">Employeur</label>
+                      <input
+                        type="text"
+                        value={tempLigneData.employeur}
+                        onChange={(e) => setTempLigneData({ ...tempLigneData, employeur: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-1">Activité</label>
                       <input
@@ -566,7 +577,7 @@ export default function VaultApp() {
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                       />
                     </div>
-                    
+
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-1">Date début</label>
                       <input
@@ -804,6 +815,7 @@ export default function VaultApp() {
                       <th className="px-3 py-3 text-left text-sm font-semibold border-r border-blue-500">Année</th>
                       <th className="px-3 py-3 text-left text-sm font-semibold border-r border-blue-500">Début</th>
                       <th className="px-3 py-3 text-left text-sm font-semibold border-r border-blue-500">Fin</th>
+                      <th className="px-3 py-3 text-left text-sm font-semibold border-r border-blue-500">Employeur</th>
                       <th className="px-3 py-3 text-left text-sm font-semibold border-r border-blue-500">Activité</th>
                       <th className="px-3 py-3 text-right text-sm font-semibold border-r border-blue-500">Revenu (€)</th>
                       <th className="px-3 py-3 text-center text-sm font-semibold border-r border-blue-500">Trimestres</th>
@@ -834,6 +846,7 @@ export default function VaultApp() {
                             </td>
                             <td className="px-3 py-2 text-sm border-r border-gray-200">{ligne.debut}</td>
                             <td className="px-3 py-2 text-sm border-r border-gray-200">{ligne.fin}</td>
+                            <td className="px-3 py-2 text-sm border-r border-gray-200">{ligne.employeur}</td>
                             <td className="px-3 py-2 text-sm border-r border-gray-200">{ligne.activite}</td>
                             <td className="px-3 py-2 text-sm border-r border-gray-200 text-right font-medium">{ligne.revenu.toLocaleString('fr-FR')} €</td>
                             <td className="px-3 py-2 text-sm border-r border-gray-200 text-center font-semibold text-blue-600">{ligne.trimestres}</td>
@@ -844,7 +857,7 @@ export default function VaultApp() {
                           </tr>
                           {hasError && (
                             <tr className="bg-red-50">
-                              <td colSpan="11" className="px-3 py-2">
+                              <td colSpan="12" className="px-3 py-2">
                                 <div className="flex items-start gap-2 text-sm">
                                   <span className="text-red-600 font-bold">⚠️ Attention :</span>
                                   <div className="text-red-700">

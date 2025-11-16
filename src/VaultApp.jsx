@@ -16,6 +16,7 @@ export default function VaultApp() {
           annee: 2002,
           debut: '25/07/2002',
           fin: '31/08/2002',
+          employeur: '',
           activite: 'Salarié MSA',
           revenu: 1157,
           trimestres: 0,
@@ -30,22 +31,22 @@ export default function VaultApp() {
       id: 2,
       nom: 'Statut PDT de SAS',
       data: [
-        { annee: 2020, debut: '01/01/2020', fin: '31/12/2020', activite: 'PDT SAS', revenu: 45000, trimestres: 4, regimeBase: 'CNAV', pointsBase: 210, regimeComplementaire: 'AGIRC-ARRCO', pointsComplementaires: 1650 },
-        { annee: 2021, debut: '01/01/2021', fin: '31/12/2021', activite: 'PDT SAS', revenu: 47000, trimestres: 4, regimeBase: 'CNAV', pointsBase: 215, regimeComplementaire: 'AGIRC-ARRCO', pointsComplementaires: 1720 },
-        { annee: 2022, debut: '01/01/2022', fin: '31/12/2022', activite: 'PDT SAS', revenu: 49000, trimestres: 2, regimeBase: 'CNAV', pointsBase: 220, regimeComplementaire: 'AGIRC-ARRCO', pointsComplementaires: 1780 },
-        { annee: 2023, debut: '01/01/2023', fin: '31/12/2023', activite: 'PDT SAS', revenu: 51000, trimestres: 4, regimeBase: 'CNAV', pointsBase: 225, regimeComplementaire: 'AGIRC-ARRCO', pointsComplementaires: 1850 },
-        { annee: 2024, debut: '01/01/2024', fin: '31/12/2024', activite: 'PDT SAS', revenu: 53000, trimestres: 4, regimeBase: 'CNAV', pointsBase: 230, regimeComplementaire: 'AGIRC-ARRCO', pointsComplementaires: 1920 }
+        { annee: 2020, debut: '01/01/2020', fin: '31/12/2020', employeur: '', activite: 'PDT SAS', revenu: 45000, trimestres: 4, regimeBase: 'CNAV', pointsBase: 210, regimeComplementaire: 'AGIRC-ARRCO', pointsComplementaires: 1650 },
+        { annee: 2021, debut: '01/01/2021', fin: '31/12/2021', employeur: '', activite: 'PDT SAS', revenu: 47000, trimestres: 4, regimeBase: 'CNAV', pointsBase: 215, regimeComplementaire: 'AGIRC-ARRCO', pointsComplementaires: 1720 },
+        { annee: 2022, debut: '01/01/2022', fin: '31/12/2022', employeur: '', activite: 'PDT SAS', revenu: 49000, trimestres: 2, regimeBase: 'CNAV', pointsBase: 220, regimeComplementaire: 'AGIRC-ARRCO', pointsComplementaires: 1780 },
+        { annee: 2023, debut: '01/01/2023', fin: '31/12/2023', employeur: '', activite: 'PDT SAS', revenu: 51000, trimestres: 4, regimeBase: 'CNAV', pointsBase: 225, regimeComplementaire: 'AGIRC-ARRCO', pointsComplementaires: 1850 },
+        { annee: 2024, debut: '01/01/2024', fin: '31/12/2024', employeur: '', activite: 'PDT SAS', revenu: 53000, trimestres: 4, regimeBase: 'CNAV', pointsBase: 230, regimeComplementaire: 'AGIRC-ARRCO', pointsComplementaires: 1920 }
       ]
     },
     {
       id: 3,
       nom: 'Chômage',
       data: [
-        { annee: 2020, debut: '01/01/2020', fin: '31/12/2020', activite: 'Chômage', revenu: 0, trimestres: 4, regimeBase: 'CNAV', pointsBase: 180, regimeComplementaire: 'AGIRC-ARRCO', pointsComplementaires: 1200 },
-        { annee: 2021, debut: '01/01/2021', fin: '31/12/2021', activite: 'Chômage', revenu: 8000, trimestres: 4, regimeBase: 'CNAV', pointsBase: 180, regimeComplementaire: 'AGIRC-ARRCO', pointsComplementaires: 1200 },
-        { annee: 2022, debut: '01/01/2022', fin: '31/12/2022', activite: 'Chômage', revenu: 15000, trimestres: 4, regimeBase: 'CNAV', pointsBase: 180, regimeComplementaire: 'AGIRC-ARRCO', pointsComplementaires: 1200 },
-        { annee: 2023, debut: '01/01/2023', fin: '31/12/2023', activite: 'Chômage', revenu: 0, trimestres: 3, regimeBase: 'CNAV', pointsBase: 180, regimeComplementaire: 'AGIRC-ARRCO', pointsComplementaires: 1200 },
-        { annee: 2024, debut: '01/01/2024', fin: '31/12/2024', activite: 'Chômage', revenu: 5000, trimestres: 4, regimeBase: 'CNAV', pointsBase: 180, regimeComplementaire: 'AGIRC-ARRCO', pointsComplementaires: 1200 }
+        { annee: 2020, debut: '01/01/2020', fin: '31/12/2020', employeur: '', activite: 'Chômage', revenu: 0, trimestres: 4, regimeBase: 'CNAV', pointsBase: 180, regimeComplementaire: 'AGIRC-ARRCO', pointsComplementaires: 1200 },
+        { annee: 2021, debut: '01/01/2021', fin: '31/12/2021', employeur: '', activite: 'Chômage', revenu: 8000, trimestres: 4, regimeBase: 'CNAV', pointsBase: 180, regimeComplementaire: 'AGIRC-ARRCO', pointsComplementaires: 1200 },
+        { annee: 2022, debut: '01/01/2022', fin: '31/12/2022', employeur: '', activite: 'Chômage', revenu: 15000, trimestres: 4, regimeBase: 'CNAV', pointsBase: 180, regimeComplementaire: 'AGIRC-ARRCO', pointsComplementaires: 1200 },
+        { annee: 2023, debut: '01/01/2023', fin: '31/12/2023', employeur: '', activite: 'Chômage', revenu: 0, trimestres: 3, regimeBase: 'CNAV', pointsBase: 180, regimeComplementaire: 'AGIRC-ARRCO', pointsComplementaires: 1200 },
+        { annee: 2024, debut: '01/01/2024', fin: '31/12/2024', employeur: '', activite: 'Chômage', revenu: 5000, trimestres: 4, regimeBase: 'CNAV', pointsBase: 180, regimeComplementaire: 'AGIRC-ARRCO', pointsComplementaires: 1200 }
       ]
     }
   ]);
@@ -674,6 +675,7 @@ export default function VaultApp() {
                           <th className="py-3 px-2 text-left font-bold">Année</th>
                           <th className="py-3 px-2 text-left font-bold">Début</th>
                           <th className="py-3 px-2 text-left font-bold">Fin</th>
+                          <th className="py-3 px-2 text-left font-bold">Employeur</th>
                           <th className="py-3 px-2 text-left font-bold">Activité</th>
                           <th className="py-3 px-2 text-right font-bold">Revenu (€)</th>
                           <th className="py-3 px-2 text-center font-bold">Trim.</th>
@@ -712,6 +714,14 @@ export default function VaultApp() {
                                       type="text"
                                       value={tempLigneData.fin}
                                       onChange={(e) => setTempLigneData({ ...tempLigneData, fin: e.target.value })}
+                                      className="w-full px-2 py-1 border border-blue-300 rounded text-xs"
+                                    />
+                                  </td>
+                                  <td className="py-2 px-2">
+                                    <input
+                                      type="text"
+                                      value={tempLigneData.employeur}
+                                      onChange={(e) => setTempLigneData({ ...tempLigneData, employeur: e.target.value })}
                                       className="w-full px-2 py-1 border border-blue-300 rounded text-xs"
                                     />
                                   </td>
@@ -807,6 +817,7 @@ export default function VaultApp() {
                                   </td>
                                   <td className="py-2 px-2 text-gray-600">{ligne.debut}</td>
                                   <td className="py-2 px-2 text-gray-600">{ligne.fin}</td>
+                                  <td className="py-2 px-2 text-gray-600">{ligne.employeur}</td>
                                   <td className="py-2 px-2">
                                     <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-medium">
                                       {ligne.activite}
