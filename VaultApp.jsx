@@ -8,59 +8,44 @@ export default function VaultApp() {
   const [showDossierMenu, setShowDossierMenu] = useState(false);
   
   const [carrieres, setCarrieres] = useState([
-    { 
-      id: 1, 
+    {
+      id: 1,
       nom: 'Carrière actuelle',
-      data: Array.from({length: 37}, (_, i) => {
-        const annee = 1988 + i;
-        const salaire = 18500 + (i * 1000);
-        let trimestres = 4;
-        let salaireDefplafonne = salaire;
-        let salairePlafonne = annee >= 2013 ? Math.min(salaire, 46368) : salaire;
-        
-        if (i === 4) trimestres = 2;
-        if (i === 11) {
-          salaireDefplafonne = 28000;
-          salairePlafonne = 30000;
-        }
-        if (i === 19) trimestres = 0;
-        if (i === 27) trimestres = 3;
-        
-        return {
-          annee,
-          debut: `01/01/${annee}`,
-          fin: `31/12/${annee}`,
-          activite: 'Salarié',
-          salaireDefplafonne,
-          salairePlafonne,
-          trimestres,
-          regimeBase: 'CNAV',
-          pointsBase: 120 + (i * 3),
-          regimeComplementaire: 'AGIRC-ARRCO',
-          pointsComplementaires: 450 + (i * 40)
-        };
-      })
-    },
-    { 
-      id: 2, 
-      nom: 'Statut PDT de SAS',
       data: [
-        { annee: 2020, debut: '01/01/2020', fin: '31/12/2020', activite: 'PDT SAS', salaireDefplafonne: 45000, salairePlafonne: 41136, trimestres: 4, regimeBase: 'CNAV', pointsBase: 210, regimeComplementaire: 'AGIRC-ARRCO', pointsComplementaires: 1650 },
-        { annee: 2021, debut: '01/01/2021', fin: '31/12/2021', activite: 'PDT SAS', salaireDefplafonne: 47000, salairePlafonne: 41136, trimestres: 4, regimeBase: 'CNAV', pointsBase: 215, regimeComplementaire: 'AGIRC-ARRCO', pointsComplementaires: 1720 },
-        { annee: 2022, debut: '01/01/2022', fin: '31/12/2022', activite: 'PDT SAS', salaireDefplafonne: 49000, salairePlafonne: 41136, trimestres: 2, regimeBase: 'CNAV', pointsBase: 220, regimeComplementaire: 'AGIRC-ARRCO', pointsComplementaires: 1780 },
-        { annee: 2023, debut: '01/01/2023', fin: '31/12/2023', activite: 'PDT SAS', salaireDefplafonne: 51000, salairePlafonne: 43992, trimestres: 4, regimeBase: 'CNAV', pointsBase: 225, regimeComplementaire: 'AGIRC-ARRCO', pointsComplementaires: 1850 },
-        { annee: 2024, debut: '01/01/2024', fin: '31/12/2024', activite: 'PDT SAS', salaireDefplafonne: 53000, salairePlafonne: 46368, trimestres: 4, regimeBase: 'CNAV', pointsBase: 230, regimeComplementaire: 'AGIRC-ARRCO', pointsComplementaires: 1920 }
+        {
+          annee: 2002,
+          debut: '25/07/2002',
+          fin: '31/08/2002',
+          activite: 'Salarié MSA',
+          revenu: 1157,
+          trimestres: 0,
+          regimeBase: 'CNAV',
+          pointsBase: 0,
+          regimeComplementaire: 'AGIRC-ARRCO',
+          pointsComplementaires: 5.84
+        }
       ]
     },
-    { 
-      id: 3, 
+    {
+      id: 2,
+      nom: 'Statut PDT de SAS',
+      data: [
+        { annee: 2020, debut: '01/01/2020', fin: '31/12/2020', activite: 'PDT SAS', revenu: 45000, trimestres: 4, regimeBase: 'CNAV', pointsBase: 210, regimeComplementaire: 'AGIRC-ARRCO', pointsComplementaires: 1650 },
+        { annee: 2021, debut: '01/01/2021', fin: '31/12/2021', activite: 'PDT SAS', revenu: 47000, trimestres: 4, regimeBase: 'CNAV', pointsBase: 215, regimeComplementaire: 'AGIRC-ARRCO', pointsComplementaires: 1720 },
+        { annee: 2022, debut: '01/01/2022', fin: '31/12/2022', activite: 'PDT SAS', revenu: 49000, trimestres: 2, regimeBase: 'CNAV', pointsBase: 220, regimeComplementaire: 'AGIRC-ARRCO', pointsComplementaires: 1780 },
+        { annee: 2023, debut: '01/01/2023', fin: '31/12/2023', activite: 'PDT SAS', revenu: 51000, trimestres: 4, regimeBase: 'CNAV', pointsBase: 225, regimeComplementaire: 'AGIRC-ARRCO', pointsComplementaires: 1850 },
+        { annee: 2024, debut: '01/01/2024', fin: '31/12/2024', activite: 'PDT SAS', revenu: 53000, trimestres: 4, regimeBase: 'CNAV', pointsBase: 230, regimeComplementaire: 'AGIRC-ARRCO', pointsComplementaires: 1920 }
+      ]
+    },
+    {
+      id: 3,
       nom: 'Chômage',
       data: [
-        { annee: 2020, debut: '01/01/2020', fin: '31/12/2020', activite: 'Chômage', salaireDefplafonne: 0, salairePlafonne: 0, trimestres: 4, regimeBase: 'CNAV', pointsBase: 180, regimeComplementaire: 'AGIRC-ARRCO', pointsComplementaires: 1200 },
-        { annee: 2021, debut: '01/01/2021', fin: '31/12/2021', activite: 'Chômage', salaireDefplafonne: 8000, salairePlafonne: 0, trimestres: 4, regimeBase: 'CNAV', pointsBase: 180, regimeComplementaire: 'AGIRC-ARRCO', pointsComplementaires: 1200 },
-        { annee: 2022, debut: '01/01/2022', fin: '31/12/2022', activite: 'Chômage', salaireDefplafonne: 15000, salairePlafonne: 0, trimestres: 4, regimeBase: 'CNAV', pointsBase: 180, regimeComplementaire: 'AGIRC-ARRCO', pointsComplementaires: 1200 },
-        { annee: 2023, debut: '01/01/2023', fin: '31/12/2023', activite: 'Chômage', salaireDefplafonne: 0, salairePlafonne: 0, trimestres: 3, regimeBase: 'CNAV', pointsBase: 180, regimeComplementaire: 'AGIRC-ARRCO', pointsComplementaires: 1200 },
-        { annee: 2024, debut: '01/01/2024', fin: '31/12/2024', activite: 'Chômage', salaireDefplafonne: 0, salairePlafonne: 5000, trimestres: 4, regimeBase: 'CNAV', pointsBase: 180, regimeComplementaire: 'AGIRC-ARRCO', pointsComplementaires: 1200 }
+        { annee: 2020, debut: '01/01/2020', fin: '31/12/2020', activite: 'Chômage', revenu: 0, trimestres: 4, regimeBase: 'CNAV', pointsBase: 180, regimeComplementaire: 'AGIRC-ARRCO', pointsComplementaires: 1200 },
+        { annee: 2021, debut: '01/01/2021', fin: '31/12/2021', activite: 'Chômage', revenu: 8000, trimestres: 4, regimeBase: 'CNAV', pointsBase: 180, regimeComplementaire: 'AGIRC-ARRCO', pointsComplementaires: 1200 },
+        { annee: 2022, debut: '01/01/2022', fin: '31/12/2022', activite: 'Chômage', revenu: 15000, trimestres: 4, regimeBase: 'CNAV', pointsBase: 180, regimeComplementaire: 'AGIRC-ARRCO', pointsComplementaires: 1200 },
+        { annee: 2023, debut: '01/01/2023', fin: '31/12/2023', activite: 'Chômage', revenu: 0, trimestres: 3, regimeBase: 'CNAV', pointsBase: 180, regimeComplementaire: 'AGIRC-ARRCO', pointsComplementaires: 1200 },
+        { annee: 2024, debut: '01/01/2024', fin: '31/12/2024', activite: 'Chômage', revenu: 5000, trimestres: 4, regimeBase: 'CNAV', pointsBase: 180, regimeComplementaire: 'AGIRC-ARRCO', pointsComplementaires: 1200 }
       ]
     }
   ]);
@@ -242,27 +227,15 @@ export default function VaultApp() {
 
   const checkLigneIncoherence = (ligne) => {
     const messages = [];
-    
+
     if (ligne.trimestres < 0 || ligne.trimestres > 4) {
       messages.push('Trimestres invalides (doit être entre 0 et 4)');
     }
-    
-    if (ligne.trimestres === 0 && ligne.activite === 'Salarié') {
+
+    if (ligne.trimestres === 0 && (ligne.activite === 'Salarié' || ligne.activite === 'Salarié MSA')) {
       messages.push('0 trimestre pour une activité salariée');
     }
-    
-    if (ligne.salaireDefplafonne < ligne.salairePlafonne) {
-      messages.push('Salaire déplafonné < salaire plafonné');
-    }
-    
-    if (ligne.activite === 'Chômage' && ligne.salaireDefplafonne > 0 && ligne.salairePlafonne === 0) {
-      messages.push('Incohérence chômage: salaire déplafonné > 0 mais salaire plafonné = 0');
-    }
-    
-    if (ligne.activite === 'Chômage' && ligne.salairePlafonne > 0 && ligne.salaireDefplafonne === 0) {
-      messages.push('Incohérence chômage: salaire plafonné > 0 mais salaire déplafonné = 0');
-    }
-    
+
     return messages;
   };
 
@@ -702,8 +675,7 @@ export default function VaultApp() {
                           <th className="py-3 px-2 text-left font-bold">Début</th>
                           <th className="py-3 px-2 text-left font-bold">Fin</th>
                           <th className="py-3 px-2 text-left font-bold">Activité</th>
-                          <th className="py-3 px-2 text-right font-bold">Salaire dépl. (€)</th>
-                          <th className="py-3 px-2 text-right font-bold">Salaire plaf. (€)</th>
+                          <th className="py-3 px-2 text-right font-bold">Revenu (€)</th>
                           <th className="py-3 px-2 text-center font-bold">Trim.</th>
                           <th className="py-3 px-2 text-left font-bold">Régime base</th>
                           <th className="py-3 px-2 text-right font-bold">Pts base</th>
@@ -754,16 +726,8 @@ export default function VaultApp() {
                                   <td className="py-2 px-2">
                                     <input
                                       type="number"
-                                      value={tempLigneData.salaireDefplafonne}
-                                      onChange={(e) => setTempLigneData({ ...tempLigneData, salaireDefplafonne: parseFloat(e.target.value) })}
-                                      className="w-full px-2 py-1 border border-blue-300 rounded text-xs text-right"
-                                    />
-                                  </td>
-                                  <td className="py-2 px-2">
-                                    <input
-                                      type="number"
-                                      value={tempLigneData.salairePlafonne}
-                                      onChange={(e) => setTempLigneData({ ...tempLigneData, salairePlafonne: parseFloat(e.target.value) })}
+                                      value={tempLigneData.revenu}
+                                      onChange={(e) => setTempLigneData({ ...tempLigneData, revenu: parseFloat(e.target.value) })}
                                       className="w-full px-2 py-1 border border-blue-300 rounded text-xs text-right"
                                     />
                                   </td>
@@ -835,10 +799,7 @@ export default function VaultApp() {
                                     </span>
                                   </td>
                                   <td className="py-2 px-2 text-right font-medium text-gray-800">
-                                    {ligne.salaireDefplafonne.toLocaleString()}
-                                  </td>
-                                  <td className="py-2 px-2 text-right font-medium text-gray-800">
-                                    {ligne.salairePlafonne.toLocaleString()}
+                                    {ligne.revenu.toLocaleString()}
                                   </td>
                                   <td className={`py-2 px-2 text-center font-bold ${
                                     ligne.trimestres === 0 ? 'text-red-600' :
