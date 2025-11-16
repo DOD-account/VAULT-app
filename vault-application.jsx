@@ -372,6 +372,12 @@ export default function VaultApp() {
   const [tauxInflation, setTauxInflation] = useState(2);
   const [simulationType, setSimulationType] = useState('single');
 
+  // Fonction pour formater les nombres avec séparateurs de milliers
+  const formatNumber = (num) => {
+    if (num === null || num === undefined || num === '' || num === 'N/A') return num;
+    return Number(num).toLocaleString('fr-FR');
+  };
+
   const startEdit = (field, value) => {
     setEditingField(field);
     setTempValue(value);
@@ -1177,7 +1183,57 @@ export default function VaultApp() {
               <h3 className="text-xl font-bold text-gray-800 mb-4">
                 {carrieres.find(c => c.id === carriereActive)?.nom}
               </h3>
-              
+
+              {(() => {
+                // Calculer l'âge à partir du numéro de sécurité sociale
+                const numeroSecu = profil.numeroSecu.replace(/\s/g, '');
+                const anneeNaissance = parseInt('19' + numeroSecu.substring(1, 3));
+                const moisNaissance = parseInt(numeroSecu.substring(3, 5));
+
+                const today = new Date(2025, 10, 16); // 16 novembre 2025
+                const birthDate = new Date(anneeNaissance, moisNaissance - 1, 1);
+
+                let ageAnnees = today.getFullYear() - birthDate.getFullYear();
+                let ageMois = today.getMonth() - birthDate.getMonth();
+
+                if (ageMois < 0) {
+                  ageAnnees--;
+                  ageMois += 12;
+                }
+
+                // Calculer l'âge du taux plein (64 ans pour une personne née en 1966)
+                const ageTauxPlein = 64;
+                const anneeTauxPlein = anneeNaissance + ageTauxPlein;
+                const moisNom = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'][moisNaissance - 1];
+
+                // Calculer le total des trimestres
+                const carriere = carrieres.find(c => c.id === carriereActive);
+                const totalTrimestres = carriere ? carriere.data.reduce((sum, ligne) => sum + ligne.trimestres, 0) : 0;
+                const trimestresRequis = 172;
+
+                return (
+                  <div className="grid grid-cols-3 gap-4 mb-6">
+                    <div className="p-4 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg border-2 border-blue-200">
+                      <p className="text-sm font-semibold text-blue-800 mb-1">Âge actuel</p>
+                      <p className="text-3xl font-bold text-blue-600">{ageAnnees} ans</p>
+                      <p className="text-sm text-blue-600 mt-1">{ageMois} mois</p>
+                    </div>
+
+                    <div className="p-4 bg-gradient-to-br from-green-50 to-green-100 rounded-lg border-2 border-green-200">
+                      <p className="text-sm font-semibold text-green-800 mb-1">Trimestres validés</p>
+                      <p className="text-3xl font-bold text-green-600">{totalTrimestres}</p>
+                      <p className="text-sm text-green-600 mt-1">sur {trimestresRequis} requis</p>
+                    </div>
+
+                    <div className="p-4 bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg border-2 border-purple-200">
+                      <p className="text-sm font-semibold text-purple-800 mb-1">Âge du taux plein</p>
+                      <p className="text-3xl font-bold text-purple-600">{ageTauxPlein} ans</p>
+                      <p className="text-sm text-purple-600 mt-1">{moisNom} {anneeTauxPlein}</p>
+                    </div>
+                  </div>
+                );
+              })()}
+
               <div className="overflow-x-auto">
                 <table className="w-full border-collapse">
                   <thead>
@@ -1273,12 +1329,12 @@ export default function VaultApp() {
                                 </span>
                               )}
                             </td>
-                            <td className="px-3 py-2 text-sm border-r border-gray-200 text-right font-medium">{ligne.revenu.toLocaleString('fr-FR')} €</td>
+                            <td className="px-3 py-2 text-sm border-r border-gray-200 text-right font-medium">{formatNumber(ligne.revenu)} €</td>
                             <td className="px-3 py-2 text-sm border-r border-gray-200 text-center font-semibold text-blue-600">{ligne.trimestres}</td>
                             <td className="px-3 py-2 text-sm border-r border-gray-200">{ligne.regimeBase}</td>
-                            <td className="px-3 py-2 text-sm border-r border-gray-200 text-right font-medium">{ligne.pointsBase}</td>
+                            <td className="px-3 py-2 text-sm border-r border-gray-200 text-right font-medium">{formatNumber(ligne.pointsBase)}</td>
                             <td className="px-3 py-2 text-sm border-r border-gray-200">{ligne.regimeComplementaire}</td>
-                            <td className="px-3 py-2 text-sm text-right font-medium">{ligne.pointsComplementaires}</td>
+                            <td className="px-3 py-2 text-sm text-right font-medium">{formatNumber(ligne.pointsComplementaires)}</td>
                           </tr>
                           {hasError && (
                             <tr className="bg-red-50">
@@ -1428,7 +1484,7 @@ export default function VaultApp() {
                     </div>
                     <div className="flex items-center gap-4">
                       <div className="text-right">
-                        <p className="text-2xl font-bold text-blue-600">{pensionNetteAnnuelleBase.toFixed(0)} €</p>
+                        <p className="text-2xl font-bold text-blue-600">{formatNumber(pensionNetteAnnuelleBase.toFixed(0))} €</p>
                         <p className="text-xs text-gray-500">Pension nette annuelle estimée</p>
                       </div>
                       {isExpanded ? (
@@ -1450,13 +1506,13 @@ export default function VaultApp() {
 
                         <div className="p-4 bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg border border-purple-200">
                           <p className="text-sm font-semibold text-purple-800 mb-1">Points régime de base</p>
-                          <p className="text-3xl font-bold text-purple-600">{totalPointsBase.toFixed(0)}</p>
+                          <p className="text-3xl font-bold text-purple-600">{formatNumber(totalPointsBase.toFixed(0))}</p>
                           <p className="text-xs text-purple-600 mt-1">CNAV</p>
                         </div>
 
                         <div className="p-4 bg-gradient-to-br from-pink-50 to-pink-100 rounded-lg border border-pink-200">
                           <p className="text-sm font-semibold text-pink-800 mb-1">Points complémentaires</p>
-                          <p className="text-3xl font-bold text-pink-600">{totalPointsComplementaires.toFixed(0)}</p>
+                          <p className="text-3xl font-bold text-pink-600">{formatNumber(totalPointsComplementaires.toFixed(0))}</p>
                           <p className="text-xs text-pink-600 mt-1">AGIRC-ARRCO</p>
                         </div>
                       </div>
@@ -1467,31 +1523,31 @@ export default function VaultApp() {
                         <div className="space-y-3">
                           <div className="flex justify-between items-center pb-2 border-b border-green-200">
                             <span className="text-sm text-gray-600">Pension régime de base (mensuelle) :</span>
-                            <span className="font-semibold text-gray-800">{(pensionBase / 12).toFixed(2)} €</span>
+                            <span className="font-semibold text-gray-800">{formatNumber((pensionBase / 12).toFixed(2))} €</span>
                           </div>
                           <div className="flex justify-between items-center text-xs text-gray-500 -mt-2 mb-2">
-                            <span>{totalPointsBase.toFixed(0)} points × {valeurPointBase} € = {(totalPointsBase * valeurPointBase).toFixed(2)} €/mois</span>
+                            <span>{formatNumber(totalPointsBase.toFixed(0))} points × {valeurPointBase} € = {formatNumber((totalPointsBase * valeurPointBase).toFixed(2))} €/mois</span>
                           </div>
 
                           <div className="flex justify-between items-center pb-2 border-b border-green-200">
                             <span className="text-sm text-gray-600">Pension complémentaire (mensuelle) :</span>
-                            <span className="font-semibold text-gray-800">{(pensionComplementaire / 12).toFixed(2)} €</span>
+                            <span className="font-semibold text-gray-800">{formatNumber((pensionComplementaire / 12).toFixed(2))} €</span>
                           </div>
                           <div className="flex justify-between items-center text-xs text-gray-500 -mt-2 mb-2">
-                            <span>{totalPointsComplementaires.toFixed(0)} points × {valeurPointComplementaire} € = {(totalPointsComplementaires * valeurPointComplementaire).toFixed(2)} €/mois</span>
+                            <span>{formatNumber(totalPointsComplementaires.toFixed(0))} points × {valeurPointComplementaire} € = {formatNumber((totalPointsComplementaires * valeurPointComplementaire).toFixed(2))} €/mois</span>
                           </div>
 
                           <div className="flex justify-between items-center pt-2 border-t-2 border-green-400">
                             <span className="font-bold text-gray-800">Pension brute annuelle (taux plein) :</span>
-                            <span className="text-xl font-bold text-blue-700">{pensionBruteAnnuelle.toFixed(2)} €</span>
+                            <span className="text-xl font-bold text-blue-700">{formatNumber(pensionBruteAnnuelle.toFixed(2))} €</span>
                           </div>
                           <div className="flex justify-between items-center mb-2">
                             <span className="text-sm text-gray-600">Prélèvements sociaux (≈10%) :</span>
-                            <span className="font-semibold text-red-600">- {(pensionBruteAnnuelle * 0.1).toFixed(2)} €</span>
+                            <span className="font-semibold text-red-600">- {formatNumber((pensionBruteAnnuelle * 0.1).toFixed(2))} €</span>
                           </div>
                           <div className="flex justify-between items-center pt-2 border-t-2 border-blue-300">
                             <span className="font-bold text-gray-800">Pension nette avant IR (taux plein) :</span>
-                            <span className="text-xl font-bold text-green-700">{pensionNetteAnnuelleBase.toFixed(2)} €</span>
+                            <span className="text-xl font-bold text-green-700">{formatNumber(pensionNetteAnnuelleBase.toFixed(2))} €</span>
                           </div>
                         </div>
                       </div>
