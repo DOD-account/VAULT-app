@@ -203,7 +203,7 @@ export default function VaultApp() {
           revenu: 132982,
           trimestres: 0,
           regimeBase: 'CNAV',
-          pointsBase: 0,
+          pointsBase: 'N/A',
           regimeComplementaire: 'Agirc-Arrco',
           pointsComplementaires: 1000.10
         },
@@ -216,7 +216,7 @@ export default function VaultApp() {
           revenu: 25842,
           trimestres: 0,
           regimeBase: 'CNAV',
-          pointsBase: 0,
+          pointsBase: 'N/A',
           regimeComplementaire: 'Ircantec',
           pointsComplementaires: 718.00
         }
@@ -283,7 +283,10 @@ export default function VaultApp() {
   const [selectedFile, setSelectedFile] = useState(null);
   const [expandedCarrieres, setExpandedCarrieres] = useState({});
   const [showNotifications, setShowNotifications] = useState(false);
-  
+  const [showSimulationModal, setShowSimulationModal] = useState(false);
+  const [tauxInflation, setTauxInflation] = useState(2);
+  const [simulationType, setSimulationType] = useState('single');
+
   const [notifications] = useState([
     {
       id: 1,
@@ -448,6 +451,106 @@ export default function VaultApp() {
       ...prev,
       [id]: !prev[id]
     }));
+  };
+
+  const simulerAjouterLigne = () => {
+    const carriere = carrieres.find(c => c.id === carriereActive);
+    if (!carriere || carriere.data.length === 0) return;
+
+    // Trouver la dernière ligne (non-synthèse)
+    const derniereAnnee = Math.max(...carriere.data.filter(l => l.activite !== 'Synthèse').map(l => l.annee));
+    const dernieresLignes = carriere.data.filter(l => l.annee === derniereAnnee && l.activite !== 'Synthèse');
+
+    if (dernieresLignes.length === 0) return;
+
+    // Prendre la dernière ligne comme modèle
+    const derniereLigne = dernieresLignes[dernieresLignes.length - 1];
+
+    // Créer une nouvelle ligne pour l'année suivante
+    const nouvelleLigne = {
+      ...derniereLigne,
+      annee: derniereAnnee + 1,
+      debut: `01/01/${derniereAnnee + 1}`,
+      fin: `31/12/${derniereAnnee + 1}`,
+      revenu: Math.round(derniereLigne.revenu * (1 + tauxInflation / 100)),
+      pointsBase: typeof derniereLigne.pointsBase === 'number' ? Math.round(derniereLigne.pointsBase * (1 + tauxInflation / 100) * 100) / 100 : 'N/A',
+      pointsComplementaires: typeof derniereLigne.pointsComplementaires === 'number' ? Math.round(derniereLigne.pointsComplementaires * (1 + tauxInflation / 100) * 100) / 100 : 'N/A'
+    };
+
+    setCarrieres(carrieres.map(c => {
+      if (c.id === carriereActive) {
+        return {
+          ...c,
+          data: [...c.data, nouvelleLigne]
+        };
+      }
+      return c;
+    }));
+
+    setShowSimulationModal(false);
+  };
+
+  const simulerTauxPlein = () => {
+    const carriere = carrieres.find(c => c.id === carriereActive);
+    if (!carriere || carriere.data.length === 0) return;
+
+    const trimestresRequis = 172;
+    const totalTrimestres = carriere.data.reduce((sum, ligne) => sum + ligne.trimestres, 0);
+
+    if (totalTrimestres >= trimestresRequis) {
+      alert('Le taux plein est déjà atteint !');
+      return;
+    }
+
+    const trimestresManquants = trimestresRequis - totalTrimestres;
+    const anneesNecessaires = Math.ceil(trimestresManquants / 4);
+
+    // Trouver la dernière ligne (non-synthèse)
+    const derniereAnnee = Math.max(...carriere.data.filter(l => l.activite !== 'Synthèse').map(l => l.annee));
+    const dernieresLignes = carriere.data.filter(l => l.annee === derniereAnnee && l.activite !== 'Synthèse');
+
+    if (dernieresLignes.length === 0) return;
+
+    // Prendre la dernière ligne comme modèle
+    const derniereLigne = dernieresLignes[dernieresLignes.length - 1];
+
+    // Créer les nouvelles lignes
+    const nouvellesLignes = [];
+    for (let i = 1; i <= anneesNecessaires; i++) {
+      const annee = derniereAnnee + i;
+      const facteurInflation = Math.pow(1 + tauxInflation / 100, i);
+
+      nouvellesLignes.push({
+        ...derniereLigne,
+        annee: annee,
+        debut: `01/01/${annee}`,
+        fin: `31/12/${annee}`,
+        revenu: Math.round(derniereLigne.revenu * facteurInflation),
+        trimestres: i === anneesNecessaires ? (trimestresManquants % 4 || 4) : 4,
+        pointsBase: typeof derniereLigne.pointsBase === 'number' ? Math.round(derniereLigne.pointsBase * facteurInflation * 100) / 100 : 'N/A',
+        pointsComplementaires: typeof derniereLigne.pointsComplementaires === 'number' ? Math.round(derniereLigne.pointsComplementaires * facteurInflation * 100) / 100 : 'N/A'
+      });
+    }
+
+    setCarrieres(carrieres.map(c => {
+      if (c.id === carriereActive) {
+        return {
+          ...c,
+          data: [...c.data, ...nouvellesLignes]
+        };
+      }
+      return c;
+    }));
+
+    setShowSimulationModal(false);
+  };
+
+  const handleSimulation = () => {
+    if (simulationType === 'single') {
+      simulerAjouterLigne();
+    } else if (simulationType === 'tauxPlein') {
+      simulerTauxPlein();
+    }
   };
 
   return (
@@ -1107,9 +1210,98 @@ export default function VaultApp() {
                         })}
                       </tbody>
                     </table>
+
+                    <div className="mt-6 flex justify-center">
+                      <button
+                        onClick={() => setShowSimulationModal(true)}
+                        className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-lg hover:from-purple-700 hover:to-indigo-700 transition shadow-lg"
+                      >
+                        <TrendingUp className="w-5 h-5" />
+                        Simuler la suite de la carrière
+                      </button>
+                    </div>
                   </div>
                 );
               })()}
+
+              {showSimulationModal && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                  <div className="bg-white rounded-xl shadow-2xl p-6 max-w-md w-full mx-4">
+                    <h3 className="text-xl font-bold text-gray-800 mb-4">Simuler la suite de la carrière</h3>
+
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Type de simulation :
+                        </label>
+                        <div className="space-y-2">
+                          <label className="flex items-center gap-3 p-3 border-2 border-gray-200 rounded-lg cursor-pointer hover:bg-blue-50 transition">
+                            <input
+                              type="radio"
+                              name="simulationType"
+                              value="single"
+                              checked={simulationType === 'single'}
+                              onChange={(e) => setSimulationType(e.target.value)}
+                              className="w-4 h-4 text-blue-600"
+                            />
+                            <div>
+                              <div className="font-medium text-gray-800">Ajouter une ligne</div>
+                              <div className="text-xs text-gray-500">Ajouter une seule année supplémentaire</div>
+                            </div>
+                          </label>
+                          <label className="flex items-center gap-3 p-3 border-2 border-gray-200 rounded-lg cursor-pointer hover:bg-blue-50 transition">
+                            <input
+                              type="radio"
+                              name="simulationType"
+                              value="tauxPlein"
+                              checked={simulationType === 'tauxPlein'}
+                              onChange={(e) => setSimulationType(e.target.value)}
+                              className="w-4 h-4 text-blue-600"
+                            />
+                            <div>
+                              <div className="font-medium text-gray-800">Dupliquer jusqu'au taux plein</div>
+                              <div className="text-xs text-gray-500">Ajouter les années nécessaires pour atteindre 172 trimestres</div>
+                            </div>
+                          </label>
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Taux d'inflation annuel (%) :
+                        </label>
+                        <input
+                          type="number"
+                          value={tauxInflation}
+                          onChange={(e) => setTauxInflation(parseFloat(e.target.value))}
+                          step="0.1"
+                          min="0"
+                          max="10"
+                          className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                        <p className="text-xs text-gray-500 mt-1">
+                          Le revenu et les points seront ajustés selon ce taux chaque année
+                        </p>
+                      </div>
+
+                      <div className="flex gap-3 mt-6">
+                        <button
+                          onClick={handleSimulation}
+                          className="flex-1 px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg hover:from-green-700 hover:to-emerald-700 transition font-medium"
+                        >
+                          Lancer la simulation
+                        </button>
+                        <button
+                          onClick={() => setShowSimulationModal(false)}
+                          className="flex-1 px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition font-medium"
+                        >
+                          Annuler
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         )}
