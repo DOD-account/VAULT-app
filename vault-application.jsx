@@ -137,7 +137,7 @@ export default function VaultApp() {
           employeur: 'SARL BATI',
           activite: 'Salarié',
           revenu: 5560,
-          trimestres: 0,
+          trimestres: 4,
           regimeBase: 'CNAV',
           pointsBase: 0,
           regimeComplementaire: 'AGIRC-ARRCO',
@@ -150,7 +150,7 @@ export default function VaultApp() {
           employeur: 'TRANSDEV MEDITERRANEE',
           activite: 'Salarié',
           revenu: 1470,
-          trimestres: 0,
+          trimestres: 4,
           regimeBase: '',
           pointsBase: 0,
           regimeComplementaire: 'AGIRC-ARRCO',
@@ -163,7 +163,7 @@ export default function VaultApp() {
           employeur: 'MED MATERIAUX',
           activite: 'Salarié',
           revenu: 22888,
-          trimestres: 0,
+          trimestres: 4,
           regimeBase: 'CNAV',
           pointsBase: 0,
           regimeComplementaire: 'AGIRC-ARRCO',
@@ -176,7 +176,7 @@ export default function VaultApp() {
           employeur: 'TOP MATERIAUX',
           activite: 'Salarié',
           revenu: 9740,
-          trimestres: 0,
+          trimestres: 4,
           regimeBase: 'CNAV',
           pointsBase: 0,
           regimeComplementaire: 'AGIRC-ARRCO',
@@ -189,7 +189,7 @@ export default function VaultApp() {
           employeur: 'S.A.S. GROUPE M',
           activite: 'Salarié',
           revenu: 6290,
-          trimestres: 0,
+          trimestres: 4,
           regimeBase: 'CNAV',
           pointsBase: 0,
           regimeComplementaire: 'AGIRC-ARRCO',
@@ -202,7 +202,7 @@ export default function VaultApp() {
           employeur: 'MED MATERIAUX',
           activite: 'Salarié',
           revenu: 34865,
-          trimestres: 0,
+          trimestres: 4,
           regimeBase: 'CNAV',
           pointsBase: 0,
           regimeComplementaire: 'AGIRC-ARRCO',
@@ -215,7 +215,7 @@ export default function VaultApp() {
           employeur: 'STOCKMATERIAUX',
           activite: 'Salarié',
           revenu: 493,
-          trimestres: 0,
+          trimestres: 4,
           regimeBase: 'CNAV',
           pointsBase: 0,
           regimeComplementaire: '',
@@ -228,7 +228,7 @@ export default function VaultApp() {
           employeur: 'STOCKMATERIAUX',
           activite: 'Salarié',
           revenu: 100999,
-          trimestres: 0,
+          trimestres: 4,
           regimeBase: 'CNAV',
           pointsBase: 0,
           regimeComplementaire: 'AGIRC-ARRCO',
@@ -241,7 +241,7 @@ export default function VaultApp() {
           employeur: 'BIOMATERIAUX GROUP C',
           activite: 'Salarié',
           revenu: 343874,
-          trimestres: 0,
+          trimestres: 4,
           regimeBase: '',
           pointsBase: 0,
           regimeComplementaire: 'AGIRC-ARRCO',
@@ -254,7 +254,7 @@ export default function VaultApp() {
           employeur: 'ACTIVITÉ SALARIÉE (MSA)',
           activite: 'Salarié MSA',
           revenu: 445489,
-          trimestres: 0,
+          trimestres: 4,
           regimeBase: 'MSA',
           pointsBase: 0,
           regimeComplementaire: '',
@@ -267,7 +267,7 @@ export default function VaultApp() {
           employeur: 'BIOMATERIAUX GROUP C',
           activite: 'Salarié',
           revenu: 252408,
-          trimestres: 0,
+          trimestres: 4,
           regimeBase: '',
           pointsBase: 0,
           regimeComplementaire: 'AGIRC-ARRCO',
@@ -526,7 +526,6 @@ export default function VaultApp() {
 
     // Calculer les totaux pour la synthèse
     let totalRevenu = 0;
-    let totalTrimestres = 0;
 
     // Dupliquer toutes les lignes de la dernière année
     lignesDerniereAnnee.forEach(ligne => {
@@ -540,13 +539,16 @@ export default function VaultApp() {
         debut: `01/01/${nouvelleAnnee}`,
         fin: `31/12/${nouvelleAnnee}`,
         revenu: revenuAjuste,
+        trimestres: 0,
         pointsBase: pointsBaseAjustes,
         pointsComplementaires: pointsComplAjustes
       });
 
       totalRevenu += revenuAjuste;
-      totalTrimestres += ligne.trimestres;
     });
+
+    // Calculer le nombre de trimestres selon le revenu total
+    const trimestresCalcules = Math.min(4, Math.floor(totalRevenu / 1750));
 
     // Si l'année originale avait une synthèse, créer une synthèse pour la nouvelle année
     if (syntheseDerniereAnnee && lignesDerniereAnnee.length > 1) {
@@ -556,7 +558,7 @@ export default function VaultApp() {
         debut: `01/01/${nouvelleAnnee}`,
         fin: `31/12/${nouvelleAnnee}`,
         revenu: totalRevenu,
-        trimestres: totalTrimestres,
+        trimestres: trimestresCalcules,
         employeur: `SYNTHÈSE ANNÉE ${nouvelleAnnee}`
       };
       nouvellesLignes.unshift(nouvelleSynthese); // Ajouter la synthèse au début
@@ -588,7 +590,7 @@ export default function VaultApp() {
     }
 
     const trimestresManquants = trimestresRequis - totalTrimestres;
-    const anneesNecessaires = Math.ceil(trimestresManquants / 4);
+    let trimestresRestants = trimestresManquants;
 
     // Trouver la dernière année (non-synthèse)
     const derniereAnnee = Math.max(...carriere.data.filter(l => l.activite !== 'Synthèse').map(l => l.annee));
@@ -599,23 +601,19 @@ export default function VaultApp() {
 
     // Créer les nouvelles lignes pour toutes les années nécessaires
     const toutesNouvellesLignes = [];
+    let annee = 1;
 
-    for (let i = 1; i <= anneesNecessaires; i++) {
-      const nouvelleAnnee = derniereAnnee + i;
-      const facteurInflation = Math.pow(1 + tauxInflation / 100, i);
-      const trimestresAAjouter = i === anneesNecessaires ? (trimestresManquants % 4 || 4) : 4;
+    while (trimestresRestants > 0) {
+      const nouvelleAnnee = derniereAnnee + annee;
+      const facteurInflation = Math.pow(1 + tauxInflation / 100, annee);
 
       let totalRevenu = 0;
-      let totalTrimestres = 0;
 
       // Dupliquer toutes les lignes de la dernière année
-      lignesDerniereAnnee.forEach((ligne, index) => {
+      lignesDerniereAnnee.forEach((ligne) => {
         const revenuAjuste = Math.round(ligne.revenu * facteurInflation);
         const pointsBaseAjustes = typeof ligne.pointsBase === 'number' ? Math.round(ligne.pointsBase * facteurInflation * 100) / 100 : ligne.pointsBase;
         const pointsComplAjustes = typeof ligne.pointsComplementaires === 'number' ? Math.round(ligne.pointsComplementaires * facteurInflation * 100) / 100 : ligne.pointsComplementaires;
-
-        // Pour la dernière année, seule la première ligne d'activité aura les trimestres manquants
-        const trimestresLigne = (i === anneesNecessaires && index === 0) ? trimestresAAjouter : 0;
 
         toutesNouvellesLignes.push({
           ...ligne,
@@ -623,14 +621,17 @@ export default function VaultApp() {
           debut: `01/01/${nouvelleAnnee}`,
           fin: `31/12/${nouvelleAnnee}`,
           revenu: revenuAjuste,
-          trimestres: trimestresLigne,
+          trimestres: 0,
           pointsBase: pointsBaseAjustes,
           pointsComplementaires: pointsComplAjustes
         });
 
         totalRevenu += revenuAjuste;
-        totalTrimestres += trimestresLigne;
       });
+
+      // Calculer le nombre de trimestres selon le revenu total
+      const trimestresCalcules = Math.min(4, Math.floor(totalRevenu / 1750));
+      const trimestresAAffecter = Math.min(trimestresCalcules, trimestresRestants);
 
       // Si l'année originale avait une synthèse, créer une synthèse pour la nouvelle année
       if (syntheseDerniereAnnee && lignesDerniereAnnee.length > 1) {
@@ -640,13 +641,16 @@ export default function VaultApp() {
           debut: `01/01/${nouvelleAnnee}`,
           fin: `31/12/${nouvelleAnnee}`,
           revenu: totalRevenu,
-          trimestres: totalTrimestres,
+          trimestres: trimestresAAffecter,
           employeur: `SYNTHÈSE ANNÉE ${nouvelleAnnee}`
         };
         // Insérer la synthèse avant les lignes de détail de cette année
         const indexInsertionSynthese = toutesNouvellesLignes.length - lignesDerniereAnnee.length;
         toutesNouvellesLignes.splice(indexInsertionSynthese, 0, nouvelleSynthese);
       }
+
+      trimestresRestants -= trimestresAAffecter;
+      annee++;
     }
 
     setCarrieres(carrieres.map(c => {
@@ -1364,7 +1368,7 @@ export default function VaultApp() {
                         className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                       />
                       <p className="text-xs text-gray-500 mt-1">
-                        Le revenu et les points seront ajustés selon ce taux chaque année
+                        Le revenu est ajusté selon ce taux chaque année et les droits retraite associés seront calculés sur la base du nouveau revenu
                       </p>
                     </div>
 
