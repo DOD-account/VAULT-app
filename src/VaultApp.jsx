@@ -1023,16 +1023,18 @@ export default function VaultApp() {
                                 <>
                                   <td className="py-2 px-2 font-bold text-gray-700">
                                     <div className="flex items-center gap-2">
-                                      {hasError && (
-                                        <div className="relative group">
-                                          <span className="text-red-600 font-bold cursor-help">⚠</span>
-                                          <div className="absolute top-full left-0 mt-1 hidden group-hover:block w-64 p-2 bg-red-600 text-white text-xs rounded shadow-lg z-10">
-                                            {incoherences.map((msg, idx) => (
-                                              <div key={idx}>• {msg}</div>
-                                            ))}
-                                          </div>
-                                        </div>
-                                      )}
+                                      <div className="relative group w-4">
+                                        {hasError && (
+                                          <>
+                                            <span className="text-red-600 font-bold cursor-help">⚠</span>
+                                            <div className="absolute top-full left-0 mt-1 hidden group-hover:block w-64 p-2 bg-red-600 text-white text-xs rounded shadow-lg z-10">
+                                              {incoherences.map((msg, idx) => (
+                                                <div key={idx}>• {msg}</div>
+                                              ))}
+                                            </div>
+                                          </>
+                                        )}
+                                      </div>
                                       {hasDetails && (
                                         <button
                                           onClick={() => toggleExpandYear(ligne.annee)}

@@ -1059,9 +1059,11 @@ export default function VaultApp() {
                           >
                             <td className="px-3 py-2 text-sm border-r border-gray-200 font-medium">
                               <div className="flex items-center gap-2">
-                                {hasError && (
-                                  <span className="text-red-600 font-bold">⚠️</span>
-                                )}
+                                <span className="w-4 inline-block">
+                                  {hasError && (
+                                    <span className="text-red-600 font-bold">⚠️</span>
+                                  )}
+                                </span>
                                 {hasDetails && (
                                   <button
                                     onClick={(e) => {
