@@ -281,17 +281,17 @@ export default function VaultApp() {
           activite: 'Synthèse',
           revenu: 158824,
           trimestres: 4,
-          regimeBase: '',
-          pointsBase: 0,
-          regimeComplementaire: '',
-          pointsComplementaires: 0
+          regimeBase: 'CNAV',
+          pointsBase: 'N/A',
+          regimeComplementaire: 'Agirc-Arrco, Ircantec',
+          pointsComplementaires: 'N/A'
         },
         {
           annee: 2024,
           debut: '01/01/2024',
           fin: '31/12/2024',
           employeur: 'Centrale achats',
-          activite: 'Salarié',
+          activite: 'Salarié du privé',
           revenu: 132982,
           trimestres: 0,
           regimeBase: 'CNAV',
@@ -304,7 +304,7 @@ export default function VaultApp() {
           debut: '01/01/2024',
           fin: '31/12/2024',
           employeur: 'UNIVERSITE PARIS 8',
-          activite: 'Agent non titulaire',
+          activite: 'Agent salarié non titulaire',
           revenu: 25842,
           trimestres: 0,
           regimeBase: 'CNAV',
@@ -1054,8 +1054,8 @@ export default function VaultApp() {
                             className={(hasError ? 'bg-red-50 border-l-4 border-red-400' :
                                        isSynthese ? 'bg-blue-50 font-semibold' :
                                        isDetail ? 'bg-gray-100' :
-                                       (index % 2 === 0 ? 'bg-white' : 'bg-gray-50')) + ' hover:bg-blue-50 cursor-pointer transition'}
-                            onClick={() => openEditLigne(carriereActive, index)}
+                                       (index % 2 === 0 ? 'bg-white' : 'bg-gray-50')) + ' hover:bg-blue-50 transition ' + (isSynthese ? '' : 'cursor-pointer')}
+                            onClick={() => !isSynthese && openEditLigne(carriereActive, index)}
                           >
                             <td className="px-3 py-2 text-sm border-r border-gray-200 font-medium">
                               <div className="flex items-center gap-2">
@@ -1086,7 +1086,26 @@ export default function VaultApp() {
                             <td className="px-3 py-2 text-sm border-r border-gray-200">{ligne.debut}</td>
                             <td className="px-3 py-2 text-sm border-r border-gray-200">{ligne.fin}</td>
                             <td className="px-3 py-2 text-sm border-r border-gray-200">{ligne.employeur}</td>
-                            <td className="px-3 py-2 text-sm border-r border-gray-200">{ligne.activite}</td>
+                            <td className="px-3 py-2 text-sm border-r border-gray-200">
+                              {isSynthese ? (
+                                <div className="flex flex-col gap-1">
+                                  <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-medium">
+                                    Salarié du privé
+                                  </span>
+                                  <span className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-medium">
+                                    Agent salarié non titulaire
+                                  </span>
+                                </div>
+                              ) : (
+                                <span className={`px-2 py-1 rounded text-xs font-medium ${
+                                  ligne.activite === 'Agent salarié non titulaire'
+                                    ? 'bg-green-100 text-green-700'
+                                    : 'bg-blue-100 text-blue-700'
+                                }`}>
+                                  {ligne.activite}
+                                </span>
+                              )}
+                            </td>
                             <td className="px-3 py-2 text-sm border-r border-gray-200 text-right font-medium">{ligne.revenu.toLocaleString('fr-FR')} €</td>
                             <td className="px-3 py-2 text-sm border-r border-gray-200 text-center font-semibold text-blue-600">{ligne.trimestres}</td>
                             <td className="px-3 py-2 text-sm border-r border-gray-200">{ligne.regimeBase}</td>

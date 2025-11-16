@@ -189,17 +189,17 @@ export default function VaultApp() {
           activite: 'Synthèse',
           revenu: 158824,
           trimestres: 4,
-          regimeBase: '',
-          pointsBase: 0,
-          regimeComplementaire: '',
-          pointsComplementaires: 0
+          regimeBase: 'CNAV',
+          pointsBase: 'N/A',
+          regimeComplementaire: 'Agirc-Arrco, Ircantec',
+          pointsComplementaires: 'N/A'
         },
         {
           annee: 2024,
           debut: '01/01/2024',
           fin: '31/12/2024',
           employeur: 'Centrale achats',
-          activite: 'Salarié',
+          activite: 'Salarié du privé',
           revenu: 132982,
           trimestres: 0,
           regimeBase: 'CNAV',
@@ -212,7 +212,7 @@ export default function VaultApp() {
           debut: '01/01/2024',
           fin: '31/12/2024',
           employeur: 'UNIVERSITE PARIS 8',
-          activite: 'Agent non titulaire',
+          activite: 'Agent salarié non titulaire',
           revenu: 25842,
           trimestres: 0,
           regimeBase: 'CNAV',
@@ -1055,9 +1055,24 @@ export default function VaultApp() {
                                   <td className="py-2 px-2 text-gray-600">{ligne.fin}</td>
                                   <td className="py-2 px-2 text-gray-600">{ligne.employeur}</td>
                                   <td className="py-2 px-2">
-                                    <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-medium">
-                                      {ligne.activite}
-                                    </span>
+                                    {isSynthese ? (
+                                      <div className="flex flex-col gap-1">
+                                        <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-medium">
+                                          Salarié du privé
+                                        </span>
+                                        <span className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-medium">
+                                          Agent salarié non titulaire
+                                        </span>
+                                      </div>
+                                    ) : (
+                                      <span className={`px-2 py-1 rounded text-xs font-medium ${
+                                        ligne.activite === 'Agent salarié non titulaire'
+                                          ? 'bg-green-100 text-green-700'
+                                          : 'bg-blue-100 text-blue-700'
+                                      }`}>
+                                        {ligne.activite}
+                                      </span>
+                                    )}
                                   </td>
                                   <td className="py-2 px-2 text-right font-medium text-gray-800">
                                     {ligne.revenu.toLocaleString()}
@@ -1075,12 +1090,14 @@ export default function VaultApp() {
                                   <td className="py-2 px-2 text-right text-gray-700">{ligne.pointsComplementaires}</td>
                                   <td className="py-2 px-2">
                                     <div className="flex gap-1 justify-center">
-                                      <button
-                                        onClick={() => startEditLigne(ligne)}
-                                        className="p-1 bg-blue-500 text-white rounded hover:bg-blue-600"
-                                      >
-                                        <Edit2 className="w-3 h-3" />
-                                      </button>
+                                      {!isSynthese && (
+                                        <button
+                                          onClick={() => startEditLigne(ligne)}
+                                          className="p-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+                                        >
+                                          <Edit2 className="w-3 h-3" />
+                                        </button>
+                                      )}
                                     </div>
                                   </td>
                                 </>
