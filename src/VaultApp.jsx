@@ -1103,21 +1103,10 @@ export default function VaultApp() {
                                     return null;
                                   })()}
                                 </div>
-                              </td>                              {/* Année avec icône d'erreur */}
+                              </td>
+                              {/* Année */}
                               <td className={`py-2 px-2 ${isDetail ? 'pl-6' : ''}`}>
-                                <div className="flex items-center gap-2">
-                                  {hasError && (
-                                    <div className="relative group">
-                                      <span className="text-red-600 font-bold cursor-help">⚠</span>
-                                      <div className="absolute bottom-full left-0 mb-2 hidden group-hover:block w-64 p-2 bg-red-600 text-white text-xs rounded shadow-lg z-10">
-                                        {incoherences.map((msg, idx) => (
-                                          <div key={idx}>• {msg}</div>
-                                        ))}
-                                      </div>
-                                    </div>
-                                  )}
-                                  <span className="font-bold text-gray-700">{ligne.annee}</span>
-                                </div>
+                                <span className="font-bold text-gray-700">{ligne.annee}</span>
                               </td>
                               {/* Début */}
                               <td className="py-2 px-2 text-gray-600">{ligne.debut}</td>
