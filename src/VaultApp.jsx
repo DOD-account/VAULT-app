@@ -257,27 +257,40 @@ export default function VaultApp() {
 
   const checkLigneIncoherence = (ligne) => {
     const messages = [];
-    
+
     if (ligne.trimestres < 0 || ligne.trimestres > 4) {
       messages.push('Trimestres invalides (doit être entre 0 et 4)');
     }
-    
+
+    // Vérification : absence de trimestres (sauf pour congés paternité et chômage sans activité)
+    if (ligne.trimestres === 0 && ligne.activite !== 'NA' && ligne.activite !== '') {
+      messages.push('Absence de trimestres validés');
+    }
+
+    // Vérification : absence de points complémentaires (sauf pour congés paternité)
+    if ((ligne.pointsComplementaires === 0 || ligne.pointsComplementaires === null) &&
+        ligne.regimeComplementaire !== 'NA' &&
+        ligne.activite !== 'NA' &&
+        ligne.salaireDefplafonne > 0) {
+      messages.push('Absence de points complémentaires');
+    }
+
     if (ligne.trimestres === 0 && ligne.activite === 'Salarié') {
       messages.push('0 trimestre pour une activité salariée');
     }
-    
+
     if (ligne.salaireDefplafonne < ligne.salairePlafonne) {
       messages.push('Salaire déplafonné < salaire plafonné');
     }
-    
+
     if (ligne.activite === 'Chômage' && ligne.salaireDefplafonne > 0 && ligne.salairePlafonne === 0) {
       messages.push('Incohérence chômage: salaire déplafonné > 0 mais salaire plafonné = 0');
     }
-    
+
     if (ligne.activite === 'Chômage' && ligne.salairePlafonne > 0 && ligne.salaireDefplafonne === 0) {
       messages.push('Incohérence chômage: salaire plafonné > 0 mais salaire déplafonné = 0');
     }
-    
+
     return messages;
   };
 
