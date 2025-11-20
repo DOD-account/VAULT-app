@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { User, Briefcase, TrendingUp, Edit2, Check, X, LogOut, Plus, MessageCircle, CreditCard, Upload, FileText, Users, ChevronDown, ChevronUp, Eye, Download, Bell, Settings, LayoutDashboard, ClipboardList, FlaskConical } from 'lucide-react';
+import { User, Briefcase, TrendingUp, Edit2, Check, X, LogOut, Plus, MessageCircle, CreditCard, Upload, FileText, Users, ChevronDown, ChevronUp, Eye, Download, Bell, Settings, LayoutDashboard, ClipboardList, FlaskConical, CheckCircle, Shield, Edit3 } from 'lucide-react';
 
 export default function VaultApp() {
   const [activeSection, setActiveSection] = useState('profil');
@@ -307,6 +307,27 @@ export default function VaultApp() {
       ...prev,
       [year]: !prev[year]
     }));
+  };
+
+  const getYearStatus = (annee, hasError) => {
+    if (annee === 2024) return 'certified';
+    if (annee === 2023) return 'corrected';
+    if (!hasError) return 'coherent';
+    return 'error';
+  };
+
+  const getStatusBadgeColor = (statut, index) => {
+    const colors = [
+      'bg-blue-100 text-blue-700',
+      'bg-green-100 text-green-700',
+      'bg-purple-100 text-purple-700',
+      'bg-pink-100 text-pink-700',
+      'bg-indigo-100 text-indigo-700',
+      'bg-yellow-100 text-yellow-700',
+      'bg-teal-100 text-teal-700',
+      'bg-orange-100 text-orange-700'
+    ];
+    return colors[index % colors.length];
   };
 
   const groupDataByYear = (data) => {
@@ -872,7 +893,8 @@ export default function VaultApp() {
                     <table className="w-full text-sm">
                       <thead>
                         <tr className="bg-gradient-to-r from-orange-500 to-red-500 text-white">
-                          <th className="py-3 px-2 text-center font-bold w-20">Actions</th>
+                          <th className="py-3 px-2 text-center font-bold w-20">Action</th>
+                          <th className="py-3 px-2 text-center font-bold w-24">État</th>
                           <th className="py-3 px-2 text-left font-bold w-16">Année</th>
                           <th className="py-3 px-2 text-left font-bold">Début</th>
                           <th className="py-3 px-2 text-left font-bold">Fin</th>
@@ -916,7 +938,9 @@ export default function VaultApp() {
                                     </button>
                                   </div>
                                 </td>
-                                {/* Année */}
+                                {/* État */}
+                                <td className="py-2 px-2"></td>
+                                                                {/* Année */}
                                 <td className="py-2 px-2 font-bold text-gray-700">{ligne.annee}</td>
                                 {/* Début */}
                                 <td className="py-2 px-2">
@@ -1029,7 +1053,6 @@ export default function VaultApp() {
                                       )}
                                     </button>
                                   ) : (
-                                    !isDetail && (
                                       <button
                                         onClick={() => startEditLigne({ ...ligne, _index: index })}
                                         className="p-1 bg-blue-500 text-white rounded hover:bg-blue-600"
@@ -1040,7 +1063,38 @@ export default function VaultApp() {
                                   )}
                                 </div>
                               </td>
-                              {/* Année avec icône d'erreur */}
+                              {/* État */}
+                              <td className="py-2 px-2">
+                                <div className="flex justify-center">
+                                  {(() => {
+                                    const yearStatus = getYearStatus(ligne.annee, hasError);
+                                    if (yearStatus === 'certified') {
+                                      return (
+                                        <div className="flex items-center gap-1 px-2 py-0.5 bg-blue-100 text-blue-700 rounded text-xs font-medium">
+                                          <Shield className="w-3 h-3" />
+                                          <span>Certifiée</span>
+                                        </div>
+                                      );
+                                    }
+                                    if (yearStatus === 'corrected') {
+                                      return (
+                                        <div className="flex items-center gap-1 px-2 py-0.5 bg-yellow-100 text-yellow-700 rounded text-xs font-medium">
+                                          <Edit3 className="w-3 h-3" />
+                                          <span>Corrigée</span>
+                                        </div>
+                                      );
+                                    }
+                                    if (yearStatus === 'coherent') {
+                                      return (
+                                        <div className="flex items-center gap-1 text-green-600">
+                                          <CheckCircle className="w-4 h-4" />
+                                        </div>
+                                      );
+                                    }
+                                    return null;
+                                  })()}
+                                </div>
+                              </td>                              {/* Année avec icône d'erreur */}
                               <td className={`py-2 px-2 ${isDetail ? 'pl-6' : ''}`}>
                                 <div className="flex items-center gap-2">
                                   {hasError && (
@@ -1069,7 +1123,7 @@ export default function VaultApp() {
                                 {isSynthese ? (
                                   <div className="flex flex-wrap gap-1">
                                     {ligne.statuts.map((statut, idx) => (
-                                      <span key={idx} className="px-2 py-0.5 bg-blue-100 text-blue-700 rounded text-xs font-medium">
+                                      <span key={idx} className={`px-2 py-0.5 ${getStatusBadgeColor(statut, idx)} rounded text-xs font-medium`}>
                                         {statut}
                                       </span>
                                     ))}
