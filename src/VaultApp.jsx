@@ -115,6 +115,7 @@ export default function VaultApp() {
   const [uploadCategorie, setUploadCategorie] = useState('Relevé de carrière');
   const [selectedFile, setSelectedFile] = useState(null);
   const [expandedCarrieres, setExpandedCarrieres] = useState({});
+  const [expandedYears, setExpandedYears] = useState({});
   const [showNotifications, setShowNotifications] = useState(false);
   
   const [notifications] = useState([
@@ -232,7 +233,7 @@ export default function VaultApp() {
   };
 
   const startEditLigne = (ligne) => {
-    setEditingLigne(ligne.annee);
+    setEditingLigne(`${ligne.annee}-${ligne._index}`);
     setTempLigneData({ ...ligne });
   };
 
@@ -299,6 +300,74 @@ export default function VaultApp() {
       ...prev,
       [id]: !prev[id]
     }));
+  };
+
+  const toggleExpandYear = (year) => {
+    setExpandedYears(prev => ({
+      ...prev,
+      [year]: !prev[year]
+    }));
+  };
+
+  const groupDataByYear = (data) => {
+    const grouped = {};
+    data.forEach(ligne => {
+      if (!grouped[ligne.annee]) {
+        grouped[ligne.annee] = [];
+      }
+      grouped[ligne.annee].push(ligne);
+    });
+    return grouped;
+  };
+
+  const createSyntheseLigne = (annee, lignes) => {
+    // Date de début : la plus proche du 1er janvier
+    const debuts = lignes.map(l => new Date(l.debut.split('/').reverse().join('-')));
+    const debutMin = new Date(Math.min(...debuts));
+    const debutStr = lignes.find(l => new Date(l.debut.split('/').reverse().join('-')).getTime() === debutMin.getTime())?.debut;
+
+    // Date de fin : la plus proche du 31 décembre
+    const fins = lignes.map(l => new Date(l.fin.split('/').reverse().join('-')));
+    const finMax = new Date(Math.max(...fins));
+    const finStr = lignes.find(l => new Date(l.fin.split('/').reverse().join('-')).getTime() === finMax.getTime())?.fin;
+
+    // Structures uniques
+    const structures = [...new Set(lignes.map(l => l.structure))];
+
+    // Statuts uniques
+    const statuts = [...new Set(lignes.map(l => l.activite))].filter(s => s);
+
+    // Somme des salaires
+    const salaire = lignes.reduce((sum, l) => sum + l.salaireDefplafonne, 0);
+
+    // Somme des trimestres (max 4)
+    const trimestres = Math.min(4, lignes.reduce((sum, l) => sum + l.trimestres, 0));
+
+    // Régimes de base uniques
+    const regimesBase = [...new Set(lignes.map(l => l.regimeBase))].filter(r => r);
+
+    // Régimes complémentaires uniques
+    const regimesCompl = [...new Set(lignes.map(l => l.regimeComplementaire))].filter(r => r);
+
+    return {
+      annee,
+      debut: debutStr,
+      fin: finStr,
+      structure: 'Plusieurs structures enregistrées',
+      structures,
+      activite: statuts,
+      statuts,
+      salaireDefplafonne: salaire,
+      salairePlafonne: salaire,
+      trimestres,
+      regimeBase: regimesBase,
+      regimesBase,
+      regimeComplementaire: regimesCompl,
+      regimesCompl,
+      pointsComplementaires: 'NA',
+      isSynthese: true,
+      lignesDetail: lignes
+    };
   };
 
   return (
@@ -746,44 +815,28 @@ export default function VaultApp() {
 
                 return (
                   <>
-                    {/* Cartouche récapitulatif des erreurs */}
+                    {/* Cartouche récapitulatif des erreurs - Version compacte */}
                     {erreursCarriere.length > 0 ? (
-                      <div className="mb-6 p-4 bg-red-50 rounded-lg border-2 border-red-300">
-                        <div className="flex items-start gap-3">
-                          <div className="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                            <span className="text-white font-bold text-sm">!</span>
-                          </div>
+                      <div className="mb-4 p-3 bg-red-50 rounded-lg border border-red-300">
+                        <div className="flex items-center gap-2">
+                          <span className="text-red-600 font-bold text-lg">⚠</span>
                           <div className="flex-1">
-                            <h3 className="font-bold text-red-900 mb-2 flex items-center gap-2">
-                              Récapitulatif des erreurs de carrière
-                              <span className="px-2 py-0.5 bg-red-500 text-white rounded-full text-xs font-bold">
-                                {erreursCarriere.length} {erreursCarriere.length === 1 ? 'année' : 'années'} concernée{erreursCarriere.length === 1 ? '' : 's'}
-                              </span>
-                            </h3>
-                            <div className="space-y-2">
-                              {erreursCarriere.map((erreur, idx) => (
-                                <div key={idx} className="bg-white rounded p-2 border border-red-200">
-                                  <p className="font-semibold text-red-800 text-sm mb-1">Année {erreur.annee} :</p>
-                                  <ul className="list-disc list-inside text-xs text-gray-700 space-y-0.5">
-                                    {erreur.messages.map((msg, msgIdx) => (
-                                      <li key={msgIdx}>{msg}</li>
-                                    ))}
-                                  </ul>
-                                </div>
-                              ))}
-                            </div>
+                            <span className="font-semibold text-red-900 text-sm">
+                              {erreursCarriere.length} {erreursCarriere.length === 1 ? 'année avec erreurs' : 'années avec erreurs'}
+                            </span>
+                            <span className="text-xs text-red-700 ml-2">
+                              (Années : {erreursCarriere.map(e => e.annee).join(', ')})
+                            </span>
                           </div>
                         </div>
                       </div>
                     ) : (
-                      <div className="mb-6 p-4 bg-green-50 rounded-lg border-2 border-green-300">
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
-                            <Check className="w-5 h-5 text-white" />
-                          </div>
-                          <p className="font-semibold text-green-900">
-                            Aucune erreur détectée dans ce scénario de carrière
-                          </p>
+                      <div className="mb-4 p-3 bg-green-50 rounded-lg border border-green-300">
+                        <div className="flex items-center gap-2">
+                          <Check className="w-5 h-5 text-green-600" />
+                          <span className="font-semibold text-green-900 text-sm">
+                            Aucune erreur détectée
+                          </span>
                         </div>
                       </div>
                     )}
@@ -795,12 +848,32 @@ export default function VaultApp() {
                 const carriere = carrieres.find(c => c.id === carriereActive);
                 if (!carriere) return null;
 
+                // Grouper les données par année
+                const groupedByYear = groupDataByYear(carriere.data);
+                const displayData = [];
+
+                Object.keys(groupedByYear).sort((a, b) => parseInt(a) - parseInt(b)).forEach(year => {
+                  const lignes = groupedByYear[year];
+                  if (lignes.length > 1) {
+                    // Créer une ligne de synthèse
+                    displayData.push(createSyntheseLigne(parseInt(year), lignes));
+                    // Ajouter les lignes de détail si expanded
+                    if (expandedYears[year]) {
+                      lignes.forEach(l => displayData.push({ ...l, isDetail: true }));
+                    }
+                  } else {
+                    // Une seule ligne pour cette année
+                    displayData.push(lignes[0]);
+                  }
+                });
+
                 return (
                   <div className="overflow-x-auto">
                     <table className="w-full text-sm">
                       <thead>
                         <tr className="bg-gradient-to-r from-orange-500 to-red-500 text-white">
-                          <th className="py-3 px-2 text-left font-bold">Année</th>
+                          <th className="py-3 px-2 text-center font-bold w-20">Actions</th>
+                          <th className="py-3 px-2 text-left font-bold w-16">Année</th>
                           <th className="py-3 px-2 text-left font-bold">Début</th>
                           <th className="py-3 px-2 text-left font-bold">Fin</th>
                           <th className="py-3 px-2 text-left font-bold">Structure</th>
@@ -810,159 +883,249 @@ export default function VaultApp() {
                           <th className="py-3 px-2 text-left font-bold">Régime base</th>
                           <th className="py-3 px-2 text-left font-bold">Régime compl.</th>
                           <th className="py-3 px-2 text-right font-bold">Pts compl.</th>
-                          <th className="py-3 px-2 text-center font-bold">Actions</th>
                         </tr>
                       </thead>
                       <tbody>
-                        {carriere.data.map((ligne, index) => {
-                          const incoherences = checkLigneIncoherence(ligne);
+                        {displayData.map((ligne, index) => {
+                          const incoherences = ligne.isSynthese ? [] : checkLigneIncoherence(ligne);
                           const hasError = incoherences.length > 0;
+                          const isSynthese = ligne.isSynthese;
+                          const isDetail = ligne.isDetail;
 
+                          // Mode édition
+                          if (editingLigne === `${ligne.annee}-${index}` && !isSynthese) {
+                            return (
+                              <tr
+                                key={`${ligne.annee}-${index}`}
+                                className={`border-b border-gray-200 bg-blue-50 ${isDetail ? 'bg-gray-100' : ''}`}
+                              >
+                                {/* Actions */}
+                                <td className="py-2 px-2">
+                                  <div className="flex gap-1 justify-center">
+                                    <button
+                                      onClick={saveLigne}
+                                      className="p-1 bg-green-500 text-white rounded hover:bg-green-600"
+                                    >
+                                      <Check className="w-3 h-3" />
+                                    </button>
+                                    <button
+                                      onClick={cancelEditLigne}
+                                      className="p-1 bg-red-500 text-white rounded hover:bg-red-600"
+                                    >
+                                      <X className="w-3 h-3" />
+                                    </button>
+                                  </div>
+                                </td>
+                                {/* Année */}
+                                <td className="py-2 px-2 font-bold text-gray-700">{ligne.annee}</td>
+                                {/* Début */}
+                                <td className="py-2 px-2">
+                                  <input
+                                    type="text"
+                                    value={tempLigneData.debut}
+                                    onChange={(e) => setTempLigneData({ ...tempLigneData, debut: e.target.value })}
+                                    className="w-full px-2 py-1 border border-blue-300 rounded text-xs"
+                                  />
+                                </td>
+                                {/* Fin */}
+                                <td className="py-2 px-2">
+                                  <input
+                                    type="text"
+                                    value={tempLigneData.fin}
+                                    onChange={(e) => setTempLigneData({ ...tempLigneData, fin: e.target.value })}
+                                    className="w-full px-2 py-1 border border-blue-300 rounded text-xs"
+                                  />
+                                </td>
+                                {/* Structure */}
+                                <td className="py-2 px-2">
+                                  <input
+                                    type="text"
+                                    value={tempLigneData.structure}
+                                    onChange={(e) => setTempLigneData({ ...tempLigneData, structure: e.target.value })}
+                                    className="w-full px-2 py-1 border border-blue-300 rounded text-xs"
+                                  />
+                                </td>
+                                {/* Statut */}
+                                <td className="py-2 px-2">
+                                  <input
+                                    type="text"
+                                    value={tempLigneData.activite}
+                                    onChange={(e) => setTempLigneData({ ...tempLigneData, activite: e.target.value })}
+                                    className="w-full px-2 py-1 border border-blue-300 rounded text-xs"
+                                  />
+                                </td>
+                                {/* Salaire */}
+                                <td className="py-2 px-2">
+                                  <input
+                                    type="number"
+                                    value={tempLigneData.salaireDefplafonne}
+                                    onChange={(e) => setTempLigneData({ ...tempLigneData, salaireDefplafonne: parseFloat(e.target.value) })}
+                                    className="w-full px-2 py-1 border border-blue-300 rounded text-xs text-right"
+                                  />
+                                </td>
+                                {/* Trimestres */}
+                                <td className="py-2 px-2">
+                                  <input
+                                    type="number"
+                                    value={tempLigneData.trimestres}
+                                    onChange={(e) => setTempLigneData({ ...tempLigneData, trimestres: parseInt(e.target.value) })}
+                                    className="w-full px-2 py-1 border border-blue-300 rounded text-xs text-center"
+                                  />
+                                </td>
+                                {/* Régime base */}
+                                <td className="py-2 px-2">
+                                  <input
+                                    type="text"
+                                    value={tempLigneData.regimeBase}
+                                    onChange={(e) => setTempLigneData({ ...tempLigneData, regimeBase: e.target.value })}
+                                    className="w-full px-2 py-1 border border-blue-300 rounded text-xs"
+                                  />
+                                </td>
+                                {/* Régime compl. */}
+                                <td className="py-2 px-2">
+                                  <input
+                                    type="text"
+                                    value={tempLigneData.regimeComplementaire}
+                                    onChange={(e) => setTempLigneData({ ...tempLigneData, regimeComplementaire: e.target.value })}
+                                    className="w-full px-2 py-1 border border-blue-300 rounded text-xs"
+                                  />
+                                </td>
+                                {/* Pts compl. */}
+                                <td className="py-2 px-2">
+                                  <input
+                                    type="number"
+                                    value={tempLigneData.pointsComplementaires}
+                                    onChange={(e) => setTempLigneData({ ...tempLigneData, pointsComplementaires: parseFloat(e.target.value) })}
+                                    className="w-full px-2 py-1 border border-blue-300 rounded text-xs text-right"
+                                  />
+                                </td>
+                              </tr>
+                            );
+                          }
+
+                          // Mode affichage
                           return (
                             <tr
-                              key={index}
+                              key={`${ligne.annee}-${index}`}
                               className={`border-b border-gray-200 ${
-                                hasError ? 'bg-red-50' : index % 2 === 0 ? 'bg-white' : 'bg-gray-50'
-                              } hover:bg-blue-50 transition`}
+                                hasError ? 'bg-red-50' :
+                                isSynthese ? 'bg-blue-50 font-semibold' :
+                                isDetail ? 'bg-gray-50' :
+                                index % 2 === 0 ? 'bg-white' : 'bg-gray-50'
+                              } hover:bg-blue-100 transition`}
                             >
-                              {editingLigne === ligne.annee ? (
-                                <>
-                                  <td className="py-2 px-2 font-bold text-gray-700">{ligne.annee}</td>
-                                  <td className="py-2 px-2">
-                                    <input
-                                      type="text"
-                                      value={tempLigneData.debut}
-                                      onChange={(e) => setTempLigneData({ ...tempLigneData, debut: e.target.value })}
-                                      className="w-full px-2 py-1 border border-blue-300 rounded text-xs"
-                                    />
-                                  </td>
-                                  <td className="py-2 px-2">
-                                    <input
-                                      type="text"
-                                      value={tempLigneData.fin}
-                                      onChange={(e) => setTempLigneData({ ...tempLigneData, fin: e.target.value })}
-                                      className="w-full px-2 py-1 border border-blue-300 rounded text-xs"
-                                    />
-                                  </td>
-                                  <td className="py-2 px-2">
-                                    <input
-                                      type="text"
-                                      value={tempLigneData.structure}
-                                      onChange={(e) => setTempLigneData({ ...tempLigneData, structure: e.target.value })}
-                                      className="w-full px-2 py-1 border border-blue-300 rounded text-xs"
-                                    />
-                                  </td>
-                                  <td className="py-2 px-2">
-                                    <input
-                                      type="text"
-                                      value={tempLigneData.activite}
-                                      onChange={(e) => setTempLigneData({ ...tempLigneData, activite: e.target.value })}
-                                      className="w-full px-2 py-1 border border-blue-300 rounded text-xs"
-                                    />
-                                  </td>
-                                  <td className="py-2 px-2">
-                                    <input
-                                      type="number"
-                                      value={tempLigneData.salaireDefplafonne}
-                                      onChange={(e) => setTempLigneData({ ...tempLigneData, salaireDefplafonne: parseFloat(e.target.value) })}
-                                      className="w-full px-2 py-1 border border-blue-300 rounded text-xs text-right"
-                                    />
-                                  </td>
-                                  <td className="py-2 px-2">
-                                    <input
-                                      type="number"
-                                      value={tempLigneData.trimestres}
-                                      onChange={(e) => setTempLigneData({ ...tempLigneData, trimestres: parseInt(e.target.value) })}
-                                      className="w-full px-2 py-1 border border-blue-300 rounded text-xs text-center"
-                                    />
-                                  </td>
-                                  <td className="py-2 px-2">
-                                    <input
-                                      type="text"
-                                      value={tempLigneData.regimeBase}
-                                      onChange={(e) => setTempLigneData({ ...tempLigneData, regimeBase: e.target.value })}
-                                      className="w-full px-2 py-1 border border-blue-300 rounded text-xs"
-                                    />
-                                  </td>
-                                  <td className="py-2 px-2">
-                                    <input
-                                      type="text"
-                                      value={tempLigneData.regimeComplementaire}
-                                      onChange={(e) => setTempLigneData({ ...tempLigneData, regimeComplementaire: e.target.value })}
-                                      className="w-full px-2 py-1 border border-blue-300 rounded text-xs"
-                                    />
-                                  </td>
-                                  <td className="py-2 px-2">
-                                    <input
-                                      type="number"
-                                      value={tempLigneData.pointsComplementaires}
-                                      onChange={(e) => setTempLigneData({ ...tempLigneData, pointsComplementaires: parseFloat(e.target.value) })}
-                                      className="w-full px-2 py-1 border border-blue-300 rounded text-xs text-right"
-                                    />
-                                  </td>
-                                  <td className="py-2 px-2">
-                                    <div className="flex gap-1 justify-center">
-                                      <button
-                                        onClick={saveLigne}
-                                        className="p-1 bg-green-500 text-white rounded hover:bg-green-600"
-                                      >
-                                        <Check className="w-3 h-3" />
-                                      </button>
-                                      <button
-                                        onClick={cancelEditLigne}
-                                        className="p-1 bg-red-500 text-white rounded hover:bg-red-600"
-                                      >
-                                        <X className="w-3 h-3" />
-                                      </button>
-                                    </div>
-                                  </td>
-                                </>
-                              ) : (
-                                <>
-                                  <td className="py-2 px-2 font-bold text-gray-700">{ligne.annee}</td>
-                                  <td className="py-2 px-2 text-gray-600">{ligne.debut}</td>
-                                  <td className="py-2 px-2 text-gray-600">{ligne.fin}</td>
-                                  <td className="py-2 px-2 text-gray-600">{ligne.structure}</td>
-                                  <td className="py-2 px-2">
-                                    <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-medium">
-                                      {ligne.activite}
-                                    </span>
-                                  </td>
-                                  <td className="py-2 px-2 text-right font-medium text-gray-800">
-                                    {ligne.salaireDefplafonne.toLocaleString()}
-                                  </td>
-                                  <td className={`py-2 px-2 text-center font-bold ${
-                                    ligne.trimestres === 0 ? 'text-red-600' :
-                                    ligne.trimestres < 4 ? 'text-orange-600' :
-                                    'text-green-600'
-                                  }`}>
-                                    {ligne.trimestres}
-                                  </td>
-                                  <td className="py-2 px-2 text-gray-600 text-xs">{ligne.regimeBase}</td>
-                                  <td className="py-2 px-2 text-gray-600 text-xs">{ligne.regimeComplementaire}</td>
-                                  <td className="py-2 px-2 text-right text-gray-700">{ligne.pointsComplementaires}</td>
-                                  <td className="py-2 px-2">
-                                    <div className="flex gap-1 justify-center">
-                                      {hasError && (
-                                        <div className="relative group">
-                                          <span className="text-red-600 font-bold cursor-help">⚠</span>
-                                          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:block w-64 p-2 bg-red-600 text-white text-xs rounded shadow-lg z-10">
-                                            {incoherences.map((msg, idx) => (
-                                              <div key={idx}>• {msg}</div>
-                                            ))}
-                                          </div>
-                                        </div>
+                              {/* Actions */}
+                              <td className="py-2 px-2">
+                                <div className="flex gap-1 justify-center">
+                                  {isSynthese ? (
+                                    <button
+                                      onClick={() => toggleExpandYear(ligne.annee)}
+                                      className="p-1 bg-indigo-500 text-white rounded hover:bg-indigo-600"
+                                    >
+                                      {expandedYears[ligne.annee] ? (
+                                        <ChevronUp className="w-3 h-3" />
+                                      ) : (
+                                        <ChevronDown className="w-3 h-3" />
                                       )}
+                                    </button>
+                                  ) : (
+                                    !isDetail && (
                                       <button
-                                        onClick={() => startEditLigne(ligne)}
+                                        onClick={() => startEditLigne({ ...ligne, _index: index })}
                                         className="p-1 bg-blue-500 text-white rounded hover:bg-blue-600"
                                       >
                                         <Edit2 className="w-3 h-3" />
                                       </button>
+                                    )
+                                  )}
+                                </div>
+                              </td>
+                              {/* Année avec icône d'erreur */}
+                              <td className={`py-2 px-2 ${isDetail ? 'pl-6' : ''}`}>
+                                <div className="flex items-center gap-2">
+                                  {hasError && (
+                                    <div className="relative group">
+                                      <span className="text-red-600 font-bold cursor-help">⚠</span>
+                                      <div className="absolute bottom-full left-0 mb-2 hidden group-hover:block w-64 p-2 bg-red-600 text-white text-xs rounded shadow-lg z-10">
+                                        {incoherences.map((msg, idx) => (
+                                          <div key={idx}>• {msg}</div>
+                                        ))}
+                                      </div>
                                     </div>
-                                  </td>
-                                </>
-                              )}
+                                  )}
+                                  <span className="font-bold text-gray-700">{ligne.annee}</span>
+                                </div>
+                              </td>
+                              {/* Début */}
+                              <td className="py-2 px-2 text-gray-600">{ligne.debut}</td>
+                              {/* Fin */}
+                              <td className="py-2 px-2 text-gray-600">{ligne.fin}</td>
+                              {/* Structure */}
+                              <td className="py-2 px-2 text-gray-600 text-xs">
+                                {isSynthese ? ligne.structure : ligne.structure}
+                              </td>
+                              {/* Statut */}
+                              <td className="py-2 px-2">
+                                {isSynthese ? (
+                                  <div className="flex flex-wrap gap-1">
+                                    {ligne.statuts.map((statut, idx) => (
+                                      <span key={idx} className="px-2 py-0.5 bg-blue-100 text-blue-700 rounded text-xs font-medium">
+                                        {statut}
+                                      </span>
+                                    ))}
+                                  </div>
+                                ) : (
+                                  ligne.activite && (
+                                    <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-medium">
+                                      {ligne.activite}
+                                    </span>
+                                  )
+                                )}
+                              </td>
+                              {/* Salaire */}
+                              <td className="py-2 px-2 text-right font-medium text-gray-800">
+                                {ligne.salaireDefplafonne?.toLocaleString() || 0}
+                              </td>
+                              {/* Trimestres */}
+                              <td className={`py-2 px-2 text-center font-bold ${
+                                ligne.trimestres === 0 ? 'text-red-600' :
+                                ligne.trimestres < 4 ? 'text-orange-600' :
+                                'text-green-600'
+                              }`}>
+                                {ligne.trimestres}
+                              </td>
+                              {/* Régime base */}
+                              <td className="py-2 px-2 text-xs">
+                                {isSynthese ? (
+                                  <div className="flex flex-wrap gap-1">
+                                    {ligne.regimesBase.map((regime, idx) => (
+                                      <span key={idx} className="px-2 py-0.5 bg-gray-200 text-gray-700 rounded">
+                                        {regime}
+                                      </span>
+                                    ))}
+                                  </div>
+                                ) : (
+                                  <span className="text-gray-600">{ligne.regimeBase}</span>
+                                )}
+                              </td>
+                              {/* Régime compl. */}
+                              <td className="py-2 px-2 text-xs">
+                                {isSynthese ? (
+                                  <div className="flex flex-wrap gap-1">
+                                    {ligne.regimesCompl.map((regime, idx) => (
+                                      <span key={idx} className="px-2 py-0.5 bg-purple-100 text-purple-700 rounded">
+                                        {regime}
+                                      </span>
+                                    ))}
+                                  </div>
+                                ) : (
+                                  <span className="text-gray-600">{ligne.regimeComplementaire}</span>
+                                )}
+                              </td>
+                              {/* Pts compl. */}
+                              <td className="py-2 px-2 text-right text-gray-700">
+                                {isSynthese ? 'NA' : ligne.pointsComplementaires}
+                              </td>
                             </tr>
                           );
                         })}
