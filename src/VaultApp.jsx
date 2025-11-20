@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { User, Briefcase, TrendingUp, Edit2, Check, X, LogOut, Plus, MessageCircle, CreditCard, Upload, FileText, Users, ChevronDown, ChevronUp, Eye, Download, Bell, Settings, LayoutDashboard, ClipboardList, CheckCircle, Shield, Edit3 } from 'lucide-react';
+import { User, Briefcase, TrendingUp, Edit2, Check, X, LogOut, Plus, MessageCircle, CreditCard, Upload, FileText, Users, ChevronDown, ChevronUp, Eye, Download, Bell, Settings, LayoutDashboard, ClipboardList, CheckCircle, Shield, Edit3, AlertCircle, Info } from 'lucide-react';
 
 export default function VaultApp() {
   const [activeSection, setActiveSection] = useState('profil');
@@ -53,7 +53,8 @@ export default function VaultApp() {
         { annee: 2023, debut: '25/07/2023', fin: '18/08/2023', structure: 'CONGÉ PATERNITÉ', activite: 'NA', salaireDefplafonne: 0, salairePlafonne: 0, trimestres: 0, regimeBase: 'CNAV', pointsBase: 0, regimeComplementaire: 'NA', pointsComplementaires: 0 },
         { annee: 2023, debut: '01/01/2023', fin: '31/12/2023', structure: 'UNIVERSITE LYON 3', activite: 'Contractuel fct. Publique', salaireDefplafonne: 32356, salairePlafonne: 32356, trimestres: 4, regimeBase: 'CNAV', pointsBase: 0, regimeComplementaire: 'Ircantec', pointsComplementaires: 947 },
         { annee: 2024, debut: '01/01/2024', fin: '31/12/2024', structure: 'NEOVIA', activite: 'Salarié du privé', salaireDefplafonne: 132982, salairePlafonne: 132982, trimestres: 4, regimeBase: 'CNAV', pointsBase: 0, regimeComplementaire: 'Agirc-Arrco', pointsComplementaires: 1000.10 },
-        { annee: 2024, debut: '01/01/2024', fin: '31/12/2024', structure: 'UNIVERSITE LYON 3', activite: 'Contractuel fct. Publique', salaireDefplafonne: 25842, salairePlafonne: 25842, trimestres: 4, regimeBase: 'CNAV', pointsBase: 0, regimeComplementaire: 'Ircantec', pointsComplementaires: 718 }
+        { annee: 2024, debut: '01/01/2024', fin: '31/12/2024', structure: 'UNIVERSITE LYON 3', activite: 'Contractuel fct. Publique', salaireDefplafonne: 25842, salairePlafonne: 25842, trimestres: 4, regimeBase: 'CNAV', pointsBase: 0, regimeComplementaire: 'Ircantec', pointsComplementaires: 718 },
+        { annee: 2025, debut: '01/01/2025', fin: '31/12/2025', structure: 'Information non disponible', activite: 'Non renseigné', salaireDefplafonne: 0, salairePlafonne: 0, trimestres: 0, regimeBase: 'Non renseigné', pointsBase: 0, regimeComplementaire: 'Non renseigné', pointsComplementaires: 0 }
       ]
     },
     {
@@ -310,6 +311,7 @@ export default function VaultApp() {
   };
 
   const getYearStatus = (annee, hasError) => {
+    if (annee === 2025) return 'missing';
     if (annee === 2024) return 'certified';
     if (annee === 2023) return 'corrected';
     if (!hasError) return 'coherent';
@@ -1074,8 +1076,25 @@ export default function VaultApp() {
                                     }
                                     if (yearStatus === 'coherent') {
                                       return (
-                                        <div className="flex items-center gap-1 text-green-600">
-                                          <CheckCircle className="w-4 h-4" />
+                                        <div className="flex items-center gap-1 px-2 py-0.5 bg-green-100 text-green-700 rounded text-xs font-medium">
+                                          <CheckCircle className="w-3 h-3" />
+                                          <span>Cohérent</span>
+                                        </div>
+                                      );
+                                    }
+                                    if (yearStatus === 'error') {
+                                      return (
+                                        <div className="flex items-center gap-1 px-2 py-0.5 bg-red-100 text-red-700 rounded text-xs font-medium">
+                                          <AlertCircle className="w-3 h-3" />
+                                          <span>Incohérent</span>
+                                        </div>
+                                      );
+                                    }
+                                    if (yearStatus === 'missing') {
+                                      return (
+                                        <div className="flex items-center gap-1 px-2 py-0.5 bg-gray-100 text-gray-700 rounded text-xs font-medium">
+                                          <Info className="w-3 h-3" />
+                                          <span>Information absente</span>
                                         </div>
                                       );
                                     }
