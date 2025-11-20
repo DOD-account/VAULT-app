@@ -901,7 +901,9 @@ export default function VaultApp() {
                       <tbody>
                         {displayData.map((ligne, index) => {
                           const incoherences = ligne.isSynthese ? [] : checkLigneIncoherence(ligne);
-                          const hasError = incoherences.length > 0;
+                          const hasError = ligne.isSynthese
+                            ? ligne.lignesDetail?.some(l => checkLigneIncoherence(l).length > 0) || false
+                            : incoherences.length > 0;
                           const isSynthese = ligne.isSynthese;
                           const isDetail = ligne.isDetail;
 
