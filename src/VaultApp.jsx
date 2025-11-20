@@ -1042,13 +1042,12 @@ export default function VaultApp() {
                                       )}
                                     </button>
                                   ) : (
-                                      <button
-                                        onClick={() => startEditLigne({ ...ligne, _index: index })}
-                                        className="p-1 bg-blue-500 text-white rounded hover:bg-blue-600"
-                                      >
-                                        <Edit2 className="w-3 h-3" />
-                                      </button>
-                                    )
+                                    <button
+                                      onClick={() => startEditLigne({ ...ligne, _index: index })}
+                                      className="p-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+                                    >
+                                      <Edit2 className="w-3 h-3" />
+                                    </button>
                                   )}
                                 </div>
                               </td>
