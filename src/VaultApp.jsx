@@ -8,8 +8,8 @@ export default function VaultApp() {
   const [showDossierMenu, setShowDossierMenu] = useState(false);
   
   const [carrieres, setCarrieres] = useState([
-    { 
-      id: 1, 
+    {
+      id: 1,
       nom: 'Carrière actuelle',
       data: Array.from({length: 37}, (_, i) => {
         const annee = 1988 + i;
@@ -17,7 +17,7 @@ export default function VaultApp() {
         let trimestres = 4;
         let salaireDefplafonne = salaire;
         let salairePlafonne = annee >= 2013 ? Math.min(salaire, 46368) : salaire;
-        
+
         if (i === 4) trimestres = 2;
         if (i === 11) {
           salaireDefplafonne = 28000;
@@ -25,11 +25,12 @@ export default function VaultApp() {
         }
         if (i === 19) trimestres = 0;
         if (i === 27) trimestres = 3;
-        
+
         return {
           annee,
           debut: `01/01/${annee}`,
           fin: `31/12/${annee}`,
+          structure: 'Entreprise A',
           activite: 'Salarié',
           salaireDefplafonne,
           salairePlafonne,
@@ -41,26 +42,26 @@ export default function VaultApp() {
         };
       })
     },
-    { 
-      id: 2, 
+    {
+      id: 2,
       nom: 'Statut PDT de SAS',
       data: [
-        { annee: 2020, debut: '01/01/2020', fin: '31/12/2020', activite: 'PDT SAS', salaireDefplafonne: 45000, salairePlafonne: 41136, trimestres: 4, regimeBase: 'CNAV', pointsBase: 210, regimeComplementaire: 'AGIRC-ARRCO', pointsComplementaires: 1650 },
-        { annee: 2021, debut: '01/01/2021', fin: '31/12/2021', activite: 'PDT SAS', salaireDefplafonne: 47000, salairePlafonne: 41136, trimestres: 4, regimeBase: 'CNAV', pointsBase: 215, regimeComplementaire: 'AGIRC-ARRCO', pointsComplementaires: 1720 },
-        { annee: 2022, debut: '01/01/2022', fin: '31/12/2022', activite: 'PDT SAS', salaireDefplafonne: 49000, salairePlafonne: 41136, trimestres: 2, regimeBase: 'CNAV', pointsBase: 220, regimeComplementaire: 'AGIRC-ARRCO', pointsComplementaires: 1780 },
-        { annee: 2023, debut: '01/01/2023', fin: '31/12/2023', activite: 'PDT SAS', salaireDefplafonne: 51000, salairePlafonne: 43992, trimestres: 4, regimeBase: 'CNAV', pointsBase: 225, regimeComplementaire: 'AGIRC-ARRCO', pointsComplementaires: 1850 },
-        { annee: 2024, debut: '01/01/2024', fin: '31/12/2024', activite: 'PDT SAS', salaireDefplafonne: 53000, salairePlafonne: 46368, trimestres: 4, regimeBase: 'CNAV', pointsBase: 230, regimeComplementaire: 'AGIRC-ARRCO', pointsComplementaires: 1920 }
+        { annee: 2020, debut: '01/01/2020', fin: '31/12/2020', structure: 'SAS Tech', activite: 'PDT SAS', salaireDefplafonne: 45000, salairePlafonne: 41136, trimestres: 4, regimeBase: 'CNAV', pointsBase: 210, regimeComplementaire: 'AGIRC-ARRCO', pointsComplementaires: 1650 },
+        { annee: 2021, debut: '01/01/2021', fin: '31/12/2021', structure: 'SAS Tech', activite: 'PDT SAS', salaireDefplafonne: 47000, salairePlafonne: 41136, trimestres: 4, regimeBase: 'CNAV', pointsBase: 215, regimeComplementaire: 'AGIRC-ARRCO', pointsComplementaires: 1720 },
+        { annee: 2022, debut: '01/01/2022', fin: '31/12/2022', structure: 'SAS Tech', activite: 'PDT SAS', salaireDefplafonne: 49000, salairePlafonne: 41136, trimestres: 2, regimeBase: 'CNAV', pointsBase: 220, regimeComplementaire: 'AGIRC-ARRCO', pointsComplementaires: 1780 },
+        { annee: 2023, debut: '01/01/2023', fin: '31/12/2023', structure: 'SAS Tech', activite: 'PDT SAS', salaireDefplafonne: 51000, salairePlafonne: 43992, trimestres: 4, regimeBase: 'CNAV', pointsBase: 225, regimeComplementaire: 'AGIRC-ARRCO', pointsComplementaires: 1850 },
+        { annee: 2024, debut: '01/01/2024', fin: '31/12/2024', structure: 'SAS Tech', activite: 'PDT SAS', salaireDefplafonne: 53000, salairePlafonne: 46368, trimestres: 4, regimeBase: 'CNAV', pointsBase: 230, regimeComplementaire: 'AGIRC-ARRCO', pointsComplementaires: 1920 }
       ]
     },
-    { 
-      id: 3, 
+    {
+      id: 3,
       nom: 'Chômage',
       data: [
-        { annee: 2020, debut: '01/01/2020', fin: '31/12/2020', activite: 'Chômage', salaireDefplafonne: 0, salairePlafonne: 0, trimestres: 4, regimeBase: 'CNAV', pointsBase: 180, regimeComplementaire: 'AGIRC-ARRCO', pointsComplementaires: 1200 },
-        { annee: 2021, debut: '01/01/2021', fin: '31/12/2021', activite: 'Chômage', salaireDefplafonne: 8000, salairePlafonne: 0, trimestres: 4, regimeBase: 'CNAV', pointsBase: 180, regimeComplementaire: 'AGIRC-ARRCO', pointsComplementaires: 1200 },
-        { annee: 2022, debut: '01/01/2022', fin: '31/12/2022', activite: 'Chômage', salaireDefplafonne: 15000, salairePlafonne: 0, trimestres: 4, regimeBase: 'CNAV', pointsBase: 180, regimeComplementaire: 'AGIRC-ARRCO', pointsComplementaires: 1200 },
-        { annee: 2023, debut: '01/01/2023', fin: '31/12/2023', activite: 'Chômage', salaireDefplafonne: 0, salairePlafonne: 0, trimestres: 3, regimeBase: 'CNAV', pointsBase: 180, regimeComplementaire: 'AGIRC-ARRCO', pointsComplementaires: 1200 },
-        { annee: 2024, debut: '01/01/2024', fin: '31/12/2024', activite: 'Chômage', salaireDefplafonne: 0, salairePlafonne: 5000, trimestres: 4, regimeBase: 'CNAV', pointsBase: 180, regimeComplementaire: 'AGIRC-ARRCO', pointsComplementaires: 1200 }
+        { annee: 2020, debut: '01/01/2020', fin: '31/12/2020', structure: 'Pôle Emploi', activite: 'Chômage', salaireDefplafonne: 0, salairePlafonne: 0, trimestres: 4, regimeBase: 'CNAV', pointsBase: 180, regimeComplementaire: 'AGIRC-ARRCO', pointsComplementaires: 1200 },
+        { annee: 2021, debut: '01/01/2021', fin: '31/12/2021', structure: 'Pôle Emploi', activite: 'Chômage', salaireDefplafonne: 8000, salairePlafonne: 0, trimestres: 4, regimeBase: 'CNAV', pointsBase: 180, regimeComplementaire: 'AGIRC-ARRCO', pointsComplementaires: 1200 },
+        { annee: 2022, debut: '01/01/2022', fin: '31/12/2022', structure: 'Pôle Emploi', activite: 'Chômage', salaireDefplafonne: 15000, salairePlafonne: 0, trimestres: 4, regimeBase: 'CNAV', pointsBase: 180, regimeComplementaire: 'AGIRC-ARRCO', pointsComplementaires: 1200 },
+        { annee: 2023, debut: '01/01/2023', fin: '31/12/2023', structure: 'Pôle Emploi', activite: 'Chômage', salaireDefplafonne: 0, salairePlafonne: 0, trimestres: 3, regimeBase: 'CNAV', pointsBase: 180, regimeComplementaire: 'AGIRC-ARRCO', pointsComplementaires: 1200 },
+        { annee: 2024, debut: '01/01/2024', fin: '31/12/2024', structure: 'Pôle Emploi', activite: 'Chômage', salaireDefplafonne: 0, salairePlafonne: 5000, trimestres: 4, regimeBase: 'CNAV', pointsBase: 180, regimeComplementaire: 'AGIRC-ARRCO', pointsComplementaires: 1200 }
       ]
     }
   ]);
@@ -775,12 +776,11 @@ export default function VaultApp() {
                           <th className="py-3 px-2 text-left font-bold">Année</th>
                           <th className="py-3 px-2 text-left font-bold">Début</th>
                           <th className="py-3 px-2 text-left font-bold">Fin</th>
-                          <th className="py-3 px-2 text-left font-bold">Activité</th>
-                          <th className="py-3 px-2 text-right font-bold">Salaire dépl. (€)</th>
-                          <th className="py-3 px-2 text-right font-bold">Salaire plaf. (€)</th>
+                          <th className="py-3 px-2 text-left font-bold">Structure</th>
+                          <th className="py-3 px-2 text-left font-bold">Statut</th>
+                          <th className="py-3 px-2 text-right font-bold">Salaire (€)</th>
                           <th className="py-3 px-2 text-center font-bold">Trim.</th>
                           <th className="py-3 px-2 text-left font-bold">Régime base</th>
-                          <th className="py-3 px-2 text-right font-bold">Pts base</th>
                           <th className="py-3 px-2 text-left font-bold">Régime compl.</th>
                           <th className="py-3 px-2 text-right font-bold">Pts compl.</th>
                           <th className="py-3 px-2 text-center font-bold">Actions</th>
@@ -820,6 +820,14 @@ export default function VaultApp() {
                                   <td className="py-2 px-2">
                                     <input
                                       type="text"
+                                      value={tempLigneData.structure}
+                                      onChange={(e) => setTempLigneData({ ...tempLigneData, structure: e.target.value })}
+                                      className="w-full px-2 py-1 border border-blue-300 rounded text-xs"
+                                    />
+                                  </td>
+                                  <td className="py-2 px-2">
+                                    <input
+                                      type="text"
                                       value={tempLigneData.activite}
                                       onChange={(e) => setTempLigneData({ ...tempLigneData, activite: e.target.value })}
                                       className="w-full px-2 py-1 border border-blue-300 rounded text-xs"
@@ -830,14 +838,6 @@ export default function VaultApp() {
                                       type="number"
                                       value={tempLigneData.salaireDefplafonne}
                                       onChange={(e) => setTempLigneData({ ...tempLigneData, salaireDefplafonne: parseFloat(e.target.value) })}
-                                      className="w-full px-2 py-1 border border-blue-300 rounded text-xs text-right"
-                                    />
-                                  </td>
-                                  <td className="py-2 px-2">
-                                    <input
-                                      type="number"
-                                      value={tempLigneData.salairePlafonne}
-                                      onChange={(e) => setTempLigneData({ ...tempLigneData, salairePlafonne: parseFloat(e.target.value) })}
                                       className="w-full px-2 py-1 border border-blue-300 rounded text-xs text-right"
                                     />
                                   </td>
@@ -855,14 +855,6 @@ export default function VaultApp() {
                                       value={tempLigneData.regimeBase}
                                       onChange={(e) => setTempLigneData({ ...tempLigneData, regimeBase: e.target.value })}
                                       className="w-full px-2 py-1 border border-blue-300 rounded text-xs"
-                                    />
-                                  </td>
-                                  <td className="py-2 px-2">
-                                    <input
-                                      type="number"
-                                      value={tempLigneData.pointsBase}
-                                      onChange={(e) => setTempLigneData({ ...tempLigneData, pointsBase: parseFloat(e.target.value) })}
-                                      className="w-full px-2 py-1 border border-blue-300 rounded text-xs text-right"
                                     />
                                   </td>
                                   <td className="py-2 px-2">
@@ -903,6 +895,7 @@ export default function VaultApp() {
                                   <td className="py-2 px-2 font-bold text-gray-700">{ligne.annee}</td>
                                   <td className="py-2 px-2 text-gray-600">{ligne.debut}</td>
                                   <td className="py-2 px-2 text-gray-600">{ligne.fin}</td>
+                                  <td className="py-2 px-2 text-gray-600">{ligne.structure}</td>
                                   <td className="py-2 px-2">
                                     <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-medium">
                                       {ligne.activite}
@@ -910,9 +903,6 @@ export default function VaultApp() {
                                   </td>
                                   <td className="py-2 px-2 text-right font-medium text-gray-800">
                                     {ligne.salaireDefplafonne.toLocaleString()}
-                                  </td>
-                                  <td className="py-2 px-2 text-right font-medium text-gray-800">
-                                    {ligne.salairePlafonne.toLocaleString()}
                                   </td>
                                   <td className={`py-2 px-2 text-center font-bold ${
                                     ligne.trimestres === 0 ? 'text-red-600' :
@@ -922,17 +912,10 @@ export default function VaultApp() {
                                     {ligne.trimestres}
                                   </td>
                                   <td className="py-2 px-2 text-gray-600 text-xs">{ligne.regimeBase}</td>
-                                  <td className="py-2 px-2 text-right text-gray-700">{ligne.pointsBase}</td>
                                   <td className="py-2 px-2 text-gray-600 text-xs">{ligne.regimeComplementaire}</td>
                                   <td className="py-2 px-2 text-right text-gray-700">{ligne.pointsComplementaires}</td>
                                   <td className="py-2 px-2">
                                     <div className="flex gap-1 justify-center">
-                                      <button
-                                        onClick={() => startEditLigne(ligne)}
-                                        className="p-1 bg-blue-500 text-white rounded hover:bg-blue-600"
-                                      >
-                                        <Edit2 className="w-3 h-3" />
-                                      </button>
                                       {hasError && (
                                         <div className="relative group">
                                           <span className="text-red-600 font-bold cursor-help">⚠</span>
@@ -943,6 +926,12 @@ export default function VaultApp() {
                                           </div>
                                         </div>
                                       )}
+                                      <button
+                                        onClick={() => startEditLigne(ligne)}
+                                        className="p-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+                                      >
+                                        <Edit2 className="w-3 h-3" />
+                                      </button>
                                     </div>
                                   </td>
                                 </>
