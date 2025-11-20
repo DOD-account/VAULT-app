@@ -11,36 +11,50 @@ export default function VaultApp() {
     {
       id: 1,
       nom: 'Carrière actuelle',
-      data: Array.from({length: 37}, (_, i) => {
-        const annee = 1988 + i;
-        const salaire = 18500 + (i * 1000);
-        let trimestres = 4;
-        let salaireDefplafonne = salaire;
-        let salairePlafonne = annee >= 2013 ? Math.min(salaire, 46368) : salaire;
-
-        if (i === 4) trimestres = 2;
-        if (i === 11) {
-          salaireDefplafonne = 28000;
-          salairePlafonne = 30000;
-        }
-        if (i === 19) trimestres = 0;
-        if (i === 27) trimestres = 3;
-
-        return {
-          annee,
-          debut: `01/01/${annee}`,
-          fin: `31/12/${annee}`,
-          structure: 'Entreprise A',
-          activite: 'Salarié',
-          salaireDefplafonne,
-          salairePlafonne,
-          trimestres,
-          regimeBase: 'CNAV',
-          pointsBase: 120 + (i * 3),
-          regimeComplementaire: 'AGIRC-ARRCO',
-          pointsComplementaires: 450 + (i * 40)
-        };
-      })
+      data: [
+        { annee: 2002, debut: '25/07/2002', fin: '31/08/2002', structure: 'ACTIVITÉ SALARIÉE (MSA)', activite: 'Salarié agricole', salaireDefplafonne: 1157, salairePlafonne: 1157, trimestres: 0, regimeBase: 'MSA', pointsBase: 0, regimeComplementaire: 'Agirc-Arrco', pointsComplementaires: 5.84 },
+        { annee: 2003, debut: '31/07/2003', fin: '29/08/2003', structure: 'ACTIVITÉ SALARIÉE (MSA)', activite: 'Salarié agricole', salaireDefplafonne: 1755, salairePlafonne: 1755, trimestres: 1, regimeBase: 'MSA', pointsBase: 0, regimeComplementaire: 'Agirc-Arrco', pointsComplementaires: 8.71 },
+        { annee: 2004, debut: '26/07/2004', fin: '04/11/2004', structure: 'MAIRIE', activite: 'Contractuel fct. Publique', salaireDefplafonne: 827, salairePlafonne: 827, trimestres: 0, regimeBase: 'CNAV', pointsBase: 0, regimeComplementaire: 'Ircantec', pointsComplementaires: 8 },
+        { annee: 2004, debut: '20/09/2004', fin: '31/12/2004', structure: 'THE REWARD', activite: 'Salarié du privé', salaireDefplafonne: 1868, salairePlafonne: 1868, trimestres: 1, regimeBase: 'CNAV', pointsBase: 0, regimeComplementaire: 'Agirc-Arrco', pointsComplementaires: 9.07 },
+        { annee: 2005, debut: '01/01/2005', fin: '31/12/2005', structure: 'THE REWARD', activite: 'Salarié du privé', salaireDefplafonne: 10098, salairePlafonne: 10098, trimestres: 4, regimeBase: 'CNAV', pointsBase: 0, regimeComplementaire: 'Agirc-Arrco', pointsComplementaires: 47.86 },
+        { annee: 2006, debut: '01/01/2006', fin: '31/12/2006', structure: 'THE REWARD', activite: 'Salarié du privé', salaireDefplafonne: 13038, salairePlafonne: 13038, trimestres: 4, regimeBase: 'CNAV', pointsBase: 0, regimeComplementaire: 'Agirc-Arrco', pointsComplementaires: 60.05 },
+        { annee: 2007, debut: '01/01/2007', fin: '30/07/2007', structure: 'THE REWARD', activite: 'Salarié du privé', salaireDefplafonne: 7488, salairePlafonne: 7488, trimestres: 4, regimeBase: 'CNAV', pointsBase: 0, regimeComplementaire: 'Agirc-Arrco', pointsComplementaires: 33.26 },
+        { annee: 2007, debut: '02/07/2007', fin: '31/08/2007', structure: 'COLORZ', activite: 'Salarié du privé', salaireDefplafonne: 1080, salairePlafonne: 1080, trimestres: 4, regimeBase: 'CNAV', pointsBase: 0, regimeComplementaire: 'Agirc-Arrco', pointsComplementaires: 0 },
+        { annee: 2008, debut: '01/01/2008', fin: '31/12/2008', structure: 'COLORZ', activite: 'Salarié du privé', salaireDefplafonne: 0, salairePlafonne: 0, trimestres: 4, regimeBase: 'CNAV', pointsBase: 0, regimeComplementaire: 'Agirc-Arrco', pointsComplementaires: 0 },
+        { annee: 2009, debut: '01/01/2009', fin: '30/06/2009', structure: 'COLORZ', activite: 'Salarié du privé', salaireDefplafonne: 0, salairePlafonne: 0, trimestres: 4, regimeBase: 'CNAV', pointsBase: 0, regimeComplementaire: 'Agirc-Arrco', pointsComplementaires: 0 },
+        { annee: 2009, debut: '12/08/2009', fin: '31/10/2009', structure: 'CHÔMAGE', activite: '', salaireDefplafonne: 0, salairePlafonne: 0, trimestres: 4, regimeBase: 'CNAV', pointsBase: 0, regimeComplementaire: 'Agirc-Arrco', pointsComplementaires: 0 },
+        { annee: 2009, debut: '16/11/2009', fin: '31/12/2009', structure: 'VISUAL LINK PARIS', activite: 'Salarié du privé', salaireDefplafonne: 3733, salairePlafonne: 3733, trimestres: 4, regimeBase: 'CNAV', pointsBase: 0, regimeComplementaire: 'Agirc-Arrco', pointsComplementaires: 20.97 },
+        { annee: 2010, debut: '01/01/2010', fin: '31/12/2010', structure: 'VISUAL LINK PARIS', activite: 'Salarié du privé', salaireDefplafonne: 30580, salairePlafonne: 30580, trimestres: 4, regimeBase: 'CNAV', pointsBase: 0, regimeComplementaire: 'Agirc-Arrco', pointsComplementaires: 169.11 },
+        { annee: 2011, debut: '01/01/2011', fin: '31/12/2011', structure: 'VISUAL LINK PARIS', activite: 'Salarié du privé', salaireDefplafonne: 32482, salairePlafonne: 32482, trimestres: 4, regimeBase: 'CNAV', pointsBase: 0, regimeComplementaire: 'Agirc-Arrco', pointsComplementaires: 174.12 },
+        { annee: 2012, debut: '01/01/2012', fin: '31/12/2012', structure: 'VISUAL LINK PARIS', activite: 'Salarié du privé', salaireDefplafonne: 9937, salairePlafonne: 9937, trimestres: 4, regimeBase: 'CNAV', pointsBase: 0, regimeComplementaire: 'Agirc-Arrco', pointsComplementaires: 205.91 },
+        { annee: 2012, debut: '19/03/2012', fin: '31/12/2012', structure: 'ACTI', activite: 'Salarié du privé', salaireDefplafonne: 28458, salairePlafonne: 28458, trimestres: 4, regimeBase: 'CNAV', pointsBase: 0, regimeComplementaire: 'Agirc-Arrco', pointsComplementaires: 0 },
+        { annee: 2013, debut: '01/01/2013', fin: '31/12/2013', structure: 'ACTI', activite: 'Salarié du privé', salaireDefplafonne: 36360, salairePlafonne: 36360, trimestres: 4, regimeBase: 'CNAV', pointsBase: 0, regimeComplementaire: 'Agirc-Arrco', pointsComplementaires: 184.99 },
+        { annee: 2014, debut: '01/01/2014', fin: '31/12/2014', structure: 'ACTI', activite: 'Salarié du privé', salaireDefplafonne: 37583, salairePlafonne: 37583, trimestres: 4, regimeBase: 'CNAV', pointsBase: 0, regimeComplementaire: 'Agirc-Arrco', pointsComplementaires: 191.83 },
+        { annee: 2014, debut: '01/10/2014', fin: '31/12/2014', structure: 'PAYE SANS ORDON. ESI LYON', activite: 'Contractuel fct. Publique', salaireDefplafonne: 2040, salairePlafonne: 2040, trimestres: 4, regimeBase: 'CNAV', pointsBase: 0, regimeComplementaire: 'Ircantec', pointsComplementaires: 23 },
+        { annee: 2015, debut: '01/01/2015', fin: '31/12/2015', structure: 'ACTI', activite: 'Salarié du privé', salaireDefplafonne: 40322, salairePlafonne: 40322, trimestres: 4, regimeBase: 'CNAV', pointsBase: 0, regimeComplementaire: 'Agirc-Arrco', pointsComplementaires: 196.29 },
+        { annee: 2015, debut: '01/01/2015', fin: '31/12/2015', structure: 'PAYE SANS ORDON. ESI LYON', activite: 'Contractuel fct. Publique', salaireDefplafonne: 2040, salairePlafonne: 2040, trimestres: 4, regimeBase: 'CNAV', pointsBase: 0, regimeComplementaire: 'Ircantec', pointsComplementaires: 23 },
+        { annee: 2016, debut: '01/01/2016', fin: '31/12/2016', structure: 'PAYE SANS ORDON. ESI LYON', activite: 'Contractuel fct. Publique', salaireDefplafonne: 2078, salairePlafonne: 2078, trimestres: 4, regimeBase: 'CNAV', pointsBase: 0, regimeComplementaire: 'Ircantec', pointsComplementaires: 24 },
+        { annee: 2016, debut: '01/01/2016', fin: '06/12/2016', structure: 'ACTI', activite: 'Salarié du privé', salaireDefplafonne: 38839, salairePlafonne: 38839, trimestres: 4, regimeBase: 'CNAV', pointsBase: 0, regimeComplementaire: 'Agirc-Arrco', pointsComplementaires: 194.8 },
+        { annee: 2016, debut: '07/12/2016', fin: '31/12/2016', structure: 'NEOVIA', activite: 'Salarié du privé', salaireDefplafonne: 2610, salairePlafonne: 2610, trimestres: 4, regimeBase: 'CNAV', pointsBase: 0, regimeComplementaire: 'Agirc-Arrco', pointsComplementaires: 0 },
+        { annee: 2017, debut: '01/01/2017', fin: '31/12/2017', structure: 'PAYE SANS ORDON. ESI LYON', activite: 'Contractuel fct. Publique', salaireDefplafonne: 2496, salairePlafonne: 2496, trimestres: 4, regimeBase: 'CNAV', pointsBase: 0, regimeComplementaire: 'Ircantec', pointsComplementaires: 75 },
+        { annee: 2017, debut: '01/01/2017', fin: '31/12/2017', structure: 'NEOVIA', activite: 'Salarié du privé', salaireDefplafonne: 50314, salairePlafonne: 50314, trimestres: 4, regimeBase: 'CNAV', pointsBase: 0, regimeComplementaire: 'Agirc-Arrco', pointsComplementaires: 262.92 },
+        { annee: 2018, debut: '01/01/2018', fin: '31/12/2018', structure: 'NEOVIA', activite: 'Salarié du privé', salaireDefplafonne: 77262, salairePlafonne: 77262, trimestres: 4, regimeBase: 'CNAV', pointsBase: 0, regimeComplementaire: 'Agirc-Arrco', pointsComplementaires: 516.32 },
+        { annee: 2018, debut: '01/01/2018', fin: '31/12/2018', structure: 'PAYE SANS ORDON. ESI LYON', activite: 'Contractuel fct. Publique', salaireDefplafonne: 348, salairePlafonne: 348, trimestres: 0, regimeBase: 'CNAV', pointsBase: 0, regimeComplementaire: 'Ircantec', pointsComplementaires: 11 },
+        { annee: 2019, debut: '01/01/2019', fin: '31/12/2019', structure: 'NEOVIA', activite: 'Salarié du privé', salaireDefplafonne: 78672, salairePlafonne: 78672, trimestres: 4, regimeBase: 'CNAV', pointsBase: 0, regimeComplementaire: 'Agirc-Arrco', pointsComplementaires: 530.98 },
+        { annee: 2019, debut: '01/01/2019', fin: '31/12/2019', structure: 'PAYE SANS ORDON. ESI LYON', activite: 'Contractuel fct. Publique', salaireDefplafonne: 11940, salairePlafonne: 11940, trimestres: 0, regimeBase: 'CNAV', pointsBase: 0, regimeComplementaire: 'Ircantec', pointsComplementaires: 375 },
+        { annee: 2020, debut: '01/01/2020', fin: '31/12/2020', structure: 'NEOVIA', activite: 'Salarié du privé', salaireDefplafonne: 84454, salairePlafonne: 84454, trimestres: 4, regimeBase: 'CNAV', pointsBase: 0, regimeComplementaire: 'Agirc-Arrco', pointsComplementaires: 583.89 },
+        { annee: 2020, debut: '01/01/2020', fin: '31/12/2020', structure: 'PAYE SANS ORDON. ESI LYON', activite: 'Contractuel fct. Publique', salaireDefplafonne: 23071, salairePlafonne: 23071, trimestres: 0, regimeBase: 'CNAV', pointsBase: 0, regimeComplementaire: 'Ircantec', pointsComplementaires: 719 },
+        { annee: 2020, debut: '07/09/2020', fin: '17/09/2020', structure: 'CONGÉ PATERNITÉ', activite: 'NA', salaireDefplafonne: 0, salairePlafonne: 0, trimestres: 0, regimeBase: 'CNAV', pointsBase: 0, regimeComplementaire: 'NA', pointsComplementaires: 0 },
+        { annee: 2021, debut: '01/01/2021', fin: '31/12/2021', structure: 'NEOVIA', activite: 'Salarié du privé', salaireDefplafonne: 109053, salairePlafonne: 109053, trimestres: 4, regimeBase: 'CNAV', pointsBase: 0, regimeComplementaire: 'Agirc-Arrco', pointsComplementaires: 811.59 },
+        { annee: 2021, debut: '01/01/2021', fin: '31/12/2021', structure: 'PAYE SANS ORDON. ESI LYON', activite: 'Contractuel fct. Publique', salaireDefplafonne: 24289, salairePlafonne: 24289, trimestres: 0, regimeBase: 'CNAV', pointsBase: 0, regimeComplementaire: 'Ircantec', pointsComplementaires: 754 },
+        { annee: 2022, debut: '01/01/2022', fin: '31/12/2022', structure: 'NEOVIA', activite: 'Salarié du privé', salaireDefplafonne: 130532, salairePlafonne: 130532, trimestres: 4, regimeBase: 'CNAV', pointsBase: 0, regimeComplementaire: 'Agirc-Arrco', pointsComplementaires: 1018.14 },
+        { annee: 2022, debut: '01/01/2022', fin: '31/12/2022', structure: 'UNIVERSITE LYON 3', activite: 'Contractuel fct. Publique', salaireDefplafonne: 21952, salairePlafonne: 21952, trimestres: 4, regimeBase: 'CNAV', pointsBase: 0, regimeComplementaire: 'Ircantec', pointsComplementaires: 674 },
+        { annee: 2023, debut: '01/01/2023', fin: '31/12/2013', structure: 'NEOVIA', activite: 'Salarié du privé', salaireDefplafonne: 142862, salairePlafonne: 142862, trimestres: 4, regimeBase: 'CNAV', pointsBase: 0, regimeComplementaire: 'Agirc-Arrco', pointsComplementaires: 1057.96 },
+        { annee: 2023, debut: '25/07/2023', fin: '18/08/2023', structure: 'CONGÉ PATERNITÉ', activite: 'NA', salaireDefplafonne: 0, salairePlafonne: 0, trimestres: 0, regimeBase: 'CNAV', pointsBase: 0, regimeComplementaire: 'NA', pointsComplementaires: 0 },
+        { annee: 2023, debut: '01/01/2023', fin: '31/12/2023', structure: 'UNIVERSITE LYON 3', activite: 'Contractuel fct. Publique', salaireDefplafonne: 32356, salairePlafonne: 32356, trimestres: 4, regimeBase: 'CNAV', pointsBase: 0, regimeComplementaire: 'Ircantec', pointsComplementaires: 947 },
+        { annee: 2024, debut: '01/01/2024', fin: '31/12/2024', structure: 'NEOVIA', activite: 'Salarié du privé', salaireDefplafonne: 132982, salairePlafonne: 132982, trimestres: 4, regimeBase: 'CNAV', pointsBase: 0, regimeComplementaire: 'Agirc-Arrco', pointsComplementaires: 1000.10 },
+        { annee: 2024, debut: '01/01/2024', fin: '31/12/2024', structure: 'UNIVERSITE LYON 3', activite: 'Contractuel fct. Publique', salaireDefplafonne: 25842, salairePlafonne: 25842, trimestres: 4, regimeBase: 'CNAV', pointsBase: 0, regimeComplementaire: 'Ircantec', pointsComplementaires: 718 }
+      ]
     },
     {
       id: 2,
