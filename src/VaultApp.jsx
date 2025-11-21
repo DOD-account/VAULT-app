@@ -118,6 +118,8 @@ export default function VaultApp() {
   const [expandedCarrieres, setExpandedCarrieres] = useState({});
   const [expandedYears, setExpandedYears] = useState({});
   const [showNotifications, setShowNotifications] = useState(false);
+  const [showCompleteCarriereModal, setShowCompleteCarriereModal] = useState(false);
+  const [inflationRate, setInflationRate] = useState(2);
   
   const [notifications] = useState([
     {
@@ -813,53 +815,6 @@ export default function VaultApp() {
                 const carriere = carrieres.find(c => c.id === carriereActive);
                 if (!carriere) return null;
 
-                // Calculer les erreurs de la carrière active
-                const erreursCarriere = [];
-                carriere.data.forEach(ligne => {
-                  const messages = checkLigneIncoherence(ligne);
-                  if (messages.length > 0) {
-                    erreursCarriere.push({
-                      annee: ligne.annee,
-                      messages: messages
-                    });
-                  }
-                });
-
-                return (
-                  <>
-                    {/* Cartouche récapitulatif des erreurs - Version compacte */}
-                    {erreursCarriere.length > 0 ? (
-                      <div className="mb-4 p-3 bg-red-50 rounded-lg border border-red-300">
-                        <div className="flex items-center gap-2">
-                          <span className="text-red-600 font-bold text-lg">⚠</span>
-                          <div className="flex-1">
-                            <span className="font-semibold text-red-900 text-sm">
-                              {erreursCarriere.length} {erreursCarriere.length === 1 ? 'année avec erreurs' : 'années avec erreurs'}
-                            </span>
-                            <span className="text-xs text-red-700 ml-2">
-                              (Années : {erreursCarriere.map(e => e.annee).join(', ')})
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="mb-4 p-3 bg-green-50 rounded-lg border border-green-300">
-                        <div className="flex items-center gap-2">
-                          <Check className="w-5 h-5 text-green-600" />
-                          <span className="font-semibold text-green-900 text-sm">
-                            Aucune erreur détectée
-                          </span>
-                        </div>
-                      </div>
-                    )}
-                  </>
-                );
-              })()}
-
-              {(() => {
-                const carriere = carrieres.find(c => c.id === carriereActive);
-                if (!carriere) return null;
-
                 // Grouper les données par année
                 const groupedByYear = groupDataByYear(carriere.data);
                 const displayData = [];
@@ -879,7 +834,7 @@ export default function VaultApp() {
                   }
                 });
 
-                // Catégoriser les années par statut
+                // Catégoriser les années par statut avec détails des erreurs
                 const anneesParStatut = {
                   incoherentes: [],
                   absentes: [],
@@ -890,17 +845,26 @@ export default function VaultApp() {
 
                 displayData.forEach(ligne => {
                   if (ligne.isSynthese) {
-                    const hasError = ligne.lignesDetail?.some(l => checkLigneIncoherence(l).length > 0) || false;
+                    // Pour les synthèses, vérifier toutes les lignes de détail
+                    const erreursDetail = [];
+                    ligne.lignesDetail?.forEach(l => {
+                      const messages = checkLigneIncoherence(l);
+                      if (messages.length > 0) {
+                        erreursDetail.push(...messages);
+                      }
+                    });
+                    const hasError = erreursDetail.length > 0;
                     const status = getYearStatus(ligne.annee, hasError);
-                    if (status === 'error') anneesParStatut.incoherentes.push(ligne.annee);
+                    if (status === 'error') anneesParStatut.incoherentes.push({ annee: ligne.annee, erreurs: erreursDetail });
                     else if (status === 'missing') anneesParStatut.absentes.push(ligne.annee);
                     else if (status === 'corrected') anneesParStatut.corrigees.push(ligne.annee);
                     else if (status === 'coherent') anneesParStatut.coherentes.push(ligne.annee);
                     else if (status === 'certified') anneesParStatut.certifiees.push(ligne.annee);
                   } else if (!ligne.isDetail) {
-                    const hasError = checkLigneIncoherence(ligne).length > 0;
+                    const erreurs = checkLigneIncoherence(ligne);
+                    const hasError = erreurs.length > 0;
                     const status = getYearStatus(ligne.annee, hasError);
-                    if (status === 'error') anneesParStatut.incoherentes.push(ligne.annee);
+                    if (status === 'error') anneesParStatut.incoherentes.push({ annee: ligne.annee, erreurs });
                     else if (status === 'missing') anneesParStatut.absentes.push(ligne.annee);
                     else if (status === 'corrected') anneesParStatut.corrigees.push(ligne.annee);
                     else if (status === 'coherent') anneesParStatut.coherentes.push(ligne.annee);
@@ -917,22 +881,31 @@ export default function VaultApp() {
                   <>
                     {/* Deux zones d'information au-dessus du tableau */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                      {/* Zone de gauche : Statut des années */}
+                      {/* Zone de gauche : État des années */}
                       <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg border border-blue-200 p-5">
                         <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
                           <ClipboardList className="w-5 h-5 text-blue-600" />
-                          Statut de la carrière
+                          État de la carrière
                         </h3>
 
-                        <div className="space-y-3 mb-4">
+                        <div className="space-y-3">
                           {anneesParStatut.incoherentes.length > 0 && (
-                            <div className="flex items-start gap-2">
-                              <div className="flex items-center gap-1 px-2 py-1 bg-red-100 text-red-700 rounded text-xs font-medium whitespace-nowrap">
-                                <AlertCircle className="w-3 h-3" />
-                                <span>Incohérent</span>
+                            <div className="bg-red-50 rounded-lg p-3 border border-red-200">
+                              <div className="flex items-center gap-1 mb-2">
+                                <AlertCircle className="w-4 h-4 text-red-700" />
+                                <span className="font-semibold text-red-900 text-sm">Années incohérentes</span>
                               </div>
-                              <div className="text-sm text-gray-700 flex-1">
-                                {anneesParStatut.incoherentes.join(', ')}
+                              <div className="space-y-2 ml-5">
+                                {anneesParStatut.incoherentes.map((item, idx) => (
+                                  <div key={idx} className="text-xs">
+                                    <span className="font-bold text-red-800">{item.annee} :</span>
+                                    <ul className="mt-1 space-y-0.5 text-red-700">
+                                      {item.erreurs.map((erreur, eidx) => (
+                                        <li key={eidx}>• {erreur}</li>
+                                      ))}
+                                    </ul>
+                                  </div>
+                                ))}
                               </div>
                             </div>
                           )}
@@ -985,13 +958,6 @@ export default function VaultApp() {
                             </div>
                           )}
                         </div>
-
-                        <button
-                          className="w-full mt-4 flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium"
-                        >
-                          <Plus className="w-4 h-4" />
-                          Compléter la carrière
-                        </button>
                       </div>
 
                       {/* Zone de droite : Projections de retraite */}
@@ -1342,9 +1308,108 @@ export default function VaultApp() {
                       </tbody>
                     </table>
                   </div>
+
+                  {/* Bouton Compléter la carrière */}
+                  <div className="mt-4 flex justify-center">
+                    <button
+                      onClick={() => setShowCompleteCarriereModal(true)}
+                      className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium shadow-md"
+                    >
+                      <Plus className="w-5 h-5" />
+                      Compléter la carrière
+                    </button>
+                  </div>
                   </>
                 );
               })()}
+            </div>
+          </div>
+        )}
+
+        {/* Modal Compléter la carrière */}
+        {showCompleteCarriereModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-xl shadow-2xl p-6 max-w-md w-full mx-4">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+                  <Plus className="w-6 h-6 text-blue-600" />
+                  Compléter la carrière
+                </h3>
+                <button
+                  onClick={() => setShowCompleteCarriereModal(false)}
+                  className="text-gray-400 hover:text-gray-600 transition"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                {/* Option 1 : Dupliquer la dernière année */}
+                <button
+                  onClick={() => {
+                    // TODO: Implémenter la duplication de la dernière année
+                    setShowCompleteCarriereModal(false);
+                  }}
+                  className="w-full p-4 bg-blue-50 border-2 border-blue-200 rounded-lg hover:bg-blue-100 transition text-left"
+                >
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <Plus className="w-5 h-5 text-white" />
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-gray-800 mb-1">Dupliquer la dernière année</h4>
+                      <p className="text-sm text-gray-600">Créer une nouvelle année avec les mêmes données que la dernière année de carrière</p>
+                    </div>
+                  </div>
+                </button>
+
+                {/* Option 2 : Dupliquer jusqu'au taux plein */}
+                <div className="p-4 bg-orange-50 border-2 border-orange-200 rounded-lg">
+                  <div className="flex items-start gap-3 mb-3">
+                    <div className="w-10 h-10 bg-orange-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <TrendingUp className="w-5 h-5 text-white" />
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="font-semibold text-gray-800 mb-1">Dupliquer jusqu'au taux plein</h4>
+                      <p className="text-sm text-gray-600 mb-3">Projeter les années manquantes pour atteindre le taux plein avec inflation</p>
+                    </div>
+                  </div>
+
+                  <div className="ml-13 space-y-3">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Inflation annuelle des revenus (%)
+                      </label>
+                      <input
+                        type="number"
+                        value={inflationRate}
+                        onChange={(e) => setInflationRate(parseFloat(e.target.value) || 0)}
+                        min="0"
+                        max="10"
+                        step="0.1"
+                        className="w-full px-3 py-2 border border-orange-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400"
+                      />
+                    </div>
+
+                    <button
+                      onClick={() => {
+                        // TODO: Implémenter la duplication jusqu'au taux plein avec inflation
+                        setShowCompleteCarriereModal(false);
+                      }}
+                      className="w-full px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition font-medium"
+                    >
+                      Projeter jusqu'au taux plein
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <button
+                onClick={() => setShowCompleteCarriereModal(false)}
+                className="mt-6 w-full px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition"
+              >
+                Annuler
+              </button>
             </div>
           </div>
         )}
