@@ -119,6 +119,7 @@ export default function VaultApp() {
   const [expandedYears, setExpandedYears] = useState({});
   const [showNotifications, setShowNotifications] = useState(false);
   const [showCompleteCarriereModal, setShowCompleteCarriereModal] = useState(false);
+  const [showLegendeModal, setShowLegendeModal] = useState(false);
   const [inflationRate, setInflationRate] = useState(2);
   
   const [notifications] = useState([
@@ -332,6 +333,34 @@ export default function VaultApp() {
       'bg-orange-100 text-orange-700'
     ];
     return colors[index % colors.length];
+  };
+
+  // Couleurs pour les régimes (caisses) - tons pastel plus doux
+  const getRegimeColor = (regime) => {
+    const regimeColors = {
+      'CNAV': 'bg-blue-200 text-blue-900',
+      'MSA': 'bg-green-200 text-green-900',
+      'Agirc-Arrco': 'bg-purple-200 text-purple-900',
+      'Ircantec': 'bg-pink-200 text-pink-900',
+      'NA': 'bg-gray-200 text-gray-700',
+      'Non renseigné': 'bg-gray-200 text-gray-700'
+    };
+    return regimeColors[regime] || 'bg-slate-200 text-slate-900';
+  };
+
+  // Couleurs pour les statuts (activités) - tons chauds pour différencier
+  const getStatutColor = (statut) => {
+    const statutColors = {
+      'Salarié agricole': 'bg-amber-100 text-amber-800',
+      'Contractuel fct. Publique': 'bg-rose-100 text-rose-800',
+      'Salarié du privé': 'bg-cyan-100 text-cyan-800',
+      'NA': 'bg-gray-100 text-gray-600',
+      'Non renseigné': 'bg-gray-100 text-gray-600',
+      'Chômage': 'bg-orange-100 text-orange-800',
+      'Salarié': 'bg-teal-100 text-teal-800',
+      'PDT SAS': 'bg-violet-100 text-violet-800'
+    };
+    return statutColors[statut] || 'bg-lime-100 text-lime-800';
   };
 
   const groupDataByYear = (data) => {
@@ -883,28 +912,33 @@ export default function VaultApp() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                       {/* Zone de gauche : État des années */}
                       <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg border border-blue-200 p-5">
-                        <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
-                          <ClipboardList className="w-5 h-5 text-blue-600" />
-                          État de la carrière
-                        </h3>
+                        <div className="flex items-center justify-between mb-4">
+                          <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
+                            <ClipboardList className="w-5 h-5 text-blue-600" />
+                            État de la carrière
+                          </h3>
+                          <button
+                            onClick={() => setShowLegendeModal(true)}
+                            className="text-xs px-2 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+                          >
+                            Légende
+                          </button>
+                        </div>
 
-                        <div className="space-y-3">
+                        <div className="space-y-2 mb-4">
                           {anneesParStatut.incoherentes.length > 0 && (
-                            <div className="bg-red-50 rounded-lg p-3 border border-red-200">
-                              <div className="flex items-center gap-1 mb-2">
-                                <AlertCircle className="w-4 h-4 text-red-700" />
-                                <span className="font-semibold text-red-900 text-sm">Années incohérentes</span>
+                            <div className="flex items-start gap-2">
+                              <div className="flex items-center gap-1 px-2 py-1 bg-red-100 text-red-700 rounded text-xs font-medium whitespace-nowrap">
+                                <AlertCircle className="w-3 h-3" />
+                                <span>Incohérent</span>
                               </div>
-                              <div className="space-y-2 ml-5">
+                              <div className="text-xs text-gray-700 flex-1">
                                 {anneesParStatut.incoherentes.map((item, idx) => (
-                                  <div key={idx} className="text-xs">
-                                    <span className="font-bold text-red-800">{item.annee} :</span>
-                                    <ul className="mt-1 space-y-0.5 text-red-700">
-                                      {item.erreurs.map((erreur, eidx) => (
-                                        <li key={eidx}>• {erreur}</li>
-                                      ))}
-                                    </ul>
-                                  </div>
+                                  <span key={idx} className="inline-block mr-1">
+                                    {item.annee}
+                                    <span className="text-red-600 font-bold"> ({item.erreurs.length})</span>
+                                    {idx < anneesParStatut.incoherentes.length - 1 ? ', ' : ''}
+                                  </span>
                                 ))}
                               </div>
                             </div>
@@ -916,7 +950,7 @@ export default function VaultApp() {
                                 <Info className="w-3 h-3" />
                                 <span>Info absente</span>
                               </div>
-                              <div className="text-sm text-gray-700 flex-1">
+                              <div className="text-xs text-gray-700 flex-1">
                                 {anneesParStatut.absentes.join(', ')}
                               </div>
                             </div>
@@ -928,7 +962,7 @@ export default function VaultApp() {
                                 <Edit3 className="w-3 h-3" />
                                 <span>Corrigée</span>
                               </div>
-                              <div className="text-sm text-gray-700 flex-1">
+                              <div className="text-xs text-gray-700 flex-1">
                                 {anneesParStatut.corrigees.join(', ')}
                               </div>
                             </div>
@@ -940,7 +974,7 @@ export default function VaultApp() {
                                 <CheckCircle className="w-3 h-3" />
                                 <span>Cohérent</span>
                               </div>
-                              <div className="text-sm text-gray-700 flex-1">
+                              <div className="text-xs text-gray-700 flex-1">
                                 {anneesParStatut.coherentes.join(', ')}
                               </div>
                             </div>
@@ -952,12 +986,20 @@ export default function VaultApp() {
                                 <Shield className="w-3 h-3" />
                                 <span>Certifiée</span>
                               </div>
-                              <div className="text-sm text-gray-700 flex-1">
+                              <div className="text-xs text-gray-700 flex-1">
                                 {anneesParStatut.certifiees.join(', ')}
                               </div>
                             </div>
                           )}
                         </div>
+
+                        <button
+                          onClick={() => setShowCompleteCarriereModal(true)}
+                          className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium"
+                        >
+                          <Plus className="w-4 h-4" />
+                          Compléter la carrière
+                        </button>
                       </div>
 
                       {/* Zone de droite : Projections de retraite */}
@@ -1245,14 +1287,14 @@ export default function VaultApp() {
                                 {isSynthese ? (
                                   <div className="flex flex-wrap gap-1">
                                     {ligne.statuts.map((statut, idx) => (
-                                      <span key={idx} className={`px-2 py-0.5 ${getStatusBadgeColor(statut, idx)} rounded text-xs font-medium`}>
+                                      <span key={idx} className={`px-2 py-0.5 ${getStatutColor(statut)} rounded text-xs font-medium`}>
                                         {statut}
                                       </span>
                                     ))}
                                   </div>
                                 ) : (
                                   ligne.activite && (
-                                    <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-medium">
+                                    <span className={`px-2 py-1 ${getStatutColor(ligne.activite)} rounded text-xs font-medium`}>
                                       {ligne.activite}
                                     </span>
                                   )
@@ -1275,13 +1317,13 @@ export default function VaultApp() {
                                 {isSynthese ? (
                                   <div className="flex flex-wrap gap-1">
                                     {ligne.regimesBase.map((regime, idx) => (
-                                      <span key={idx} className="px-2 py-0.5 bg-gray-200 text-gray-700 rounded">
+                                      <span key={idx} className={`px-2 py-0.5 ${getRegimeColor(regime)} rounded font-medium`}>
                                         {regime}
                                       </span>
                                     ))}
                                   </div>
                                 ) : (
-                                  <span className="text-gray-600">{ligne.regimeBase}</span>
+                                  <span className={`px-2 py-0.5 ${getRegimeColor(ligne.regimeBase)} rounded font-medium`}>{ligne.regimeBase}</span>
                                 )}
                               </td>
                               {/* Régime compl. */}
@@ -1289,13 +1331,13 @@ export default function VaultApp() {
                                 {isSynthese ? (
                                   <div className="flex flex-wrap gap-1">
                                     {ligne.regimesCompl.map((regime, idx) => (
-                                      <span key={idx} className="px-2 py-0.5 bg-purple-100 text-purple-700 rounded">
+                                      <span key={idx} className={`px-2 py-0.5 ${getRegimeColor(regime)} rounded font-medium`}>
                                         {regime}
                                       </span>
                                     ))}
                                   </div>
                                 ) : (
-                                  <span className="text-gray-600">{ligne.regimeComplementaire}</span>
+                                  <span className={`px-2 py-0.5 ${getRegimeColor(ligne.regimeComplementaire)} rounded font-medium`}>{ligne.regimeComplementaire}</span>
                                 )}
                               </td>
                               {/* Pts compl. */}
@@ -1409,6 +1451,100 @@ export default function VaultApp() {
                 className="mt-6 w-full px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition"
               >
                 Annuler
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Modal Légende */}
+        {showLegendeModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-xl shadow-2xl p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+                  <Info className="w-6 h-6 text-blue-600" />
+                  Légende - États des enregistrements
+                </h3>
+                <button
+                  onClick={() => setShowLegendeModal(false)}
+                  className="text-gray-400 hover:text-gray-600 transition"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                {/* Enregistrement incohérent */}
+                <div className="p-4 bg-red-50 border-2 border-red-200 rounded-lg">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="flex items-center gap-1 px-2 py-1 bg-red-100 text-red-700 rounded text-sm font-medium">
+                      <AlertCircle className="w-4 h-4" />
+                      <span>Enregistrement incohérent</span>
+                    </div>
+                  </div>
+                  <p className="text-sm text-gray-700">
+                    Les données enregistrées par les caisses ne sont pas cohérentes entre elles ou avec les règles des caisses de retraites correspondantes ou avec le profil de l'assuré saisi dans Vault.
+                  </p>
+                </div>
+
+                {/* Enregistrement cohérent */}
+                <div className="p-4 bg-green-50 border-2 border-green-200 rounded-lg">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="flex items-center gap-1 px-2 py-1 bg-green-100 text-green-700 rounded text-sm font-medium">
+                      <CheckCircle className="w-4 h-4" />
+                      <span>Enregistrement cohérent</span>
+                    </div>
+                  </div>
+                  <p className="text-sm text-gray-700">
+                    Les données enregistrées par les caisses sont cohérentes entre elles et avec les règles des caisses de retraites correspondantes et avec le profil de l'assuré saisi dans Vault.
+                  </p>
+                </div>
+
+                {/* Enregistrement absent */}
+                <div className="p-4 bg-gray-50 border-2 border-gray-200 rounded-lg">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="flex items-center gap-1 px-2 py-1 bg-gray-100 text-gray-700 rounded text-sm font-medium">
+                      <Info className="w-4 h-4" />
+                      <span>Enregistrement absent</span>
+                    </div>
+                  </div>
+                  <p className="text-sm text-gray-700">
+                    Il y a une absence de donnée sur une période alors que le profil de l'assuré nécessite un enregistrement auprès des caisses.
+                  </p>
+                </div>
+
+                {/* Enregistrement corrigé */}
+                <div className="p-4 bg-yellow-50 border-2 border-yellow-200 rounded-lg">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="flex items-center gap-1 px-2 py-1 bg-yellow-100 text-yellow-700 rounded text-sm font-medium">
+                      <Edit3 className="w-4 h-4" />
+                      <span>Enregistrement corrigé</span>
+                    </div>
+                  </div>
+                  <p className="text-sm text-gray-700">
+                    L'enregistrement a été corrigé dans Vault pour être en cohérence avec le profil de l'assuré et les règles des caisses de retraites. Rendez-vous dans la section Suivi dossier pour régulariser l'enregistrement auprès de la caisse concernée.
+                  </p>
+                </div>
+
+                {/* Enregistrement certifié */}
+                <div className="p-4 bg-blue-50 border-2 border-blue-200 rounded-lg">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-700 rounded text-sm font-medium">
+                      <Shield className="w-4 h-4" />
+                      <span>Enregistrement certifié</span>
+                    </div>
+                  </div>
+                  <p className="text-sm text-gray-700">
+                    Des documents ont été transmis à la plateforme Vault et ont permis de vérifier que l'enregistrement auprès des caisses est conforme au profil de l'assuré et aux cotisations qui ont réellement été effectuées.
+                  </p>
+                </div>
+              </div>
+
+              <button
+                onClick={() => setShowLegendeModal(false)}
+                className="mt-6 w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium"
+              >
+                Fermer
               </button>
             </div>
           </div>
