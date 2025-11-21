@@ -54,7 +54,8 @@ export default function VaultApp() {
         { annee: 2023, debut: '01/01/2023', fin: '31/12/2023', structure: 'UNIVERSITE LYON 3', activite: 'Contractuel fct. Publique', salaireDefplafonne: 32356, salairePlafonne: 32356, trimestres: 4, regimeBase: 'CNAV', pointsBase: 0, regimeComplementaire: 'Ircantec', pointsComplementaires: 947 },
         { annee: 2024, debut: '01/01/2024', fin: '31/12/2024', structure: 'NEOVIA', activite: 'Salarié du privé', salaireDefplafonne: 132982, salairePlafonne: 132982, trimestres: 4, regimeBase: 'CNAV', pointsBase: 0, regimeComplementaire: 'Agirc-Arrco', pointsComplementaires: 1000.10 },
         { annee: 2024, debut: '01/01/2024', fin: '31/12/2024', structure: 'UNIVERSITE LYON 3', activite: 'Contractuel fct. Publique', salaireDefplafonne: 25842, salairePlafonne: 25842, trimestres: 4, regimeBase: 'CNAV', pointsBase: 0, regimeComplementaire: 'Ircantec', pointsComplementaires: 718 },
-        { annee: 2025, debut: '01/01/2025', fin: '31/12/2025', structure: 'Information non disponible', activite: 'Non renseigné', salaireDefplafonne: 0, salairePlafonne: 0, trimestres: 0, regimeBase: 'Non renseigné', pointsBase: 0, regimeComplementaire: 'Non renseigné', pointsComplementaires: 0 }
+        { annee: 2025, debut: '01/01/2025', fin: '31/12/2025', structure: 'NEOVIA', activite: 'Salarié du privé', salaireDefplafonne: 132982, salairePlafonne: 132982, trimestres: 4, regimeBase: 'CNAV', pointsBase: 0, regimeComplementaire: 'Agirc-Arrco', pointsComplementaires: 1000.10 },
+        { annee: 2025, debut: '01/01/2025', fin: '31/12/2025', structure: 'UNIVERSITE LYON 3', activite: 'Contractuel fct. Publique', salaireDefplafonne: 25842, salairePlafonne: 25842, trimestres: 4, regimeBase: 'CNAV', pointsBase: 0, regimeComplementaire: 'Ircantec', pointsComplementaires: 718 }
       ]
     },
     {
@@ -260,6 +261,102 @@ export default function VaultApp() {
     setTempLigneData(null);
   };
 
+  const duplicateDerniereAnnee = () => {
+    const carriere = carrieres.find(c => c.id === carriereActive);
+    if (!carriere) return;
+
+    // Trouver la dernière année avec des données
+    const derniereAnnee = Math.max(...carriere.data.map(l => l.annee));
+    const lignesDerniereAnnee = carriere.data.filter(l => l.annee === derniereAnnee);
+
+    if (lignesDerniereAnnee.length === 0) return;
+
+    // Créer les nouvelles lignes pour l'année suivante
+    const nouvellesLignes = lignesDerniereAnnee.map(ligne => ({
+      ...ligne,
+      annee: derniereAnnee + 1,
+      debut: `01/01/${derniereAnnee + 1}`,
+      fin: `31/12/${derniereAnnee + 1}`
+    }));
+
+    // Ajouter les nouvelles lignes à la carrière
+    setCarrieres(carrieres.map(c => {
+      if (c.id === carriereActive) {
+        return {
+          ...c,
+          data: [...c.data, ...nouvellesLignes]
+        };
+      }
+      return c;
+    }));
+
+    setShowCompleteCarriereModal(false);
+  };
+
+  const projeterJusquAuTauxPlein = () => {
+    const carriere = carrieres.find(c => c.id === carriereActive);
+    if (!carriere) return;
+
+    // Calculer les trimestres acquis
+    const trimestresAcquis = carriere.data.reduce((sum, ligne) => sum + ligne.trimestres, 0);
+    const trimestresCibles = 172; // Pour une personne née après 1973
+    const trimestresManquants = Math.max(0, trimestresCibles - trimestresAcquis);
+
+    if (trimestresManquants === 0) {
+      alert('Le taux plein est déjà atteint !');
+      setShowCompleteCarriereModal(false);
+      return;
+    }
+
+    // Calculer le nombre d'années complètes nécessaires
+    const anneesNecessaires = Math.ceil(trimestresManquants / 4);
+
+    // Trouver la dernière année avec des données
+    const derniereAnnee = Math.max(...carriere.data.map(l => l.annee));
+    const lignesDerniereAnnee = carriere.data.filter(l => l.annee === derniereAnnee);
+
+    if (lignesDerniereAnnee.length === 0) return;
+
+    // Créer les nouvelles lignes pour chaque année manquante
+    const nouvellesLignes = [];
+    for (let i = 1; i <= anneesNecessaires; i++) {
+      const nouvelleAnnee = derniereAnnee + i;
+      const facteurInflation = Math.pow(1 + (inflationRate / 100), i);
+
+      lignesDerniereAnnee.forEach(ligne => {
+        // Appliquer l'inflation sur les salaires et points
+        const nouveauSalaireDepl = Math.round(ligne.salaireDefplafonne * facteurInflation);
+        const nouveauSalairePlaf = Math.round(ligne.salairePlafonne * facteurInflation);
+        const nouveauxPoints = ligne.pointsComplementaires !== 0 && ligne.pointsComplementaires !== null
+          ? parseFloat((ligne.pointsComplementaires * facteurInflation).toFixed(2))
+          : ligne.pointsComplementaires;
+
+        nouvellesLignes.push({
+          ...ligne,
+          annee: nouvelleAnnee,
+          debut: `01/01/${nouvelleAnnee}`,
+          fin: `31/12/${nouvelleAnnee}`,
+          salaireDefplafonne: nouveauSalaireDepl,
+          salairePlafonne: nouveauSalairePlaf,
+          pointsComplementaires: nouveauxPoints
+        });
+      });
+    }
+
+    // Ajouter les nouvelles lignes à la carrière
+    setCarrieres(carrieres.map(c => {
+      if (c.id === carriereActive) {
+        return {
+          ...c,
+          data: [...c.data, ...nouvellesLignes]
+        };
+      }
+      return c;
+    }));
+
+    setShowCompleteCarriereModal(false);
+  };
+
   const checkLigneIncoherence = (ligne) => {
     const messages = [];
 
@@ -314,7 +411,7 @@ export default function VaultApp() {
   };
 
   const getYearStatus = (annee, hasError) => {
-    if (annee === 2025) return 'missing';
+    if (annee === 2025) return 'certified';
     if (annee === 2024) return 'certified';
     if (annee === 2023) return 'corrected';
     if (!hasError) return 'coherent';
@@ -1388,10 +1485,7 @@ export default function VaultApp() {
               <div className="space-y-4">
                 {/* Option 1 : Dupliquer la dernière année */}
                 <button
-                  onClick={() => {
-                    // TODO: Implémenter la duplication de la dernière année
-                    setShowCompleteCarriereModal(false);
-                  }}
+                  onClick={duplicateDerniereAnnee}
                   className="w-full p-4 bg-blue-50 border-2 border-blue-200 rounded-lg hover:bg-blue-100 transition text-left"
                 >
                   <div className="flex items-start gap-3">
@@ -1434,10 +1528,7 @@ export default function VaultApp() {
                     </div>
 
                     <button
-                      onClick={() => {
-                        // TODO: Implémenter la duplication jusqu'au taux plein avec inflation
-                        setShowCompleteCarriereModal(false);
-                      }}
+                      onClick={projeterJusquAuTauxPlein}
                       className="w-full px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition font-medium"
                     >
                       Projeter jusqu'au taux plein
