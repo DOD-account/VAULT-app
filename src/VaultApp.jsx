@@ -1650,6 +1650,109 @@ export default function VaultApp() {
 
         {activeSection === 'projections' && (
           <div className="space-y-6">
+            <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-200">
+              <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-3">
+                <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+                  <TrendingUp className="w-6 h-6 text-white" />
+                </div>
+                Tableau comparatif des pensions par âge de départ
+              </h2>
+
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm border-collapse">
+                  <thead>
+                    <tr className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
+                      <th className="py-3 px-4 text-left font-bold border border-blue-700">Âge de départ</th>
+                      {carrieres.map((carriere) => (
+                        <th key={`${carriere.id}-nette`} colSpan="2" className="py-3 px-4 text-center font-bold border border-blue-700">
+                          {carriere.nom}
+                        </th>
+                      ))}
+                    </tr>
+                    <tr className="bg-blue-500 text-white">
+                      <th className="py-2 px-4 text-left text-xs border border-blue-600"></th>
+                      {carrieres.map((carriere) => (
+                        <React.Fragment key={`${carriere.id}-headers`}>
+                          <th className="py-2 px-4 text-center text-xs border border-blue-600">Pension nette annuelle</th>
+                          <th className="py-2 px-4 text-center text-xs border border-blue-600">Cumul sur espérance de vie</th>
+                        </React.Fragment>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {[60, 61, 62, 63, 64, 65, 66, 67].map((age) => {
+                      const ageTauxPlein = 62; // Âge légal du taux plein
+                      const esperanceVie = 85; // Espérance de vie estimée
+                      const anneesRetraite = esperanceVie - age;
+
+                      return (
+                        <tr key={age} className={age % 2 === 0 ? 'bg-gray-50' : 'bg-white'}>
+                          <td className="py-3 px-4 font-bold text-gray-800 border border-gray-300">
+                            {age} ans
+                            {age === ageTauxPlein && <span className="ml-2 text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded">Taux plein</span>}
+                          </td>
+                          {carrieres.map((carriere) => {
+                            const totalTrimestres = carriere.data.reduce((sum, ligne) => sum + ligne.trimestres, 0);
+                            const totalPointsBase = carriere.data.reduce((sum, ligne) => sum + ligne.pointsBase, 0);
+                            const totalPointsComplementaires = carriere.data.reduce((sum, ligne) => sum + ligne.pointsComplementaires, 0);
+
+                            const valeurPointBase = 0.6734;
+                            const valeurPointComplementaire = 1.4159;
+                            const trimestresRequis = 172;
+
+                            // Calcul de la pension de base
+                            const pensionBase = totalPointsBase * valeurPointBase * 12;
+                            const pensionComplementaire = totalPointsComplementaires * valeurPointComplementaire * 12;
+                            let pensionBruteAnnuelle = pensionBase + pensionComplementaire;
+
+                            // Application de la décote/surcote selon l'âge
+                            if (age < ageTauxPlein) {
+                              // Décote : -5% par année avant le taux plein (simplifié)
+                              const anneesDecote = ageTauxPlein - age;
+                              const tauxDecote = 1 - (anneesDecote * 0.05);
+                              pensionBruteAnnuelle = pensionBruteAnnuelle * Math.max(tauxDecote, 0.75); // Min 75%
+                            } else if (age > ageTauxPlein) {
+                              // Surcote : +5% par année après le taux plein (simplifié)
+                              const anneesSurcote = age - ageTauxPlein;
+                              const tauxSurcote = 1 + (anneesSurcote * 0.05);
+                              pensionBruteAnnuelle = pensionBruteAnnuelle * tauxSurcote;
+                            }
+
+                            const pensionNetteAnnuelle = pensionBruteAnnuelle * 0.9; // -10% prélèvements sociaux
+                            const pensionCumulee = pensionNetteAnnuelle * anneesRetraite;
+
+                            return (
+                              <React.Fragment key={`${carriere.id}-${age}`}>
+                                <td className="py-3 px-4 text-right font-semibold text-gray-800 border border-gray-300">
+                                  {pensionNetteAnnuelle.toLocaleString('fr-FR', { maximumFractionDigits: 0 })} €
+                                </td>
+                                <td className="py-3 px-4 text-right font-semibold text-blue-700 border border-gray-300">
+                                  {pensionCumulee.toLocaleString('fr-FR', { maximumFractionDigits: 0 })} €
+                                </td>
+                              </React.Fragment>
+                            );
+                          })}
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+
+              <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                <h4 className="font-bold text-gray-800 mb-2">Légende et hypothèses</h4>
+                <ul className="text-xs text-gray-600 space-y-1">
+                  <li>• <strong>Âge du taux plein :</strong> 62 ans (âge légal)</li>
+                  <li>• <strong>Décote :</strong> -5% par année de départ avant 62 ans (minimum 75% de la pension)</li>
+                  <li>• <strong>Surcote :</strong> +5% par année de départ après 62 ans</li>
+                  <li>• <strong>Espérance de vie :</strong> 85 ans (estimation)</li>
+                  <li>• <strong>Prélèvements sociaux :</strong> 10% (CSG + CRDS)</li>
+                  <li>• <strong>Pension nette annuelle :</strong> Avant impôt sur le revenu</li>
+                  <li>• <strong>Cumul sur espérance de vie :</strong> Pension annuelle × (85 ans - âge de départ)</li>
+                </ul>
+              </div>
+            </div>
+
             {carrieres.map((carriere) => {
               const isExpanded = expandedCarrieres[carriere.id];
               const totalTrimestres = carriere.data.reduce((sum, ligne) => sum + ligne.trimestres, 0);
