@@ -879,9 +879,167 @@ export default function VaultApp() {
                   }
                 });
 
+                // Catégoriser les années par statut
+                const anneesParStatut = {
+                  incoherentes: [],
+                  absentes: [],
+                  corrigees: [],
+                  coherentes: [],
+                  certifiees: []
+                };
+
+                displayData.forEach(ligne => {
+                  if (ligne.isSynthese) {
+                    const hasError = ligne.lignesDetail?.some(l => checkLigneIncoherence(l).length > 0) || false;
+                    const status = getYearStatus(ligne.annee, hasError);
+                    if (status === 'error') anneesParStatut.incoherentes.push(ligne.annee);
+                    else if (status === 'missing') anneesParStatut.absentes.push(ligne.annee);
+                    else if (status === 'corrected') anneesParStatut.corrigees.push(ligne.annee);
+                    else if (status === 'coherent') anneesParStatut.coherentes.push(ligne.annee);
+                    else if (status === 'certified') anneesParStatut.certifiees.push(ligne.annee);
+                  } else if (!ligne.isDetail) {
+                    const hasError = checkLigneIncoherence(ligne).length > 0;
+                    const status = getYearStatus(ligne.annee, hasError);
+                    if (status === 'error') anneesParStatut.incoherentes.push(ligne.annee);
+                    else if (status === 'missing') anneesParStatut.absentes.push(ligne.annee);
+                    else if (status === 'corrected') anneesParStatut.corrigees.push(ligne.annee);
+                    else if (status === 'coherent') anneesParStatut.coherentes.push(ligne.annee);
+                    else if (status === 'certified') anneesParStatut.certifiees.push(ligne.annee);
+                  }
+                });
+
+                // Calculer les trimestres
+                const trimestresAcquis = carriere.data.reduce((sum, ligne) => sum + ligne.trimestres, 0);
+                const trimestresCibles = 172; // Exemple pour une personne née après 1973
+                const trimestresRestants = Math.max(0, trimestresCibles - trimestresAcquis);
+
                 return (
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-sm">
+                  <>
+                    {/* Deux zones d'information au-dessus du tableau */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                      {/* Zone de gauche : Statut des années */}
+                      <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg border border-blue-200 p-5">
+                        <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                          <ClipboardList className="w-5 h-5 text-blue-600" />
+                          Statut de la carrière
+                        </h3>
+
+                        <div className="space-y-3 mb-4">
+                          {anneesParStatut.incoherentes.length > 0 && (
+                            <div className="flex items-start gap-2">
+                              <div className="flex items-center gap-1 px-2 py-1 bg-red-100 text-red-700 rounded text-xs font-medium whitespace-nowrap">
+                                <AlertCircle className="w-3 h-3" />
+                                <span>Incohérent</span>
+                              </div>
+                              <div className="text-sm text-gray-700 flex-1">
+                                {anneesParStatut.incoherentes.join(', ')}
+                              </div>
+                            </div>
+                          )}
+
+                          {anneesParStatut.absentes.length > 0 && (
+                            <div className="flex items-start gap-2">
+                              <div className="flex items-center gap-1 px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs font-medium whitespace-nowrap">
+                                <Info className="w-3 h-3" />
+                                <span>Info absente</span>
+                              </div>
+                              <div className="text-sm text-gray-700 flex-1">
+                                {anneesParStatut.absentes.join(', ')}
+                              </div>
+                            </div>
+                          )}
+
+                          {anneesParStatut.corrigees.length > 0 && (
+                            <div className="flex items-start gap-2">
+                              <div className="flex items-center gap-1 px-2 py-1 bg-yellow-100 text-yellow-700 rounded text-xs font-medium whitespace-nowrap">
+                                <Edit3 className="w-3 h-3" />
+                                <span>Corrigée</span>
+                              </div>
+                              <div className="text-sm text-gray-700 flex-1">
+                                {anneesParStatut.corrigees.join(', ')}
+                              </div>
+                            </div>
+                          )}
+
+                          {anneesParStatut.coherentes.length > 0 && (
+                            <div className="flex items-start gap-2">
+                              <div className="flex items-center gap-1 px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-medium whitespace-nowrap">
+                                <CheckCircle className="w-3 h-3" />
+                                <span>Cohérent</span>
+                              </div>
+                              <div className="text-sm text-gray-700 flex-1">
+                                {anneesParStatut.coherentes.join(', ')}
+                              </div>
+                            </div>
+                          )}
+
+                          {anneesParStatut.certifiees.length > 0 && (
+                            <div className="flex items-start gap-2">
+                              <div className="flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-medium whitespace-nowrap">
+                                <Shield className="w-3 h-3" />
+                                <span>Certifiée</span>
+                              </div>
+                              <div className="text-sm text-gray-700 flex-1">
+                                {anneesParStatut.certifiees.join(', ')}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+
+                        <button
+                          className="w-full mt-4 flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium"
+                        >
+                          <Plus className="w-4 h-4" />
+                          Compléter la carrière
+                        </button>
+                      </div>
+
+                      {/* Zone de droite : Projections de retraite */}
+                      <div className="bg-gradient-to-br from-orange-50 to-red-50 rounded-lg border border-orange-200 p-5">
+                        <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                          <TrendingUp className="w-5 h-5 text-orange-600" />
+                          Projection de départ à la retraite
+                        </h3>
+
+                        <div className="space-y-3 mb-4">
+                          <div className="bg-white rounded-lg p-3 border border-orange-100">
+                            <div className="text-xs text-gray-600 mb-1">Âge de départ à taux plein</div>
+                            <div className="text-xl font-bold text-orange-600">62 ans et 8 mois</div>
+                          </div>
+
+                          <div className="bg-white rounded-lg p-3 border border-orange-100">
+                            <div className="text-xs text-gray-600 mb-1">Date de départ à taux plein</div>
+                            <div className="text-xl font-bold text-orange-600">1er septembre 2045</div>
+                          </div>
+
+                          <div className="bg-white rounded-lg p-3 border border-orange-100">
+                            <div className="text-xs text-gray-600 mb-1">Trimestres de cotisation</div>
+                            <div className="flex items-baseline gap-2">
+                              <span className="text-2xl font-bold text-orange-600">{trimestresAcquis}</span>
+                              <span className="text-sm text-gray-600">acquis /</span>
+                              <span className="text-lg font-semibold text-gray-700">{trimestresCibles}</span>
+                              <span className="text-sm text-gray-600">requis</span>
+                            </div>
+                            {trimestresRestants > 0 && (
+                              <div className="text-xs text-orange-700 mt-1">
+                                {trimestresRestants} trimestre{trimestresRestants > 1 ? 's' : ''} restant{trimestresRestants > 1 ? 's' : ''}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+
+                        <button
+                          onClick={() => setActiveSection('projections')}
+                          className="w-full mt-2 flex items-center justify-center gap-2 px-4 py-2.5 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition font-medium"
+                        >
+                          <Eye className="w-4 h-4" />
+                          Voir les projections
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-sm">
                       <thead>
                         <tr className="bg-gradient-to-r from-orange-500 to-red-500 text-white">
                           <th className="py-3 px-2 text-center font-bold w-20">Action</th>
@@ -1184,6 +1342,7 @@ export default function VaultApp() {
                       </tbody>
                     </table>
                   </div>
+                  </>
                 );
               })()}
             </div>
