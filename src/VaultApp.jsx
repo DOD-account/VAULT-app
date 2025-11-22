@@ -1662,79 +1662,160 @@ export default function VaultApp() {
                 <table className="w-full text-sm border-collapse">
                   <thead>
                     <tr className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
-                      <th className="py-3 px-4 text-left font-bold border border-blue-700">Âge de départ</th>
+                      <th className="py-3 px-4 text-left font-bold border border-blue-700" rowSpan="2">Âge de départ</th>
+                      <th className="py-3 px-4 text-left font-bold border border-blue-700" rowSpan="2">Date de départ</th>
                       {carrieres.map((carriere) => (
-                        <th key={`${carriere.id}-nette`} colSpan="2" className="py-3 px-4 text-center font-bold border border-blue-700">
+                        <th key={`${carriere.id}-nette`} colSpan="3" className="py-3 px-4 text-center font-bold border border-blue-700">
                           {carriere.nom}
                         </th>
                       ))}
                     </tr>
                     <tr className="bg-blue-500 text-white">
-                      <th className="py-2 px-4 text-left text-xs border border-blue-600"></th>
                       {carrieres.map((carriere) => (
                         <React.Fragment key={`${carriere.id}-headers`}>
-                          <th className="py-2 px-4 text-center text-xs border border-blue-600">Pension nette annuelle</th>
+                          <th className="py-2 px-4 text-center text-xs border border-blue-600">Net mensuel</th>
+                          <th className="py-2 px-4 text-center text-xs border border-blue-600">Net annuel</th>
                           <th className="py-2 px-4 text-center text-xs border border-blue-600">Cumul sur espérance de vie</th>
                         </React.Fragment>
                       ))}
                     </tr>
                   </thead>
                   <tbody>
-                    {[60, 61, 62, 63, 64, 65, 66, 67].map((age) => {
-                      const ageTauxPlein = 62; // Âge légal du taux plein
-                      const esperanceVie = 85; // Espérance de vie estimée
-                      const anneesRetraite = esperanceVie - age;
+                    {(() => {
+                      // Précalculer tous les gains cumulés pour trouver le maximum
+                      const agesAvecMois = [
+                        { age: 60, mois: 0 },
+                        { age: 60, mois: 6 },
+                        { age: 61, mois: 0 },
+                        { age: 61, mois: 6 },
+                        { age: 62, mois: 0 },
+                        { age: 62, mois: 6 },
+                        { age: 63, mois: 0 },
+                        { age: 63, mois: 6 },
+                        { age: 64, mois: 0 },
+                        { age: 64, mois: 6 },
+                        { age: 65, mois: 0 },
+                        { age: 65, mois: 6 },
+                        { age: 66, mois: 0 },
+                        { age: 66, mois: 6 },
+                        { age: 67, mois: 0 }
+                      ];
 
-                      return (
-                        <tr key={age} className={age % 2 === 0 ? 'bg-gray-50' : 'bg-white'}>
-                          <td className="py-3 px-4 font-bold text-gray-800 border border-gray-300">
-                            {age} ans
-                            {age === ageTauxPlein && <span className="ml-2 text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded">Taux plein</span>}
-                          </td>
-                          {carrieres.map((carriere) => {
-                            const totalTrimestres = carriere.data.reduce((sum, ligne) => sum + ligne.trimestres, 0);
-                            const totalPointsBase = carriere.data.reduce((sum, ligne) => sum + ligne.pointsBase, 0);
-                            const totalPointsComplementaires = carriere.data.reduce((sum, ligne) => sum + ligne.pointsComplementaires, 0);
+                      const ageTauxPlein = 62;
+                      const esperanceVie = 85;
+                      const dateNaissance = new Date(1983, 0, 1); // 1er janvier 1983 (exemple)
 
-                            const valeurPointBase = 0.6734;
-                            const valeurPointComplementaire = 1.4159;
-                            const trimestresRequis = 172;
+                      // Calculer tous les cumuls pour trouver le max par carrière
+                      const cumulesParCarriere = carrieres.map(carriere => {
+                        return agesAvecMois.map(({ age, mois }) => {
+                          const ageDecimal = age + (mois / 12);
+                          const anneesRetraite = esperanceVie - ageDecimal;
 
-                            // Calcul de la pension de base
-                            const pensionBase = totalPointsBase * valeurPointBase * 12;
-                            const pensionComplementaire = totalPointsComplementaires * valeurPointComplementaire * 12;
-                            let pensionBruteAnnuelle = pensionBase + pensionComplementaire;
+                          const totalTrimestres = carriere.data.reduce((sum, ligne) => sum + ligne.trimestres, 0);
+                          const totalPointsBase = carriere.data.reduce((sum, ligne) => sum + ligne.pointsBase, 0);
+                          const totalPointsComplementaires = carriere.data.reduce((sum, ligne) => sum + ligne.pointsComplementaires, 0);
 
-                            // Application de la décote/surcote selon l'âge
-                            if (age < ageTauxPlein) {
-                              // Décote : -5% par année avant le taux plein (simplifié)
-                              const anneesDecote = ageTauxPlein - age;
-                              const tauxDecote = 1 - (anneesDecote * 0.05);
-                              pensionBruteAnnuelle = pensionBruteAnnuelle * Math.max(tauxDecote, 0.75); // Min 75%
-                            } else if (age > ageTauxPlein) {
-                              // Surcote : +5% par année après le taux plein (simplifié)
-                              const anneesSurcote = age - ageTauxPlein;
-                              const tauxSurcote = 1 + (anneesSurcote * 0.05);
-                              pensionBruteAnnuelle = pensionBruteAnnuelle * tauxSurcote;
-                            }
+                          const valeurPointBase = 0.6734;
+                          const valeurPointComplementaire = 1.4159;
 
-                            const pensionNetteAnnuelle = pensionBruteAnnuelle * 0.9; // -10% prélèvements sociaux
-                            const pensionCumulee = pensionNetteAnnuelle * anneesRetraite;
+                          const pensionBase = totalPointsBase * valeurPointBase * 12;
+                          const pensionComplementaire = totalPointsComplementaires * valeurPointComplementaire * 12;
+                          let pensionBruteAnnuelle = pensionBase + pensionComplementaire;
 
-                            return (
-                              <React.Fragment key={`${carriere.id}-${age}`}>
-                                <td className="py-3 px-4 text-right font-semibold text-gray-800 border border-gray-300">
-                                  {pensionNetteAnnuelle.toLocaleString('fr-FR', { maximumFractionDigits: 0 })} €
-                                </td>
-                                <td className="py-3 px-4 text-right font-semibold text-blue-700 border border-gray-300">
-                                  {pensionCumulee.toLocaleString('fr-FR', { maximumFractionDigits: 0 })} €
-                                </td>
-                              </React.Fragment>
-                            );
-                          })}
-                        </tr>
-                      );
-                    })}
+                          if (age < ageTauxPlein) {
+                            const anneesDecote = ageTauxPlein - age - (mois / 12);
+                            const tauxDecote = 1 - (anneesDecote * 0.05);
+                            pensionBruteAnnuelle = pensionBruteAnnuelle * Math.max(tauxDecote, 0.75);
+                          } else if (age > ageTauxPlein || (age === ageTauxPlein && mois > 0)) {
+                            const anneesSurcote = age - ageTauxPlein + (mois / 12);
+                            const tauxSurcote = 1 + (anneesSurcote * 0.05);
+                            pensionBruteAnnuelle = pensionBruteAnnuelle * tauxSurcote;
+                          }
+
+                          const pensionNetteAnnuelle = pensionBruteAnnuelle * 0.9;
+                          const pensionCumulee = pensionNetteAnnuelle * anneesRetraite;
+
+                          return pensionCumulee;
+                        });
+                      });
+
+                      // Trouver le maximum par carrière
+                      const maxParCarriere = cumulesParCarriere.map(cumules => Math.max(...cumules));
+
+                      return agesAvecMois.map(({ age, mois }, idx) => {
+                        const ageDecimal = age + (mois / 12);
+                        const anneesRetraite = esperanceVie - ageDecimal;
+
+                        // Calculer la date de départ
+                        const dateDepart = new Date(dateNaissance);
+                        dateDepart.setFullYear(dateNaissance.getFullYear() + age);
+                        dateDepart.setMonth(dateNaissance.getMonth() + mois);
+
+                        const jour = dateDepart.getDate();
+                        const jourFormate = jour === 1 ? '1er' : jour;
+                        const moisNoms = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
+                        const dateFormatee = `${jourFormate} ${moisNoms[dateDepart.getMonth()]} ${dateDepart.getFullYear()}`;
+
+                        // Formater l'âge
+                        const ageFormate = mois === 0 ? `${age} ans` : `${age} ans et ${mois} mois`;
+
+                        return (
+                          <tr key={`${age}-${mois}`} className={idx % 2 === 0 ? 'bg-gray-50' : 'bg-white'}>
+                            <td className="py-3 px-4 font-bold text-gray-800 border border-gray-300">
+                              {ageFormate}
+                              {age === ageTauxPlein && mois === 0 && <span className="ml-2 text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded">Taux plein</span>}
+                            </td>
+                            <td className="py-3 px-4 text-sm text-gray-600 border border-gray-300">
+                              {dateFormatee}
+                            </td>
+                            {carrieres.map((carriere, carriereIdx) => {
+                              const totalTrimestres = carriere.data.reduce((sum, ligne) => sum + ligne.trimestres, 0);
+                              const totalPointsBase = carriere.data.reduce((sum, ligne) => sum + ligne.pointsBase, 0);
+                              const totalPointsComplementaires = carriere.data.reduce((sum, ligne) => sum + ligne.pointsComplementaires, 0);
+
+                              const valeurPointBase = 0.6734;
+                              const valeurPointComplementaire = 1.4159;
+
+                              const pensionBase = totalPointsBase * valeurPointBase * 12;
+                              const pensionComplementaire = totalPointsComplementaires * valeurPointComplementaire * 12;
+                              let pensionBruteAnnuelle = pensionBase + pensionComplementaire;
+
+                              if (age < ageTauxPlein) {
+                                const anneesDecote = ageTauxPlein - age - (mois / 12);
+                                const tauxDecote = 1 - (anneesDecote * 0.05);
+                                pensionBruteAnnuelle = pensionBruteAnnuelle * Math.max(tauxDecote, 0.75);
+                              } else if (age > ageTauxPlein || (age === ageTauxPlein && mois > 0)) {
+                                const anneesSurcote = age - ageTauxPlein + (mois / 12);
+                                const tauxSurcote = 1 + (anneesSurcote * 0.05);
+                                pensionBruteAnnuelle = pensionBruteAnnuelle * tauxSurcote;
+                              }
+
+                              const pensionNetteAnnuelle = pensionBruteAnnuelle * 0.9;
+                              const pensionNetteMensuelle = pensionNetteAnnuelle / 12;
+                              const pensionCumulee = pensionNetteAnnuelle * anneesRetraite;
+
+                              // Vérifier si c'est le maximum pour cette carrière
+                              const isMax = Math.abs(pensionCumulee - maxParCarriere[carriereIdx]) < 1;
+
+                              return (
+                                <React.Fragment key={`${carriere.id}-${age}-${mois}`}>
+                                  <td className="py-3 px-4 text-right text-sm text-gray-700 border border-gray-300">
+                                    {pensionNetteMensuelle.toLocaleString('fr-FR', { maximumFractionDigits: 0 })} €
+                                  </td>
+                                  <td className="py-3 px-4 text-right font-semibold text-gray-800 border border-gray-300">
+                                    {pensionNetteAnnuelle.toLocaleString('fr-FR', { maximumFractionDigits: 0 })} €
+                                  </td>
+                                  <td className={`py-3 px-4 text-right font-semibold border border-gray-300 ${isMax ? 'bg-green-100 text-green-800' : 'text-blue-700'}`}>
+                                    {pensionCumulee.toLocaleString('fr-FR', { maximumFractionDigits: 0 })} €
+                                    {isMax && <span className="ml-2 text-xs">⭐</span>}
+                                  </td>
+                                </React.Fragment>
+                              );
+                            })}
+                          </tr>
+                        );
+                      });
+                    })()}
                   </tbody>
                 </table>
               </div>
@@ -1962,114 +2043,9 @@ export default function VaultApp() {
                 </div>
                 Suivi du dossier
               </h2>
-              
-              <div className="space-y-6">
-                {/* Timeline de suivi */}
-                <div className="relative border-l-4 border-indigo-200 pl-6 space-y-6">
-                  <div className="relative">
-                    <div className="absolute -left-8 w-6 h-6 bg-green-500 rounded-full border-4 border-white"></div>
-                    <div className="bg-green-50 rounded-lg p-4 border border-green-200">
-                      <div className="flex justify-between items-start mb-2">
-                        <h3 className="font-bold text-green-900">Dossier créé</h3>
-                        <span className="text-xs text-green-600">15/10/2025</span>
-                      </div>
-                      <p className="text-sm text-gray-700">Le dossier de Jean Dupont a été créé avec succès.</p>
-                    </div>
-                  </div>
 
-                  <div className="relative">
-                    <div className="absolute -left-8 w-6 h-6 bg-blue-500 rounded-full border-4 border-white"></div>
-                    <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
-                      <div className="flex justify-between items-start mb-2">
-                        <h3 className="font-bold text-blue-900">Documents reçus</h3>
-                        <span className="text-xs text-blue-600">22/10/2025</span>
-                      </div>
-                      <p className="text-sm text-gray-700">Réception du relevé de carrière et des bulletins de salaire.</p>
-                      <ul className="mt-2 text-xs text-gray-600 space-y-1">
-                        <li>• Relevé de carrière CNAV</li>
-                        <li>• 3 derniers bulletins de salaire</li>
-                      </ul>
-                    </div>
-                  </div>
-
-                  <div className="relative">
-                    <div className="absolute -left-8 w-6 h-6 bg-orange-500 rounded-full border-4 border-white"></div>
-                    <div className="bg-orange-50 rounded-lg p-4 border border-orange-200">
-                      <div className="flex justify-between items-start mb-2">
-                        <h3 className="font-bold text-orange-900">Analyse en cours</h3>
-                        <span className="text-xs text-orange-600">05/11/2025</span>
-                      </div>
-                      <p className="text-sm text-gray-700">Analyse des données de carrière et détection d'incohérences.</p>
-                      <div className="mt-3 flex items-center gap-2">
-                        <div className="flex-1 bg-orange-200 rounded-full h-2">
-                          <div className="bg-orange-600 h-2 rounded-full" style={{width: '65%'}}></div>
-                        </div>
-                        <span className="text-xs font-semibold text-orange-700">65%</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="relative">
-                    <div className="absolute -left-8 w-6 h-6 bg-gray-300 rounded-full border-4 border-white"></div>
-                    <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                      <div className="flex justify-between items-start mb-2">
-                        <h3 className="font-bold text-gray-600">Simulation pension</h3>
-                        <span className="text-xs text-gray-500">En attente</span>
-                      </div>
-                      <p className="text-sm text-gray-500">Calcul des projections de retraite.</p>
-                    </div>
-                  </div>
-
-                  <div className="relative">
-                    <div className="absolute -left-8 w-6 h-6 bg-gray-300 rounded-full border-4 border-white"></div>
-                    <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                      <div className="flex justify-between items-start mb-2">
-                        <h3 className="font-bold text-gray-600">Rapport final</h3>
-                        <span className="text-xs text-gray-500">En attente</span>
-                      </div>
-                      <p className="text-sm text-gray-500">Génération du rapport complet et recommandations.</p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Statistiques du dossier */}
-                <div className="grid grid-cols-3 gap-4 mt-8">
-                  <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-4 border border-blue-200">
-                    <p className="text-sm font-semibold text-blue-800 mb-1">Temps écoulé</p>
-                    <p className="text-2xl font-bold text-blue-600">29 jours</p>
-                  </div>
-                  <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg p-4 border border-purple-200">
-                    <p className="text-sm font-semibold text-purple-800 mb-1">Documents analysés</p>
-                    <p className="text-2xl font-bold text-purple-600">4/6</p>
-                  </div>
-                  <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-4 border border-green-200">
-                    <p className="text-sm font-semibold text-green-800 mb-1">Progression</p>
-                    <p className="text-2xl font-bold text-green-600">65%</p>
-                  </div>
-                </div>
-
-                {/* Actions rapides */}
-                <div className="bg-indigo-50 rounded-lg p-6 border-2 border-indigo-200 mt-6">
-                  <h3 className="font-bold text-indigo-900 mb-4">Actions rapides</h3>
-                  <div className="grid grid-cols-2 gap-3">
-                    <button className="flex items-center gap-2 px-4 py-3 bg-white rounded-lg hover:bg-indigo-100 transition border border-indigo-300">
-                      <Upload className="w-4 h-4 text-indigo-600" />
-                      <span className="text-sm font-medium text-gray-700">Ajouter un document</span>
-                    </button>
-                    <button className="flex items-center gap-2 px-4 py-3 bg-white rounded-lg hover:bg-indigo-100 transition border border-indigo-300">
-                      <MessageCircle className="w-4 h-4 text-indigo-600" />
-                      <span className="text-sm font-medium text-gray-700">Contacter le conseiller</span>
-                    </button>
-                    <button className="flex items-center gap-2 px-4 py-3 bg-white rounded-lg hover:bg-indigo-100 transition border border-indigo-300">
-                      <Download className="w-4 h-4 text-indigo-600" />
-                      <span className="text-sm font-medium text-gray-700">Télécharger le rapport</span>
-                    </button>
-                    <button className="flex items-center gap-2 px-4 py-3 bg-white rounded-lg hover:bg-indigo-100 transition border border-indigo-300">
-                      <Bell className="w-4 h-4 text-indigo-600" />
-                      <span className="text-sm font-medium text-gray-700">Gérer les notifications</span>
-                    </button>
-                  </div>
-                </div>
+              <div className="text-center py-12">
+                <p className="text-lg text-gray-600">Section en cours</p>
               </div>
             </div>
           </div>
