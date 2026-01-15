@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { User, Briefcase, TrendingUp, Edit2, Check, X, LogOut, Plus, MessageCircle, CreditCard, Upload, FileText, Users, ChevronDown, ChevronUp, Eye, Download, Bell, Settings, LayoutDashboard, ClipboardList } from 'lucide-react';
 
-export default function VaultApp() {
+export default function VaultApp({ user, onLogout }) {
   const [activeSection, setActiveSection] = useState('profil');
   const [credits, setCredits] = useState(3);
   const [dossierOuvert, setDossierOuvert] = useState('Jean Dupont');
@@ -367,7 +367,10 @@ export default function VaultApp() {
                         <Settings className="w-4 h-4" />
                         <span>Paramètres</span>
                       </button>
-                      <button className="w-full text-left px-4 py-2 hover:bg-red-50 rounded-lg flex items-center gap-2 text-sm text-red-600 font-medium">
+                      <button
+                        onClick={onLogout}
+                        className="w-full text-left px-4 py-2 hover:bg-red-50 rounded-lg flex items-center gap-2 text-sm text-red-600 font-medium"
+                      >
                         <LogOut className="w-4 h-4" />
                         <span>Déconnexion</span>
                       </button>
