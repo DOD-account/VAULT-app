@@ -26,6 +26,8 @@
     X-Content-Type-Options = "nosniff"
     X-XSS-Protection = "1; mode=block"
     Referrer-Policy = "strict-origin-when-cross-origin"
+    # Empêcher l'indexation par les moteurs de recherche
+    X-Robots-Tag = "noindex, nofollow, noarchive, nosnippet"
 
 # Headers pour les assets statiques (cache long)
 [[headers]]
