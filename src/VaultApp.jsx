@@ -1,66 +1,83 @@
 import React, { useState } from 'react';
-import { User, Briefcase, TrendingUp, Edit2, Check, X, LogOut, Plus, MessageCircle, CreditCard, Upload, FileText, Users, ChevronDown, ChevronUp, Eye, Download, Bell, Settings, LayoutDashboard, ClipboardList } from 'lucide-react';
+import { User, Briefcase, TrendingUp, Edit2, Check, X, LogOut, Plus, MessageCircle, CreditCard, Upload, FileText, Users, ChevronDown, ChevronUp, Eye, Download, Bell, Settings, LayoutDashboard, ClipboardList, CheckCircle, Shield, Edit3, AlertCircle, Info } from 'lucide-react';
 
-export default function VaultApp({ user, onLogout }) {
+export default function VaultApp() {
   const [activeSection, setActiveSection] = useState('profil');
   const [credits, setCredits] = useState(3);
   const [dossierOuvert, setDossierOuvert] = useState('Jean Dupont');
   const [showDossierMenu, setShowDossierMenu] = useState(false);
   
   const [carrieres, setCarrieres] = useState([
-    { 
-      id: 1, 
+    {
+      id: 1,
       nom: 'Carrière actuelle',
-      data: Array.from({length: 37}, (_, i) => {
-        const annee = 1988 + i;
-        const salaire = 18500 + (i * 1000);
-        let trimestres = 4;
-        let salaireDefplafonne = salaire;
-        let salairePlafonne = annee >= 2013 ? Math.min(salaire, 46368) : salaire;
-        
-        if (i === 4) trimestres = 2;
-        if (i === 11) {
-          salaireDefplafonne = 28000;
-          salairePlafonne = 30000;
-        }
-        if (i === 19) trimestres = 0;
-        if (i === 27) trimestres = 3;
-        
-        return {
-          annee,
-          debut: `01/01/${annee}`,
-          fin: `31/12/${annee}`,
-          activite: 'Salarié',
-          salaireDefplafonne,
-          salairePlafonne,
-          trimestres,
-          regimeBase: 'CNAV',
-          pointsBase: 120 + (i * 3),
-          regimeComplementaire: 'AGIRC-ARRCO',
-          pointsComplementaires: 450 + (i * 40)
-        };
-      })
-    },
-    { 
-      id: 2, 
-      nom: 'Statut PDT de SAS',
       data: [
-        { annee: 2020, debut: '01/01/2020', fin: '31/12/2020', activite: 'PDT SAS', salaireDefplafonne: 45000, salairePlafonne: 41136, trimestres: 4, regimeBase: 'CNAV', pointsBase: 210, regimeComplementaire: 'AGIRC-ARRCO', pointsComplementaires: 1650 },
-        { annee: 2021, debut: '01/01/2021', fin: '31/12/2021', activite: 'PDT SAS', salaireDefplafonne: 47000, salairePlafonne: 41136, trimestres: 4, regimeBase: 'CNAV', pointsBase: 215, regimeComplementaire: 'AGIRC-ARRCO', pointsComplementaires: 1720 },
-        { annee: 2022, debut: '01/01/2022', fin: '31/12/2022', activite: 'PDT SAS', salaireDefplafonne: 49000, salairePlafonne: 41136, trimestres: 2, regimeBase: 'CNAV', pointsBase: 220, regimeComplementaire: 'AGIRC-ARRCO', pointsComplementaires: 1780 },
-        { annee: 2023, debut: '01/01/2023', fin: '31/12/2023', activite: 'PDT SAS', salaireDefplafonne: 51000, salairePlafonne: 43992, trimestres: 4, regimeBase: 'CNAV', pointsBase: 225, regimeComplementaire: 'AGIRC-ARRCO', pointsComplementaires: 1850 },
-        { annee: 2024, debut: '01/01/2024', fin: '31/12/2024', activite: 'PDT SAS', salaireDefplafonne: 53000, salairePlafonne: 46368, trimestres: 4, regimeBase: 'CNAV', pointsBase: 230, regimeComplementaire: 'AGIRC-ARRCO', pointsComplementaires: 1920 }
+        { annee: 2002, debut: '25/07/2002', fin: '31/08/2002', structure: 'ACTIVITÉ SALARIÉE (MSA)', activite: 'Salarié agricole', salaireDefplafonne: 1157, salairePlafonne: 1157, trimestres: 0, regimeBase: 'MSA', pointsBase: 0, regimeComplementaire: 'Agirc-Arrco', pointsComplementaires: 5.84 },
+        { annee: 2003, debut: '31/07/2003', fin: '29/08/2003', structure: 'ACTIVITÉ SALARIÉE (MSA)', activite: 'Salarié agricole', salaireDefplafonne: 1755, salairePlafonne: 1755, trimestres: 1, regimeBase: 'MSA', pointsBase: 0, regimeComplementaire: 'Agirc-Arrco', pointsComplementaires: 8.71 },
+        { annee: 2004, debut: '26/07/2004', fin: '04/11/2004', structure: 'MAIRIE', activite: 'Contractuel fct. Publique', salaireDefplafonne: 827, salairePlafonne: 827, trimestres: 0, regimeBase: 'CNAV', pointsBase: 0, regimeComplementaire: 'Ircantec', pointsComplementaires: 8 },
+        { annee: 2004, debut: '20/09/2004', fin: '31/12/2004', structure: 'THE REWARD', activite: 'Salarié du privé', salaireDefplafonne: 1868, salairePlafonne: 1868, trimestres: 1, regimeBase: 'CNAV', pointsBase: 0, regimeComplementaire: 'Agirc-Arrco', pointsComplementaires: 9.07 },
+        { annee: 2005, debut: '01/01/2005', fin: '31/12/2005', structure: 'THE REWARD', activite: 'Salarié du privé', salaireDefplafonne: 10098, salairePlafonne: 10098, trimestres: 4, regimeBase: 'CNAV', pointsBase: 0, regimeComplementaire: 'Agirc-Arrco', pointsComplementaires: 47.86 },
+        { annee: 2006, debut: '01/01/2006', fin: '31/12/2006', structure: 'THE REWARD', activite: 'Salarié du privé', salaireDefplafonne: 13038, salairePlafonne: 13038, trimestres: 4, regimeBase: 'CNAV', pointsBase: 0, regimeComplementaire: 'Agirc-Arrco', pointsComplementaires: 60.05 },
+        { annee: 2007, debut: '01/01/2007', fin: '30/07/2007', structure: 'THE REWARD', activite: 'Salarié du privé', salaireDefplafonne: 7488, salairePlafonne: 7488, trimestres: 4, regimeBase: 'CNAV', pointsBase: 0, regimeComplementaire: 'Agirc-Arrco', pointsComplementaires: 33.26 },
+        { annee: 2007, debut: '02/07/2007', fin: '31/08/2007', structure: 'COLORZ', activite: 'Salarié du privé', salaireDefplafonne: 1080, salairePlafonne: 1080, trimestres: 4, regimeBase: 'CNAV', pointsBase: 0, regimeComplementaire: 'Agirc-Arrco', pointsComplementaires: 0 },
+        { annee: 2008, debut: '01/01/2008', fin: '31/12/2008', structure: 'COLORZ', activite: 'Salarié du privé', salaireDefplafonne: 0, salairePlafonne: 0, trimestres: 4, regimeBase: 'CNAV', pointsBase: 0, regimeComplementaire: 'Agirc-Arrco', pointsComplementaires: 0 },
+        { annee: 2009, debut: '01/01/2009', fin: '30/06/2009', structure: 'COLORZ', activite: 'Salarié du privé', salaireDefplafonne: 0, salairePlafonne: 0, trimestres: 4, regimeBase: 'CNAV', pointsBase: 0, regimeComplementaire: 'Agirc-Arrco', pointsComplementaires: 0 },
+        { annee: 2009, debut: '12/08/2009', fin: '31/10/2009', structure: 'CHÔMAGE', activite: '', salaireDefplafonne: 0, salairePlafonne: 0, trimestres: 4, regimeBase: 'CNAV', pointsBase: 0, regimeComplementaire: 'Agirc-Arrco', pointsComplementaires: 0 },
+        { annee: 2009, debut: '16/11/2009', fin: '31/12/2009', structure: 'VISUAL LINK PARIS', activite: 'Salarié du privé', salaireDefplafonne: 3733, salairePlafonne: 3733, trimestres: 4, regimeBase: 'CNAV', pointsBase: 0, regimeComplementaire: 'Agirc-Arrco', pointsComplementaires: 20.97 },
+        { annee: 2010, debut: '01/01/2010', fin: '31/12/2010', structure: 'VISUAL LINK PARIS', activite: 'Salarié du privé', salaireDefplafonne: 30580, salairePlafonne: 30580, trimestres: 4, regimeBase: 'CNAV', pointsBase: 0, regimeComplementaire: 'Agirc-Arrco', pointsComplementaires: 169.11 },
+        { annee: 2011, debut: '01/01/2011', fin: '31/12/2011', structure: 'VISUAL LINK PARIS', activite: 'Salarié du privé', salaireDefplafonne: 32482, salairePlafonne: 32482, trimestres: 4, regimeBase: 'CNAV', pointsBase: 0, regimeComplementaire: 'Agirc-Arrco', pointsComplementaires: 174.12 },
+        { annee: 2012, debut: '01/01/2012', fin: '31/12/2012', structure: 'VISUAL LINK PARIS', activite: 'Salarié du privé', salaireDefplafonne: 9937, salairePlafonne: 9937, trimestres: 4, regimeBase: 'CNAV', pointsBase: 0, regimeComplementaire: 'Agirc-Arrco', pointsComplementaires: 205.91 },
+        { annee: 2012, debut: '19/03/2012', fin: '31/12/2012', structure: 'ACTI', activite: 'Salarié du privé', salaireDefplafonne: 28458, salairePlafonne: 28458, trimestres: 4, regimeBase: 'CNAV', pointsBase: 0, regimeComplementaire: 'Agirc-Arrco', pointsComplementaires: 0 },
+        { annee: 2013, debut: '01/01/2013', fin: '31/12/2013', structure: 'ACTI', activite: 'Salarié du privé', salaireDefplafonne: 36360, salairePlafonne: 36360, trimestres: 4, regimeBase: 'CNAV', pointsBase: 0, regimeComplementaire: 'Agirc-Arrco', pointsComplementaires: 184.99 },
+        { annee: 2014, debut: '01/01/2014', fin: '31/12/2014', structure: 'ACTI', activite: 'Salarié du privé', salaireDefplafonne: 37583, salairePlafonne: 37583, trimestres: 4, regimeBase: 'CNAV', pointsBase: 0, regimeComplementaire: 'Agirc-Arrco', pointsComplementaires: 191.83 },
+        { annee: 2014, debut: '01/10/2014', fin: '31/12/2014', structure: 'PAYE SANS ORDON. ESI LYON', activite: 'Contractuel fct. Publique', salaireDefplafonne: 2040, salairePlafonne: 2040, trimestres: 4, regimeBase: 'CNAV', pointsBase: 0, regimeComplementaire: 'Ircantec', pointsComplementaires: 23 },
+        { annee: 2015, debut: '01/01/2015', fin: '31/12/2015', structure: 'ACTI', activite: 'Salarié du privé', salaireDefplafonne: 40322, salairePlafonne: 40322, trimestres: 4, regimeBase: 'CNAV', pointsBase: 0, regimeComplementaire: 'Agirc-Arrco', pointsComplementaires: 196.29 },
+        { annee: 2015, debut: '01/01/2015', fin: '31/12/2015', structure: 'PAYE SANS ORDON. ESI LYON', activite: 'Contractuel fct. Publique', salaireDefplafonne: 2040, salairePlafonne: 2040, trimestres: 4, regimeBase: 'CNAV', pointsBase: 0, regimeComplementaire: 'Ircantec', pointsComplementaires: 23 },
+        { annee: 2016, debut: '01/01/2016', fin: '31/12/2016', structure: 'PAYE SANS ORDON. ESI LYON', activite: 'Contractuel fct. Publique', salaireDefplafonne: 2078, salairePlafonne: 2078, trimestres: 4, regimeBase: 'CNAV', pointsBase: 0, regimeComplementaire: 'Ircantec', pointsComplementaires: 24 },
+        { annee: 2016, debut: '01/01/2016', fin: '06/12/2016', structure: 'ACTI', activite: 'Salarié du privé', salaireDefplafonne: 38839, salairePlafonne: 38839, trimestres: 4, regimeBase: 'CNAV', pointsBase: 0, regimeComplementaire: 'Agirc-Arrco', pointsComplementaires: 194.8 },
+        { annee: 2016, debut: '07/12/2016', fin: '31/12/2016', structure: 'ACME', activite: 'Salarié du privé', salaireDefplafonne: 2610, salairePlafonne: 2610, trimestres: 4, regimeBase: 'CNAV', pointsBase: 0, regimeComplementaire: 'Agirc-Arrco', pointsComplementaires: 0 },
+        { annee: 2017, debut: '01/01/2017', fin: '31/12/2017', structure: 'PAYE SANS ORDON. ESI LYON', activite: 'Contractuel fct. Publique', salaireDefplafonne: 2496, salairePlafonne: 2496, trimestres: 4, regimeBase: 'CNAV', pointsBase: 0, regimeComplementaire: 'Ircantec', pointsComplementaires: 75 },
+        { annee: 2017, debut: '01/01/2017', fin: '31/12/2017', structure: 'ACME', activite: 'Salarié du privé', salaireDefplafonne: 50314, salairePlafonne: 50314, trimestres: 4, regimeBase: 'CNAV', pointsBase: 0, regimeComplementaire: 'Agirc-Arrco', pointsComplementaires: 262.92 },
+        { annee: 2018, debut: '01/01/2018', fin: '31/12/2018', structure: 'ACME', activite: 'Salarié du privé', salaireDefplafonne: 77262, salairePlafonne: 77262, trimestres: 4, regimeBase: 'CNAV', pointsBase: 0, regimeComplementaire: 'Agirc-Arrco', pointsComplementaires: 516.32 },
+        { annee: 2018, debut: '01/01/2018', fin: '31/12/2018', structure: 'PAYE SANS ORDON. ESI LYON', activite: 'Contractuel fct. Publique', salaireDefplafonne: 348, salairePlafonne: 348, trimestres: 0, regimeBase: 'CNAV', pointsBase: 0, regimeComplementaire: 'Ircantec', pointsComplementaires: 11 },
+        { annee: 2019, debut: '01/01/2019', fin: '31/12/2019', structure: 'ACME', activite: 'Salarié du privé', salaireDefplafonne: 78672, salairePlafonne: 78672, trimestres: 4, regimeBase: 'CNAV', pointsBase: 0, regimeComplementaire: 'Agirc-Arrco', pointsComplementaires: 530.98 },
+        { annee: 2019, debut: '01/01/2019', fin: '31/12/2019', structure: 'PAYE SANS ORDON. ESI LYON', activite: 'Contractuel fct. Publique', salaireDefplafonne: 11940, salairePlafonne: 11940, trimestres: 0, regimeBase: 'CNAV', pointsBase: 0, regimeComplementaire: 'Ircantec', pointsComplementaires: 375 },
+        { annee: 2020, debut: '01/01/2020', fin: '31/12/2020', structure: 'ACME', activite: 'Salarié du privé', salaireDefplafonne: 84454, salairePlafonne: 84454, trimestres: 4, regimeBase: 'CNAV', pointsBase: 0, regimeComplementaire: 'Agirc-Arrco', pointsComplementaires: 583.89 },
+        { annee: 2020, debut: '01/01/2020', fin: '31/12/2020', structure: 'PAYE SANS ORDON. ESI LYON', activite: 'Contractuel fct. Publique', salaireDefplafonne: 23071, salairePlafonne: 23071, trimestres: 0, regimeBase: 'CNAV', pointsBase: 0, regimeComplementaire: 'Ircantec', pointsComplementaires: 719 },
+        { annee: 2020, debut: '07/09/2020', fin: '17/09/2020', structure: 'CONGÉ PATERNITÉ', activite: 'NA', salaireDefplafonne: 0, salairePlafonne: 0, trimestres: 0, regimeBase: 'CNAV', pointsBase: 0, regimeComplementaire: 'NA', pointsComplementaires: 0 },
+        { annee: 2021, debut: '01/01/2021', fin: '31/12/2021', structure: 'ACME', activite: 'Salarié du privé', salaireDefplafonne: 109053, salairePlafonne: 109053, trimestres: 4, regimeBase: 'CNAV', pointsBase: 0, regimeComplementaire: 'Agirc-Arrco', pointsComplementaires: 811.59 },
+        { annee: 2021, debut: '01/01/2021', fin: '31/12/2021', structure: 'PAYE SANS ORDON. ESI LYON', activite: 'Contractuel fct. Publique', salaireDefplafonne: 24289, salairePlafonne: 24289, trimestres: 0, regimeBase: 'CNAV', pointsBase: 0, regimeComplementaire: 'Ircantec', pointsComplementaires: 754 },
+        { annee: 2022, debut: '01/01/2022', fin: '31/12/2022', structure: 'ACME', activite: 'Salarié du privé', salaireDefplafonne: 130532, salairePlafonne: 130532, trimestres: 4, regimeBase: 'CNAV', pointsBase: 0, regimeComplementaire: 'Agirc-Arrco', pointsComplementaires: 1018.14 },
+        { annee: 2022, debut: '01/01/2022', fin: '31/12/2022', structure: 'UNIVERSITE LYON 3', activite: 'Contractuel fct. Publique', salaireDefplafonne: 21952, salairePlafonne: 21952, trimestres: 4, regimeBase: 'CNAV', pointsBase: 0, regimeComplementaire: 'Ircantec', pointsComplementaires: 674 },
+        { annee: 2023, debut: '01/01/2023', fin: '31/12/2013', structure: 'ACME', activite: 'Salarié du privé', salaireDefplafonne: 142862, salairePlafonne: 142862, trimestres: 4, regimeBase: 'CNAV', pointsBase: 0, regimeComplementaire: 'Agirc-Arrco', pointsComplementaires: 1057.96 },
+        { annee: 2023, debut: '25/07/2023', fin: '18/08/2023', structure: 'CONGÉ PATERNITÉ', activite: 'NA', salaireDefplafonne: 0, salairePlafonne: 0, trimestres: 0, regimeBase: 'CNAV', pointsBase: 0, regimeComplementaire: 'NA', pointsComplementaires: 0 },
+        { annee: 2023, debut: '01/01/2023', fin: '31/12/2023', structure: 'UNIVERSITE LYON 3', activite: 'Contractuel fct. Publique', salaireDefplafonne: 32356, salairePlafonne: 32356, trimestres: 4, regimeBase: 'CNAV', pointsBase: 0, regimeComplementaire: 'Ircantec', pointsComplementaires: 947 },
+        { annee: 2024, debut: '01/01/2024', fin: '31/12/2024', structure: 'ACME', activite: 'Salarié du privé', salaireDefplafonne: 132982, salairePlafonne: 132982, trimestres: 4, regimeBase: 'CNAV', pointsBase: 0, regimeComplementaire: 'Agirc-Arrco', pointsComplementaires: 1000.10 },
+        { annee: 2024, debut: '01/01/2024', fin: '31/12/2024', structure: 'UNIVERSITE LYON 3', activite: 'Contractuel fct. Publique', salaireDefplafonne: 25842, salairePlafonne: 25842, trimestres: 4, regimeBase: 'CNAV', pointsBase: 0, regimeComplementaire: 'Ircantec', pointsComplementaires: 718 },
+        { annee: 2025, debut: '01/01/2025', fin: '31/12/2025', structure: 'ACME', activite: 'Salarié du privé', salaireDefplafonne: 132982, salairePlafonne: 132982, trimestres: 4, regimeBase: 'CNAV', pointsBase: 0, regimeComplementaire: 'Agirc-Arrco', pointsComplementaires: 1000.10 },
+        { annee: 2025, debut: '01/01/2025', fin: '31/12/2025', structure: 'UNIVERSITE LYON 3', activite: 'Contractuel fct. Publique', salaireDefplafonne: 25842, salairePlafonne: 25842, trimestres: 4, regimeBase: 'CNAV', pointsBase: 0, regimeComplementaire: 'Ircantec', pointsComplementaires: 718 }
       ]
     },
-    { 
-      id: 3, 
+    {
+      id: 2,
+      nom: 'Statut PDT de SAS',
+      data: [
+        { annee: 2020, debut: '01/01/2020', fin: '31/12/2020', structure: 'SAS Tech', activite: 'PDT SAS', salaireDefplafonne: 45000, salairePlafonne: 41136, trimestres: 4, regimeBase: 'CNAV', pointsBase: 210, regimeComplementaire: 'AGIRC-ARRCO', pointsComplementaires: 1650 },
+        { annee: 2021, debut: '01/01/2021', fin: '31/12/2021', structure: 'SAS Tech', activite: 'PDT SAS', salaireDefplafonne: 47000, salairePlafonne: 41136, trimestres: 4, regimeBase: 'CNAV', pointsBase: 215, regimeComplementaire: 'AGIRC-ARRCO', pointsComplementaires: 1720 },
+        { annee: 2022, debut: '01/01/2022', fin: '31/12/2022', structure: 'SAS Tech', activite: 'PDT SAS', salaireDefplafonne: 49000, salairePlafonne: 41136, trimestres: 2, regimeBase: 'CNAV', pointsBase: 220, regimeComplementaire: 'AGIRC-ARRCO', pointsComplementaires: 1780 },
+        { annee: 2023, debut: '01/01/2023', fin: '31/12/2023', structure: 'SAS Tech', activite: 'PDT SAS', salaireDefplafonne: 51000, salairePlafonne: 43992, trimestres: 4, regimeBase: 'CNAV', pointsBase: 225, regimeComplementaire: 'AGIRC-ARRCO', pointsComplementaires: 1850 },
+        { annee: 2024, debut: '01/01/2024', fin: '31/12/2024', structure: 'SAS Tech', activite: 'PDT SAS', salaireDefplafonne: 53000, salairePlafonne: 46368, trimestres: 4, regimeBase: 'CNAV', pointsBase: 230, regimeComplementaire: 'AGIRC-ARRCO', pointsComplementaires: 1920 }
+      ]
+    },
+    {
+      id: 3,
       nom: 'Chômage',
       data: [
-        { annee: 2020, debut: '01/01/2020', fin: '31/12/2020', activite: 'Chômage', salaireDefplafonne: 0, salairePlafonne: 0, trimestres: 4, regimeBase: 'CNAV', pointsBase: 180, regimeComplementaire: 'AGIRC-ARRCO', pointsComplementaires: 1200 },
-        { annee: 2021, debut: '01/01/2021', fin: '31/12/2021', activite: 'Chômage', salaireDefplafonne: 8000, salairePlafonne: 0, trimestres: 4, regimeBase: 'CNAV', pointsBase: 180, regimeComplementaire: 'AGIRC-ARRCO', pointsComplementaires: 1200 },
-        { annee: 2022, debut: '01/01/2022', fin: '31/12/2022', activite: 'Chômage', salaireDefplafonne: 15000, salairePlafonne: 0, trimestres: 4, regimeBase: 'CNAV', pointsBase: 180, regimeComplementaire: 'AGIRC-ARRCO', pointsComplementaires: 1200 },
-        { annee: 2023, debut: '01/01/2023', fin: '31/12/2023', activite: 'Chômage', salaireDefplafonne: 0, salairePlafonne: 0, trimestres: 3, regimeBase: 'CNAV', pointsBase: 180, regimeComplementaire: 'AGIRC-ARRCO', pointsComplementaires: 1200 },
-        { annee: 2024, debut: '01/01/2024', fin: '31/12/2024', activite: 'Chômage', salaireDefplafonne: 0, salairePlafonne: 5000, trimestres: 4, regimeBase: 'CNAV', pointsBase: 180, regimeComplementaire: 'AGIRC-ARRCO', pointsComplementaires: 1200 }
+        { annee: 2020, debut: '01/01/2020', fin: '31/12/2020', structure: 'Pôle Emploi', activite: 'Chômage', salaireDefplafonne: 0, salairePlafonne: 0, trimestres: 4, regimeBase: 'CNAV', pointsBase: 180, regimeComplementaire: 'AGIRC-ARRCO', pointsComplementaires: 1200 },
+        { annee: 2021, debut: '01/01/2021', fin: '31/12/2021', structure: 'Pôle Emploi', activite: 'Chômage', salaireDefplafonne: 8000, salairePlafonne: 0, trimestres: 4, regimeBase: 'CNAV', pointsBase: 180, regimeComplementaire: 'AGIRC-ARRCO', pointsComplementaires: 1200 },
+        { annee: 2022, debut: '01/01/2022', fin: '31/12/2022', structure: 'Pôle Emploi', activite: 'Chômage', salaireDefplafonne: 15000, salairePlafonne: 0, trimestres: 4, regimeBase: 'CNAV', pointsBase: 180, regimeComplementaire: 'AGIRC-ARRCO', pointsComplementaires: 1200 },
+        { annee: 2023, debut: '01/01/2023', fin: '31/12/2023', structure: 'Pôle Emploi', activite: 'Chômage', salaireDefplafonne: 0, salairePlafonne: 0, trimestres: 3, regimeBase: 'CNAV', pointsBase: 180, regimeComplementaire: 'AGIRC-ARRCO', pointsComplementaires: 1200 },
+        { annee: 2024, debut: '01/01/2024', fin: '31/12/2024', structure: 'Pôle Emploi', activite: 'Chômage', salaireDefplafonne: 0, salairePlafonne: 5000, trimestres: 4, regimeBase: 'CNAV', pointsBase: 180, regimeComplementaire: 'AGIRC-ARRCO', pointsComplementaires: 1200 }
       ]
     }
   ]);
@@ -100,7 +117,11 @@ export default function VaultApp({ user, onLogout }) {
   const [uploadCategorie, setUploadCategorie] = useState('Relevé de carrière');
   const [selectedFile, setSelectedFile] = useState(null);
   const [expandedCarrieres, setExpandedCarrieres] = useState({});
+  const [expandedYears, setExpandedYears] = useState({});
   const [showNotifications, setShowNotifications] = useState(false);
+  const [showCompleteCarriereModal, setShowCompleteCarriereModal] = useState(false);
+  const [showLegendeModal, setShowLegendeModal] = useState(false);
+  const [inflationRate, setInflationRate] = useState(2);
   
   const [notifications] = useState([
     {
@@ -197,10 +218,14 @@ export default function VaultApp({ user, onLogout }) {
 
   const ajouterCarriere = () => {
     if (nouveauNomCarriere.trim()) {
+      // Trouver le scénario "Carrière actuelle" pour le copier
+      const carriereActuelle = carrieres.find(c => c.nom === 'Carrière actuelle');
+
       const newCarriere = {
         id: carrieres.length + 1,
         nom: nouveauNomCarriere,
-        data: []
+        // Copier les données de la carrière actuelle si elle existe, sinon tableau vide
+        data: carriereActuelle ? [...carriereActuelle.data.map(ligne => ({ ...ligne }))] : []
       };
       setCarrieres([...carrieres, newCarriere]);
       setNouveauNomCarriere('');
@@ -217,7 +242,7 @@ export default function VaultApp({ user, onLogout }) {
   };
 
   const startEditLigne = (ligne) => {
-    setEditingLigne(ligne.annee);
+    setEditingLigne(`${ligne.annee}-${ligne._index}`);
     setTempLigneData({ ...ligne });
   };
 
@@ -240,29 +265,138 @@ export default function VaultApp({ user, onLogout }) {
     setTempLigneData(null);
   };
 
+  const duplicateDerniereAnnee = () => {
+    const carriere = carrieres.find(c => c.id === carriereActive);
+    if (!carriere) return;
+
+    // Trouver la dernière année avec des données
+    const derniereAnnee = Math.max(...carriere.data.map(l => l.annee));
+    const lignesDerniereAnnee = carriere.data.filter(l => l.annee === derniereAnnee);
+
+    if (lignesDerniereAnnee.length === 0) return;
+
+    // Créer les nouvelles lignes pour l'année suivante
+    const nouvellesLignes = lignesDerniereAnnee.map(ligne => ({
+      ...ligne,
+      annee: derniereAnnee + 1,
+      debut: `01/01/${derniereAnnee + 1}`,
+      fin: `31/12/${derniereAnnee + 1}`
+    }));
+
+    // Ajouter les nouvelles lignes à la carrière
+    setCarrieres(carrieres.map(c => {
+      if (c.id === carriereActive) {
+        return {
+          ...c,
+          data: [...c.data, ...nouvellesLignes]
+        };
+      }
+      return c;
+    }));
+
+    setShowCompleteCarriereModal(false);
+  };
+
+  const projeterJusquAuTauxPlein = () => {
+    const carriere = carrieres.find(c => c.id === carriereActive);
+    if (!carriere) return;
+
+    // Calculer les trimestres acquis
+    const trimestresAcquis = carriere.data.reduce((sum, ligne) => sum + ligne.trimestres, 0);
+    const trimestresCibles = 172; // Pour une personne née après 1973
+    const trimestresManquants = Math.max(0, trimestresCibles - trimestresAcquis);
+
+    if (trimestresManquants === 0) {
+      alert('Le taux plein est déjà atteint !');
+      setShowCompleteCarriereModal(false);
+      return;
+    }
+
+    // Calculer le nombre d'années complètes nécessaires
+    const anneesNecessaires = Math.ceil(trimestresManquants / 4);
+
+    // Trouver la dernière année avec des données
+    const derniereAnnee = Math.max(...carriere.data.map(l => l.annee));
+    const lignesDerniereAnnee = carriere.data.filter(l => l.annee === derniereAnnee);
+
+    if (lignesDerniereAnnee.length === 0) return;
+
+    // Créer les nouvelles lignes pour chaque année manquante
+    const nouvellesLignes = [];
+    for (let i = 1; i <= anneesNecessaires; i++) {
+      const nouvelleAnnee = derniereAnnee + i;
+      const facteurInflation = Math.pow(1 + (inflationRate / 100), i);
+
+      lignesDerniereAnnee.forEach(ligne => {
+        // Appliquer l'inflation sur les salaires et points
+        const nouveauSalaireDepl = Math.round(ligne.salaireDefplafonne * facteurInflation);
+        const nouveauSalairePlaf = Math.round(ligne.salairePlafonne * facteurInflation);
+        const nouveauxPoints = ligne.pointsComplementaires !== 0 && ligne.pointsComplementaires !== null
+          ? parseFloat((ligne.pointsComplementaires * facteurInflation).toFixed(2))
+          : ligne.pointsComplementaires;
+
+        nouvellesLignes.push({
+          ...ligne,
+          annee: nouvelleAnnee,
+          debut: `01/01/${nouvelleAnnee}`,
+          fin: `31/12/${nouvelleAnnee}`,
+          salaireDefplafonne: nouveauSalaireDepl,
+          salairePlafonne: nouveauSalairePlaf,
+          pointsComplementaires: nouveauxPoints
+        });
+      });
+    }
+
+    // Ajouter les nouvelles lignes à la carrière
+    setCarrieres(carrieres.map(c => {
+      if (c.id === carriereActive) {
+        return {
+          ...c,
+          data: [...c.data, ...nouvellesLignes]
+        };
+      }
+      return c;
+    }));
+
+    setShowCompleteCarriereModal(false);
+  };
+
   const checkLigneIncoherence = (ligne) => {
     const messages = [];
-    
+
     if (ligne.trimestres < 0 || ligne.trimestres > 4) {
       messages.push('Trimestres invalides (doit être entre 0 et 4)');
     }
-    
+
+    // Vérification : absence de trimestres (sauf pour congés paternité et chômage sans activité)
+    if (ligne.trimestres === 0 && ligne.activite !== 'NA' && ligne.activite !== '') {
+      messages.push('Absence de trimestres validés');
+    }
+
+    // Vérification : absence de points complémentaires (sauf pour congés paternité)
+    if ((ligne.pointsComplementaires === 0 || ligne.pointsComplementaires === null) &&
+        ligne.regimeComplementaire !== 'NA' &&
+        ligne.activite !== 'NA' &&
+        ligne.salaireDefplafonne > 0) {
+      messages.push('Absence de points complémentaires');
+    }
+
     if (ligne.trimestres === 0 && ligne.activite === 'Salarié') {
       messages.push('0 trimestre pour une activité salariée');
     }
-    
+
     if (ligne.salaireDefplafonne < ligne.salairePlafonne) {
       messages.push('Salaire déplafonné < salaire plafonné');
     }
-    
+
     if (ligne.activite === 'Chômage' && ligne.salaireDefplafonne > 0 && ligne.salairePlafonne === 0) {
       messages.push('Incohérence chômage: salaire déplafonné > 0 mais salaire plafonné = 0');
     }
-    
+
     if (ligne.activite === 'Chômage' && ligne.salairePlafonne > 0 && ligne.salaireDefplafonne === 0) {
       messages.push('Incohérence chômage: salaire plafonné > 0 mais salaire déplafonné = 0');
     }
-    
+
     return messages;
   };
 
@@ -271,6 +405,124 @@ export default function VaultApp({ user, onLogout }) {
       ...prev,
       [id]: !prev[id]
     }));
+  };
+
+  const toggleExpandYear = (year) => {
+    setExpandedYears(prev => ({
+      ...prev,
+      [year]: !prev[year]
+    }));
+  };
+
+  const getYearStatus = (annee, hasError) => {
+    if (annee === 2025) return 'certified';
+    if (annee === 2024) return 'certified';
+    if (annee === 2023) return 'corrected';
+    if (!hasError) return 'coherent';
+    return 'error';
+  };
+
+  const getStatusBadgeColor = (statut, index) => {
+    const colors = [
+      'bg-blue-100 text-blue-700',
+      'bg-green-100 text-green-700',
+      'bg-purple-100 text-purple-700',
+      'bg-pink-100 text-pink-700',
+      'bg-indigo-100 text-indigo-700',
+      'bg-yellow-100 text-yellow-700',
+      'bg-teal-100 text-teal-700',
+      'bg-orange-100 text-orange-700'
+    ];
+    return colors[index % colors.length];
+  };
+
+  // Couleurs pour les régimes (caisses) - tons pastel plus doux
+  const getRegimeColor = (regime) => {
+    const regimeColors = {
+      'CNAV': 'bg-blue-200 text-blue-900',
+      'MSA': 'bg-green-200 text-green-900',
+      'Agirc-Arrco': 'bg-purple-200 text-purple-900',
+      'Ircantec': 'bg-pink-200 text-pink-900',
+      'NA': 'bg-gray-200 text-gray-700',
+      'Non renseigné': 'bg-gray-200 text-gray-700'
+    };
+    return regimeColors[regime] || 'bg-slate-200 text-slate-900';
+  };
+
+  // Couleurs pour les statuts (activités) - tons chauds pour différencier
+  const getStatutColor = (statut) => {
+    const statutColors = {
+      'Salarié agricole': 'bg-amber-100 text-amber-800',
+      'Contractuel fct. Publique': 'bg-rose-100 text-rose-800',
+      'Salarié du privé': 'bg-cyan-100 text-cyan-800',
+      'NA': 'bg-gray-100 text-gray-600',
+      'Non renseigné': 'bg-gray-100 text-gray-600',
+      'Chômage': 'bg-orange-100 text-orange-800',
+      'Salarié': 'bg-teal-100 text-teal-800',
+      'PDT SAS': 'bg-violet-100 text-violet-800'
+    };
+    return statutColors[statut] || 'bg-lime-100 text-lime-800';
+  };
+
+  const groupDataByYear = (data) => {
+    const grouped = {};
+    data.forEach(ligne => {
+      if (!grouped[ligne.annee]) {
+        grouped[ligne.annee] = [];
+      }
+      grouped[ligne.annee].push(ligne);
+    });
+    return grouped;
+  };
+
+  const createSyntheseLigne = (annee, lignes) => {
+    // Date de début : la plus proche du 1er janvier
+    const debuts = lignes.map(l => new Date(l.debut.split('/').reverse().join('-')));
+    const debutMin = new Date(Math.min(...debuts));
+    const debutStr = lignes.find(l => new Date(l.debut.split('/').reverse().join('-')).getTime() === debutMin.getTime())?.debut;
+
+    // Date de fin : la plus proche du 31 décembre
+    const fins = lignes.map(l => new Date(l.fin.split('/').reverse().join('-')));
+    const finMax = new Date(Math.max(...fins));
+    const finStr = lignes.find(l => new Date(l.fin.split('/').reverse().join('-')).getTime() === finMax.getTime())?.fin;
+
+    // Structures uniques
+    const structures = [...new Set(lignes.map(l => l.structure))];
+
+    // Statuts uniques
+    const statuts = [...new Set(lignes.map(l => l.activite))].filter(s => s);
+
+    // Somme des salaires
+    const salaire = lignes.reduce((sum, l) => sum + l.salaireDefplafonne, 0);
+
+    // Somme des trimestres (max 4)
+    const trimestres = Math.min(4, lignes.reduce((sum, l) => sum + l.trimestres, 0));
+
+    // Régimes de base uniques
+    const regimesBase = [...new Set(lignes.map(l => l.regimeBase))].filter(r => r);
+
+    // Régimes complémentaires uniques
+    const regimesCompl = [...new Set(lignes.map(l => l.regimeComplementaire))].filter(r => r);
+
+    return {
+      annee,
+      debut: debutStr,
+      fin: finStr,
+      structure: 'Plusieurs structures enregistrées',
+      structures,
+      activite: statuts,
+      statuts,
+      salaireDefplafonne: salaire,
+      salairePlafonne: salaire,
+      trimestres,
+      regimeBase: regimesBase,
+      regimesBase,
+      regimeComplementaire: regimesCompl,
+      regimesCompl,
+      pointsComplementaires: 'NA',
+      isSynthese: true,
+      lignesDetail: lignes
+    };
   };
 
   return (
@@ -367,10 +619,7 @@ export default function VaultApp({ user, onLogout }) {
                         <Settings className="w-4 h-4" />
                         <span>Paramètres</span>
                       </button>
-                      <button
-                        onClick={onLogout}
-                        className="w-full text-left px-4 py-2 hover:bg-red-50 rounded-lg flex items-center gap-2 text-sm text-red-600 font-medium"
-                      >
+                      <button className="w-full text-left px-4 py-2 hover:bg-red-50 rounded-lg flex items-center gap-2 text-sm text-red-600 font-medium">
                         <LogOut className="w-4 h-4" />
                         <span>Déconnexion</span>
                       </button>
@@ -599,23 +848,16 @@ export default function VaultApp({ user, onLogout }) {
         {activeSection === 'carriere' && (
           <div className="space-y-6">
             <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-200">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-3">
+              <div className="mb-6">
+                <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-3 mb-4">
                   <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
                     <Briefcase className="w-6 h-6 text-orange-600" />
                   </div>
                   Scénarios de carrière
                 </h2>
-                <button
-                  onClick={() => setShowCarriereForm(true)}
-                  className="flex items-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition"
-                >
-                  <Plus className="w-5 h-5" />
-                  Nouveau scénario
-                </button>
               </div>
 
-              <div className="flex gap-2 mb-6 flex-wrap">
+              <div className="flex gap-2 mb-6 flex-wrap items-center">
                 {carrieres.map((carriere) => (
                   <div key={carriere.id} className="relative group">
                     <button
@@ -638,6 +880,13 @@ export default function VaultApp({ user, onLogout }) {
                     )}
                   </div>
                 ))}
+                <button
+                  onClick={() => setShowCarriereForm(true)}
+                  className="flex items-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition"
+                >
+                  <Plus className="w-5 h-5" />
+                  Scénario supplémentaire
+                </button>
               </div>
 
               {showCarriereForm && (
@@ -696,200 +945,895 @@ export default function VaultApp({ user, onLogout }) {
                 const carriere = carrieres.find(c => c.id === carriereActive);
                 if (!carriere) return null;
 
+                // Grouper les données par année
+                const groupedByYear = groupDataByYear(carriere.data);
+                const displayData = [];
+
+                Object.keys(groupedByYear).sort((a, b) => parseInt(a) - parseInt(b)).forEach(year => {
+                  const lignes = groupedByYear[year];
+                  if (lignes.length > 1) {
+                    // Créer une ligne de synthèse
+                    displayData.push(createSyntheseLigne(parseInt(year), lignes));
+                    // Ajouter les lignes de détail si expanded
+                    if (expandedYears[year]) {
+                      lignes.forEach(l => displayData.push({ ...l, isDetail: true }));
+                    }
+                  } else {
+                    // Une seule ligne pour cette année
+                    displayData.push(lignes[0]);
+                  }
+                });
+
+                // Catégoriser les années par statut avec détails des erreurs
+                const anneesParStatut = {
+                  incoherentes: [],
+                  absentes: [],
+                  corrigees: [],
+                  coherentes: [],
+                  certifiees: []
+                };
+
+                displayData.forEach(ligne => {
+                  if (ligne.isSynthese) {
+                    // Pour les synthèses, vérifier toutes les lignes de détail
+                    const erreursDetail = [];
+                    ligne.lignesDetail?.forEach(l => {
+                      const messages = checkLigneIncoherence(l);
+                      if (messages.length > 0) {
+                        erreursDetail.push(...messages);
+                      }
+                    });
+                    const hasError = erreursDetail.length > 0;
+                    const status = getYearStatus(ligne.annee, hasError);
+                    if (status === 'error') anneesParStatut.incoherentes.push({ annee: ligne.annee, erreurs: erreursDetail });
+                    else if (status === 'missing') anneesParStatut.absentes.push(ligne.annee);
+                    else if (status === 'corrected') anneesParStatut.corrigees.push(ligne.annee);
+                    else if (status === 'coherent') anneesParStatut.coherentes.push(ligne.annee);
+                    else if (status === 'certified') anneesParStatut.certifiees.push(ligne.annee);
+                  } else if (!ligne.isDetail) {
+                    const erreurs = checkLigneIncoherence(ligne);
+                    const hasError = erreurs.length > 0;
+                    const status = getYearStatus(ligne.annee, hasError);
+                    if (status === 'error') anneesParStatut.incoherentes.push({ annee: ligne.annee, erreurs });
+                    else if (status === 'missing') anneesParStatut.absentes.push(ligne.annee);
+                    else if (status === 'corrected') anneesParStatut.corrigees.push(ligne.annee);
+                    else if (status === 'coherent') anneesParStatut.coherentes.push(ligne.annee);
+                    else if (status === 'certified') anneesParStatut.certifiees.push(ligne.annee);
+                  }
+                });
+
+                // Calculer les trimestres
+                const trimestresAcquis = carriere.data.reduce((sum, ligne) => sum + ligne.trimestres, 0);
+                const trimestresCibles = 172; // Exemple pour une personne née après 1973
+                const trimestresRestants = Math.max(0, trimestresCibles - trimestresAcquis);
+
                 return (
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-sm">
+                  <>
+                    {/* Deux zones d'information au-dessus du tableau */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                      {/* Zone de gauche : État des années */}
+                      <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg border border-blue-200 p-5">
+                        <div className="flex items-center justify-between mb-4">
+                          <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
+                            <ClipboardList className="w-5 h-5 text-blue-600" />
+                            État de la carrière
+                          </h3>
+                          <button
+                            onClick={() => setShowLegendeModal(true)}
+                            className="text-xs px-2 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+                          >
+                            Légende
+                          </button>
+                        </div>
+
+                        <div className="space-y-2 mb-4">
+                          {anneesParStatut.incoherentes.length > 0 && (
+                            <div className="bg-red-50 rounded-lg p-3 border border-red-200">
+                              <div className="flex items-center gap-1 mb-2">
+                                <AlertCircle className="w-4 h-4 text-red-700" />
+                                <span className="font-semibold text-red-900 text-sm">Années incohérentes</span>
+                              </div>
+                              <div className="space-y-2 ml-5">
+                                {anneesParStatut.incoherentes.map((item, idx) => (
+                                  <div key={idx} className="text-xs">
+                                    <span className="font-bold text-red-800">{item.annee} :</span>
+                                    <ul className="mt-1 space-y-0.5 text-red-700">
+                                      {item.erreurs.map((erreur, eidx) => (
+                                        <li key={eidx}>• {erreur}</li>
+                                      ))}
+                                    </ul>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          {anneesParStatut.absentes.length > 0 && (
+                            <div className="flex items-start gap-2">
+                              <div className="flex items-center gap-1 px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs font-medium whitespace-nowrap">
+                                <Info className="w-3 h-3" />
+                                <span>Info absente</span>
+                              </div>
+                              <div className="text-xs text-gray-700 flex-1">
+                                {anneesParStatut.absentes.join(', ')}
+                              </div>
+                            </div>
+                          )}
+
+                          {anneesParStatut.corrigees.length > 0 && (
+                            <div className="flex items-start gap-2">
+                              <div className="flex items-center gap-1 px-2 py-1 bg-yellow-100 text-yellow-700 rounded text-xs font-medium whitespace-nowrap">
+                                <Edit3 className="w-3 h-3" />
+                                <span>Corrigée</span>
+                              </div>
+                              <div className="text-xs text-gray-700 flex-1">
+                                {anneesParStatut.corrigees.join(', ')}
+                              </div>
+                            </div>
+                          )}
+
+                          {anneesParStatut.coherentes.length > 0 && (
+                            <div className="flex items-start gap-2">
+                              <div className="flex items-center gap-1 px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-medium whitespace-nowrap">
+                                <CheckCircle className="w-3 h-3" />
+                                <span>Cohérent</span>
+                              </div>
+                              <div className="text-xs text-gray-700 flex-1">
+                                {anneesParStatut.coherentes.join(', ')}
+                              </div>
+                            </div>
+                          )}
+
+                          {anneesParStatut.certifiees.length > 0 && (
+                            <div className="flex items-start gap-2">
+                              <div className="flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-medium whitespace-nowrap">
+                                <Shield className="w-3 h-3" />
+                                <span>Certifiée</span>
+                              </div>
+                              <div className="text-xs text-gray-700 flex-1">
+                                {anneesParStatut.certifiees.join(', ')}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+
+                        <button
+                          onClick={() => setShowCompleteCarriereModal(true)}
+                          className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium"
+                        >
+                          <Plus className="w-4 h-4" />
+                          Compléter la carrière
+                        </button>
+                      </div>
+
+                      {/* Zone de droite : Projections de retraite */}
+                      <div className="bg-gradient-to-br from-orange-50 to-red-50 rounded-lg border border-orange-200 p-5">
+                        <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                          <TrendingUp className="w-5 h-5 text-orange-600" />
+                          Projection de départ à la retraite
+                        </h3>
+
+                        <div className="space-y-3 mb-4">
+                          <div className="bg-white rounded-lg p-3 border border-orange-100">
+                            <div className="text-xs text-gray-600 mb-1">Âge de départ à taux plein</div>
+                            <div className="text-xl font-bold text-orange-600">62 ans et 8 mois</div>
+                          </div>
+
+                          <div className="bg-white rounded-lg p-3 border border-orange-100">
+                            <div className="text-xs text-gray-600 mb-1">Date de départ à taux plein</div>
+                            <div className="text-xl font-bold text-orange-600">1er septembre 2045</div>
+                          </div>
+
+                          <div className="bg-white rounded-lg p-3 border border-orange-100">
+                            <div className="text-xs text-gray-600 mb-1">Trimestres de cotisation</div>
+                            <div className="flex items-baseline gap-2">
+                              <span className="text-2xl font-bold text-orange-600">{trimestresAcquis}</span>
+                              <span className="text-sm text-gray-600">acquis /</span>
+                              <span className="text-lg font-semibold text-gray-700">{trimestresCibles}</span>
+                              <span className="text-sm text-gray-600">requis</span>
+                            </div>
+                            {trimestresRestants > 0 && (
+                              <div className="text-xs text-orange-700 mt-1">
+                                {trimestresRestants} trimestre{trimestresRestants > 1 ? 's' : ''} restant{trimestresRestants > 1 ? 's' : ''}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+
+                        <button
+                          onClick={() => setActiveSection('projections')}
+                          className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition font-medium"
+                        >
+                          <Eye className="w-4 h-4" />
+                          Voir les projections
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-sm">
                       <thead>
                         <tr className="bg-gradient-to-r from-orange-500 to-red-500 text-white">
-                          <th className="py-3 px-2 text-left font-bold">Année</th>
+                          <th className="py-3 px-2 text-center font-bold w-20">Action</th>
+                          <th className="py-3 px-2 text-center font-bold w-24">État</th>
+                          <th className="py-3 px-2 text-left font-bold w-16">Année</th>
                           <th className="py-3 px-2 text-left font-bold">Début</th>
                           <th className="py-3 px-2 text-left font-bold">Fin</th>
-                          <th className="py-3 px-2 text-left font-bold">Activité</th>
-                          <th className="py-3 px-2 text-right font-bold">Salaire dépl. (€)</th>
-                          <th className="py-3 px-2 text-right font-bold">Salaire plaf. (€)</th>
+                          <th className="py-3 px-2 text-left font-bold">Structure</th>
+                          <th className="py-3 px-2 text-left font-bold">Statut</th>
+                          <th className="py-3 px-2 text-right font-bold">Salaire (€)</th>
                           <th className="py-3 px-2 text-center font-bold">Trim.</th>
                           <th className="py-3 px-2 text-left font-bold">Régime base</th>
-                          <th className="py-3 px-2 text-right font-bold">Pts base</th>
                           <th className="py-3 px-2 text-left font-bold">Régime compl.</th>
                           <th className="py-3 px-2 text-right font-bold">Pts compl.</th>
-                          <th className="py-3 px-2 text-center font-bold">Actions</th>
                         </tr>
                       </thead>
                       <tbody>
-                        {carriere.data.map((ligne, index) => {
-                          const incoherences = checkLigneIncoherence(ligne);
-                          const hasError = incoherences.length > 0;
+                        {displayData.map((ligne, index) => {
+                          const incoherences = ligne.isSynthese ? [] : checkLigneIncoherence(ligne);
+                          const hasError = ligne.isSynthese
+                            ? ligne.lignesDetail?.some(l => checkLigneIncoherence(l).length > 0) || false
+                            : incoherences.length > 0;
+                          const isSynthese = ligne.isSynthese;
+                          const isDetail = ligne.isDetail;
 
+                          // Mode édition
+                          if (editingLigne === `${ligne.annee}-${index}` && !isSynthese) {
+                            return (
+                              <tr
+                                key={`${ligne.annee}-${index}`}
+                                className={`border-b border-gray-200 bg-blue-50 ${isDetail ? 'bg-gray-100' : ''}`}
+                              >
+                                {/* Actions */}
+                                <td className="py-2 px-2">
+                                  <div className="flex gap-1 justify-center">
+                                    <button
+                                      onClick={saveLigne}
+                                      className="p-1 bg-green-500 text-white rounded hover:bg-green-600"
+                                    >
+                                      <Check className="w-3 h-3" />
+                                    </button>
+                                    <button
+                                      onClick={cancelEditLigne}
+                                      className="p-1 bg-red-500 text-white rounded hover:bg-red-600"
+                                    >
+                                      <X className="w-3 h-3" />
+                                    </button>
+                                  </div>
+                                </td>
+                                {/* État */}
+                                <td className="py-2 px-2"></td>
+                                                                {/* Année */}
+                                <td className="py-2 px-2 font-bold text-gray-700">{ligne.annee}</td>
+                                {/* Début */}
+                                <td className="py-2 px-2">
+                                  <input
+                                    type="text"
+                                    value={tempLigneData.debut}
+                                    onChange={(e) => setTempLigneData({ ...tempLigneData, debut: e.target.value })}
+                                    className="w-full px-2 py-1 border border-blue-300 rounded text-xs"
+                                  />
+                                </td>
+                                {/* Fin */}
+                                <td className="py-2 px-2">
+                                  <input
+                                    type="text"
+                                    value={tempLigneData.fin}
+                                    onChange={(e) => setTempLigneData({ ...tempLigneData, fin: e.target.value })}
+                                    className="w-full px-2 py-1 border border-blue-300 rounded text-xs"
+                                  />
+                                </td>
+                                {/* Structure */}
+                                <td className="py-2 px-2">
+                                  <input
+                                    type="text"
+                                    value={tempLigneData.structure}
+                                    onChange={(e) => setTempLigneData({ ...tempLigneData, structure: e.target.value })}
+                                    className="w-full px-2 py-1 border border-blue-300 rounded text-xs"
+                                  />
+                                </td>
+                                {/* Statut */}
+                                <td className="py-2 px-2">
+                                  <input
+                                    type="text"
+                                    value={tempLigneData.activite}
+                                    onChange={(e) => setTempLigneData({ ...tempLigneData, activite: e.target.value })}
+                                    className="w-full px-2 py-1 border border-blue-300 rounded text-xs"
+                                  />
+                                </td>
+                                {/* Salaire */}
+                                <td className="py-2 px-2">
+                                  <input
+                                    type="number"
+                                    value={tempLigneData.salaireDefplafonne}
+                                    onChange={(e) => setTempLigneData({ ...tempLigneData, salaireDefplafonne: parseFloat(e.target.value) })}
+                                    className="w-full px-2 py-1 border border-blue-300 rounded text-xs text-right"
+                                  />
+                                </td>
+                                {/* Trimestres */}
+                                <td className="py-2 px-2">
+                                  <input
+                                    type="number"
+                                    value={tempLigneData.trimestres}
+                                    onChange={(e) => setTempLigneData({ ...tempLigneData, trimestres: parseInt(e.target.value) })}
+                                    className="w-full px-2 py-1 border border-blue-300 rounded text-xs text-center"
+                                  />
+                                </td>
+                                {/* Régime base */}
+                                <td className="py-2 px-2">
+                                  <input
+                                    type="text"
+                                    value={tempLigneData.regimeBase}
+                                    onChange={(e) => setTempLigneData({ ...tempLigneData, regimeBase: e.target.value })}
+                                    className="w-full px-2 py-1 border border-blue-300 rounded text-xs"
+                                  />
+                                </td>
+                                {/* Régime compl. */}
+                                <td className="py-2 px-2">
+                                  <input
+                                    type="text"
+                                    value={tempLigneData.regimeComplementaire}
+                                    onChange={(e) => setTempLigneData({ ...tempLigneData, regimeComplementaire: e.target.value })}
+                                    className="w-full px-2 py-1 border border-blue-300 rounded text-xs"
+                                  />
+                                </td>
+                                {/* Pts compl. */}
+                                <td className="py-2 px-2">
+                                  <input
+                                    type="number"
+                                    value={tempLigneData.pointsComplementaires}
+                                    onChange={(e) => setTempLigneData({ ...tempLigneData, pointsComplementaires: parseFloat(e.target.value) })}
+                                    className="w-full px-2 py-1 border border-blue-300 rounded text-xs text-right"
+                                  />
+                                </td>
+                              </tr>
+                            );
+                          }
+
+                          // Mode affichage
                           return (
                             <tr
-                              key={index}
+                              key={`${ligne.annee}-${index}`}
                               className={`border-b border-gray-200 ${
-                                hasError ? 'bg-red-50' : index % 2 === 0 ? 'bg-white' : 'bg-gray-50'
-                              } hover:bg-blue-50 transition`}
+                                hasError ? 'bg-red-50' :
+                                isSynthese ? 'bg-blue-50 font-semibold' :
+                                isDetail ? 'bg-gray-50' :
+                                index % 2 === 0 ? 'bg-white' : 'bg-gray-50'
+                              } hover:bg-blue-100 transition`}
                             >
-                              {editingLigne === ligne.annee ? (
-                                <>
-                                  <td className="py-2 px-2 font-bold text-gray-700">{ligne.annee}</td>
-                                  <td className="py-2 px-2">
-                                    <input
-                                      type="text"
-                                      value={tempLigneData.debut}
-                                      onChange={(e) => setTempLigneData({ ...tempLigneData, debut: e.target.value })}
-                                      className="w-full px-2 py-1 border border-blue-300 rounded text-xs"
-                                    />
-                                  </td>
-                                  <td className="py-2 px-2">
-                                    <input
-                                      type="text"
-                                      value={tempLigneData.fin}
-                                      onChange={(e) => setTempLigneData({ ...tempLigneData, fin: e.target.value })}
-                                      className="w-full px-2 py-1 border border-blue-300 rounded text-xs"
-                                    />
-                                  </td>
-                                  <td className="py-2 px-2">
-                                    <input
-                                      type="text"
-                                      value={tempLigneData.activite}
-                                      onChange={(e) => setTempLigneData({ ...tempLigneData, activite: e.target.value })}
-                                      className="w-full px-2 py-1 border border-blue-300 rounded text-xs"
-                                    />
-                                  </td>
-                                  <td className="py-2 px-2">
-                                    <input
-                                      type="number"
-                                      value={tempLigneData.salaireDefplafonne}
-                                      onChange={(e) => setTempLigneData({ ...tempLigneData, salaireDefplafonne: parseFloat(e.target.value) })}
-                                      className="w-full px-2 py-1 border border-blue-300 rounded text-xs text-right"
-                                    />
-                                  </td>
-                                  <td className="py-2 px-2">
-                                    <input
-                                      type="number"
-                                      value={tempLigneData.salairePlafonne}
-                                      onChange={(e) => setTempLigneData({ ...tempLigneData, salairePlafonne: parseFloat(e.target.value) })}
-                                      className="w-full px-2 py-1 border border-blue-300 rounded text-xs text-right"
-                                    />
-                                  </td>
-                                  <td className="py-2 px-2">
-                                    <input
-                                      type="number"
-                                      value={tempLigneData.trimestres}
-                                      onChange={(e) => setTempLigneData({ ...tempLigneData, trimestres: parseInt(e.target.value) })}
-                                      className="w-full px-2 py-1 border border-blue-300 rounded text-xs text-center"
-                                    />
-                                  </td>
-                                  <td className="py-2 px-2">
-                                    <input
-                                      type="text"
-                                      value={tempLigneData.regimeBase}
-                                      onChange={(e) => setTempLigneData({ ...tempLigneData, regimeBase: e.target.value })}
-                                      className="w-full px-2 py-1 border border-blue-300 rounded text-xs"
-                                    />
-                                  </td>
-                                  <td className="py-2 px-2">
-                                    <input
-                                      type="number"
-                                      value={tempLigneData.pointsBase}
-                                      onChange={(e) => setTempLigneData({ ...tempLigneData, pointsBase: parseFloat(e.target.value) })}
-                                      className="w-full px-2 py-1 border border-blue-300 rounded text-xs text-right"
-                                    />
-                                  </td>
-                                  <td className="py-2 px-2">
-                                    <input
-                                      type="text"
-                                      value={tempLigneData.regimeComplementaire}
-                                      onChange={(e) => setTempLigneData({ ...tempLigneData, regimeComplementaire: e.target.value })}
-                                      className="w-full px-2 py-1 border border-blue-300 rounded text-xs"
-                                    />
-                                  </td>
-                                  <td className="py-2 px-2">
-                                    <input
-                                      type="number"
-                                      value={tempLigneData.pointsComplementaires}
-                                      onChange={(e) => setTempLigneData({ ...tempLigneData, pointsComplementaires: parseFloat(e.target.value) })}
-                                      className="w-full px-2 py-1 border border-blue-300 rounded text-xs text-right"
-                                    />
-                                  </td>
-                                  <td className="py-2 px-2">
-                                    <div className="flex gap-1 justify-center">
-                                      <button
-                                        onClick={saveLigne}
-                                        className="p-1 bg-green-500 text-white rounded hover:bg-green-600"
-                                      >
-                                        <Check className="w-3 h-3" />
-                                      </button>
-                                      <button
-                                        onClick={cancelEditLigne}
-                                        className="p-1 bg-red-500 text-white rounded hover:bg-red-600"
-                                      >
-                                        <X className="w-3 h-3" />
-                                      </button>
-                                    </div>
-                                  </td>
-                                </>
-                              ) : (
-                                <>
-                                  <td className="py-2 px-2 font-bold text-gray-700">{ligne.annee}</td>
-                                  <td className="py-2 px-2 text-gray-600">{ligne.debut}</td>
-                                  <td className="py-2 px-2 text-gray-600">{ligne.fin}</td>
-                                  <td className="py-2 px-2">
-                                    <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-medium">
+                              {/* Actions */}
+                              <td className="py-2 px-2">
+                                <div className="flex gap-1 justify-center">
+                                  {isSynthese ? (
+                                    <button
+                                      onClick={() => toggleExpandYear(ligne.annee)}
+                                      className="p-1 bg-indigo-500 text-white rounded hover:bg-indigo-600"
+                                    >
+                                      {expandedYears[ligne.annee] ? (
+                                        <ChevronUp className="w-3 h-3" />
+                                      ) : (
+                                        <ChevronDown className="w-3 h-3" />
+                                      )}
+                                    </button>
+                                  ) : (
+                                    <button
+                                      onClick={() => startEditLigne({ ...ligne, _index: index })}
+                                      className="p-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+                                    >
+                                      <Edit2 className="w-3 h-3" />
+                                    </button>
+                                  )}
+                                </div>
+                              </td>
+                              {/* État */}
+                              <td className="py-2 px-2">
+                                <div className="flex justify-center">
+                                  {(() => {
+                                    const yearStatus = getYearStatus(ligne.annee, hasError);
+                                    if (yearStatus === 'certified') {
+                                      return (
+                                        <div className="flex items-center gap-1 px-2 py-0.5 bg-blue-100 text-blue-700 rounded text-xs font-medium">
+                                          <Shield className="w-3 h-3" />
+                                          <span>Certifiée</span>
+                                        </div>
+                                      );
+                                    }
+                                    if (yearStatus === 'corrected') {
+                                      return (
+                                        <div className="flex items-center gap-1 px-2 py-0.5 bg-yellow-100 text-yellow-700 rounded text-xs font-medium">
+                                          <Edit3 className="w-3 h-3" />
+                                          <span>Corrigée</span>
+                                        </div>
+                                      );
+                                    }
+                                    if (yearStatus === 'coherent') {
+                                      return (
+                                        <div className="flex items-center gap-1 px-2 py-0.5 bg-green-100 text-green-700 rounded text-xs font-medium">
+                                          <CheckCircle className="w-3 h-3" />
+                                          <span>Cohérent</span>
+                                        </div>
+                                      );
+                                    }
+                                    if (yearStatus === 'error') {
+                                      return (
+                                        <div className="flex items-center gap-1 px-2 py-0.5 bg-red-100 text-red-700 rounded text-xs font-medium">
+                                          <AlertCircle className="w-3 h-3" />
+                                          <span>Incohérent</span>
+                                        </div>
+                                      );
+                                    }
+                                    if (yearStatus === 'missing') {
+                                      return (
+                                        <div className="flex items-center gap-1 px-2 py-0.5 bg-gray-100 text-gray-700 rounded text-xs font-medium">
+                                          <Info className="w-3 h-3" />
+                                          <span>Information absente</span>
+                                        </div>
+                                      );
+                                    }
+                                    return null;
+                                  })()}
+                                </div>
+                              </td>
+                              {/* Année */}
+                              <td className={`py-2 px-2 ${isDetail ? 'pl-6' : ''}`}>
+                                <span className="font-bold text-gray-700">{ligne.annee}</span>
+                              </td>
+                              {/* Début */}
+                              <td className="py-2 px-2 text-gray-600">{ligne.debut}</td>
+                              {/* Fin */}
+                              <td className="py-2 px-2 text-gray-600">{ligne.fin}</td>
+                              {/* Structure */}
+                              <td className="py-2 px-2 text-gray-600 text-xs">
+                                {isSynthese ? ligne.structure : ligne.structure}
+                              </td>
+                              {/* Statut */}
+                              <td className="py-2 px-2">
+                                {isSynthese ? (
+                                  <div className="flex flex-wrap gap-1">
+                                    {ligne.statuts.map((statut, idx) => (
+                                      <span key={idx} className={`px-2 py-0.5 ${getStatutColor(statut)} rounded text-xs font-medium`}>
+                                        {statut}
+                                      </span>
+                                    ))}
+                                  </div>
+                                ) : (
+                                  ligne.activite && (
+                                    <span className={`px-2 py-1 ${getStatutColor(ligne.activite)} rounded text-xs font-medium`}>
                                       {ligne.activite}
                                     </span>
-                                  </td>
-                                  <td className="py-2 px-2 text-right font-medium text-gray-800">
-                                    {ligne.salaireDefplafonne.toLocaleString()}
-                                  </td>
-                                  <td className="py-2 px-2 text-right font-medium text-gray-800">
-                                    {ligne.salairePlafonne.toLocaleString()}
-                                  </td>
-                                  <td className={`py-2 px-2 text-center font-bold ${
-                                    ligne.trimestres === 0 ? 'text-red-600' :
-                                    ligne.trimestres < 4 ? 'text-orange-600' :
-                                    'text-green-600'
-                                  }`}>
-                                    {ligne.trimestres}
-                                  </td>
-                                  <td className="py-2 px-2 text-gray-600 text-xs">{ligne.regimeBase}</td>
-                                  <td className="py-2 px-2 text-right text-gray-700">{ligne.pointsBase}</td>
-                                  <td className="py-2 px-2 text-gray-600 text-xs">{ligne.regimeComplementaire}</td>
-                                  <td className="py-2 px-2 text-right text-gray-700">{ligne.pointsComplementaires}</td>
-                                  <td className="py-2 px-2">
-                                    <div className="flex gap-1 justify-center">
-                                      <button
-                                        onClick={() => startEditLigne(ligne)}
-                                        className="p-1 bg-blue-500 text-white rounded hover:bg-blue-600"
-                                      >
-                                        <Edit2 className="w-3 h-3" />
-                                      </button>
-                                      {hasError && (
-                                        <div className="relative group">
-                                          <span className="text-red-600 font-bold cursor-help">⚠</span>
-                                          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:block w-64 p-2 bg-red-600 text-white text-xs rounded shadow-lg z-10">
-                                            {incoherences.map((msg, idx) => (
-                                              <div key={idx}>• {msg}</div>
-                                            ))}
-                                          </div>
-                                        </div>
-                                      )}
-                                    </div>
-                                  </td>
-                                </>
-                              )}
+                                  )
+                                )}
+                              </td>
+                              {/* Salaire */}
+                              <td className="py-2 px-2 text-right font-medium text-gray-800">
+                                {ligne.salaireDefplafonne?.toLocaleString() || 0}
+                              </td>
+                              {/* Trimestres */}
+                              <td className={`py-2 px-2 text-center font-bold ${
+                                ligne.trimestres === 0 ? 'text-red-600' :
+                                ligne.trimestres < 4 ? 'text-orange-600' :
+                                'text-green-600'
+                              }`}>
+                                {ligne.trimestres}
+                              </td>
+                              {/* Régime base */}
+                              <td className="py-2 px-2 text-xs">
+                                {isSynthese ? (
+                                  <div className="flex flex-wrap gap-1">
+                                    {ligne.regimesBase.map((regime, idx) => (
+                                      <span key={idx} className={`px-2 py-0.5 ${getRegimeColor(regime)} rounded font-medium`}>
+                                        {regime}
+                                      </span>
+                                    ))}
+                                  </div>
+                                ) : (
+                                  <span className={`px-2 py-0.5 ${getRegimeColor(ligne.regimeBase)} rounded font-medium`}>{ligne.regimeBase}</span>
+                                )}
+                              </td>
+                              {/* Régime compl. */}
+                              <td className="py-2 px-2 text-xs">
+                                {isSynthese ? (
+                                  <div className="flex flex-wrap gap-1">
+                                    {ligne.regimesCompl.map((regime, idx) => (
+                                      <span key={idx} className={`px-2 py-0.5 ${getRegimeColor(regime)} rounded font-medium`}>
+                                        {regime}
+                                      </span>
+                                    ))}
+                                  </div>
+                                ) : (
+                                  <span className={`px-2 py-0.5 ${getRegimeColor(ligne.regimeComplementaire)} rounded font-medium`}>{ligne.regimeComplementaire}</span>
+                                )}
+                              </td>
+                              {/* Pts compl. */}
+                              <td className="py-2 px-2 text-right text-gray-700">
+                                {isSynthese ? 'NA' : ligne.pointsComplementaires}
+                              </td>
                             </tr>
                           );
                         })}
                       </tbody>
                     </table>
                   </div>
+
+                  {/* Bouton Compléter la carrière */}
+                  <div className="mt-4 flex justify-center">
+                    <button
+                      onClick={() => setShowCompleteCarriereModal(true)}
+                      className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium shadow-md"
+                    >
+                      <Plus className="w-5 h-5" />
+                      Compléter la carrière
+                    </button>
+                  </div>
+                  </>
                 );
               })()}
             </div>
           </div>
         )}
 
+        {/* Modal Compléter la carrière */}
+        {showCompleteCarriereModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-xl shadow-2xl p-6 max-w-md w-full mx-4">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+                  <Plus className="w-6 h-6 text-blue-600" />
+                  Compléter la carrière
+                </h3>
+                <button
+                  onClick={() => setShowCompleteCarriereModal(false)}
+                  className="text-gray-400 hover:text-gray-600 transition"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                {/* Option 1 : Dupliquer la dernière année */}
+                <button
+                  onClick={duplicateDerniereAnnee}
+                  className="w-full p-4 bg-blue-50 border-2 border-blue-200 rounded-lg hover:bg-blue-100 transition text-left"
+                >
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <Plus className="w-5 h-5 text-white" />
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-gray-800 mb-1">Dupliquer la dernière année</h4>
+                      <p className="text-sm text-gray-600">Créer une nouvelle année avec les mêmes données que la dernière année de carrière</p>
+                    </div>
+                  </div>
+                </button>
+
+                {/* Option 2 : Dupliquer jusqu'au taux plein */}
+                <div className="p-4 bg-orange-50 border-2 border-orange-200 rounded-lg">
+                  <div className="flex items-start gap-3 mb-3">
+                    <div className="w-10 h-10 bg-orange-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <TrendingUp className="w-5 h-5 text-white" />
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="font-semibold text-gray-800 mb-1">Dupliquer jusqu'au taux plein</h4>
+                      <p className="text-sm text-gray-600 mb-3">Projeter les années manquantes pour atteindre le taux plein avec inflation</p>
+                    </div>
+                  </div>
+
+                  <div className="ml-13 space-y-3">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Inflation annuelle des revenus (%)
+                      </label>
+                      <input
+                        type="number"
+                        value={inflationRate}
+                        onChange={(e) => setInflationRate(parseFloat(e.target.value) || 0)}
+                        min="0"
+                        max="10"
+                        step="0.1"
+                        className="w-full px-3 py-2 border border-orange-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400"
+                      />
+                    </div>
+
+                    <button
+                      onClick={projeterJusquAuTauxPlein}
+                      className="w-full px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition font-medium"
+                    >
+                      Projeter jusqu'au taux plein
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <button
+                onClick={() => setShowCompleteCarriereModal(false)}
+                className="mt-6 w-full px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition"
+              >
+                Annuler
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Modal Légende */}
+        {showLegendeModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-xl shadow-2xl p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+                  <Info className="w-6 h-6 text-blue-600" />
+                  Légende - États des enregistrements
+                </h3>
+                <button
+                  onClick={() => setShowLegendeModal(false)}
+                  className="text-gray-400 hover:text-gray-600 transition"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                {/* Enregistrement incohérent */}
+                <div className="p-4 bg-red-50 border-2 border-red-200 rounded-lg">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="flex items-center gap-1 px-2 py-1 bg-red-100 text-red-700 rounded text-sm font-medium">
+                      <AlertCircle className="w-4 h-4" />
+                      <span>Enregistrement incohérent</span>
+                    </div>
+                  </div>
+                  <p className="text-sm text-gray-700">
+                    Les données enregistrées par les caisses ne sont pas cohérentes entre elles ou avec les règles des caisses de retraites correspondantes ou avec le profil de l'assuré saisi dans Vault.
+                  </p>
+                </div>
+
+                {/* Enregistrement cohérent */}
+                <div className="p-4 bg-green-50 border-2 border-green-200 rounded-lg">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="flex items-center gap-1 px-2 py-1 bg-green-100 text-green-700 rounded text-sm font-medium">
+                      <CheckCircle className="w-4 h-4" />
+                      <span>Enregistrement cohérent</span>
+                    </div>
+                  </div>
+                  <p className="text-sm text-gray-700">
+                    Les données enregistrées par les caisses sont cohérentes entre elles et avec les règles des caisses de retraites correspondantes et avec le profil de l'assuré saisi dans Vault.
+                  </p>
+                </div>
+
+                {/* Enregistrement absent */}
+                <div className="p-4 bg-gray-50 border-2 border-gray-200 rounded-lg">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="flex items-center gap-1 px-2 py-1 bg-gray-100 text-gray-700 rounded text-sm font-medium">
+                      <Info className="w-4 h-4" />
+                      <span>Enregistrement absent</span>
+                    </div>
+                  </div>
+                  <p className="text-sm text-gray-700">
+                    Il y a une absence de donnée sur une période alors que le profil de l'assuré nécessite un enregistrement auprès des caisses.
+                  </p>
+                </div>
+
+                {/* Enregistrement corrigé */}
+                <div className="p-4 bg-yellow-50 border-2 border-yellow-200 rounded-lg">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="flex items-center gap-1 px-2 py-1 bg-yellow-100 text-yellow-700 rounded text-sm font-medium">
+                      <Edit3 className="w-4 h-4" />
+                      <span>Enregistrement corrigé</span>
+                    </div>
+                  </div>
+                  <p className="text-sm text-gray-700">
+                    L'enregistrement a été corrigé dans Vault pour être en cohérence avec le profil de l'assuré et les règles des caisses de retraites. Rendez-vous dans la section Suivi dossier pour régulariser l'enregistrement auprès de la caisse concernée.
+                  </p>
+                </div>
+
+                {/* Enregistrement certifié */}
+                <div className="p-4 bg-blue-50 border-2 border-blue-200 rounded-lg">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-700 rounded text-sm font-medium">
+                      <Shield className="w-4 h-4" />
+                      <span>Enregistrement certifié</span>
+                    </div>
+                  </div>
+                  <p className="text-sm text-gray-700">
+                    Des documents ont été transmis à la plateforme Vault et ont permis de vérifier que l'enregistrement auprès des caisses est conforme au profil de l'assuré et aux cotisations qui ont réellement été effectuées.
+                  </p>
+                </div>
+              </div>
+
+              <button
+                onClick={() => setShowLegendeModal(false)}
+                className="mt-6 w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium"
+              >
+                Fermer
+              </button>
+            </div>
+          </div>
+        )}
+
         {activeSection === 'projections' && (
           <div className="space-y-6">
+            <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-200">
+              <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-3">
+                <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+                  <TrendingUp className="w-6 h-6 text-white" />
+                </div>
+                Tableau comparatif des pensions par âge de départ
+              </h2>
+
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm border-collapse">
+                  <thead>
+                    <tr className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
+                      <th className="py-3 px-4 text-left font-bold border border-blue-700" rowSpan="2">Âge de départ</th>
+                      <th className="py-3 px-4 text-left font-bold border border-blue-700" rowSpan="2">Date de départ</th>
+                      {carrieres.map((carriere) => (
+                        <th key={`${carriere.id}-nette`} colSpan="3" className="py-3 px-4 text-center font-bold border border-blue-700">
+                          {carriere.nom}
+                        </th>
+                      ))}
+                    </tr>
+                    <tr className="bg-blue-500 text-white">
+                      {carrieres.map((carriere) => (
+                        <React.Fragment key={`${carriere.id}-headers`}>
+                          <th className="py-2 px-4 text-center text-xs border border-blue-600">Net mensuel</th>
+                          <th className="py-2 px-4 text-center text-xs border border-blue-600">Net annuel</th>
+                          <th className="py-2 px-4 text-center text-xs border border-blue-600">Cumul sur espérance de vie</th>
+                        </React.Fragment>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {(() => {
+                      // Précalculer tous les gains cumulés pour trouver le maximum
+                      const agesAvecMois = [
+                        { age: 60, mois: 0 },
+                        { age: 60, mois: 6 },
+                        { age: 61, mois: 0 },
+                        { age: 61, mois: 6 },
+                        { age: 62, mois: 0 },
+                        { age: 62, mois: 6 },
+                        { age: 63, mois: 0 },
+                        { age: 63, mois: 6 },
+                        { age: 64, mois: 0 },
+                        { age: 64, mois: 6 },
+                        { age: 65, mois: 0 },
+                        { age: 65, mois: 6 },
+                        { age: 66, mois: 0 },
+                        { age: 66, mois: 6 },
+                        { age: 67, mois: 0 }
+                      ];
+
+                      const ageTauxPlein = 62;
+                      const esperanceVie = 85;
+                      const dateNaissance = new Date(1983, 0, 1); // 1er janvier 1983 (exemple)
+
+                      // Calculer tous les cumuls pour trouver le max par carrière
+                      const cumulesParCarriere = carrieres.map(carriere => {
+                        return agesAvecMois.map(({ age, mois }) => {
+                          const ageDecimal = age + (mois / 12);
+                          const anneesRetraite = esperanceVie - ageDecimal;
+
+                          const totalTrimestres = carriere.data.reduce((sum, ligne) => sum + ligne.trimestres, 0);
+                          const totalPointsBase = carriere.data.reduce((sum, ligne) => sum + ligne.pointsBase, 0);
+                          const totalPointsComplementaires = carriere.data.reduce((sum, ligne) => sum + ligne.pointsComplementaires, 0);
+
+                          const valeurPointBase = 0.6734;
+                          const valeurPointComplementaire = 1.4159;
+
+                          const pensionBase = totalPointsBase * valeurPointBase * 12;
+                          const pensionComplementaire = totalPointsComplementaires * valeurPointComplementaire * 12;
+                          let pensionBruteAnnuelle = pensionBase + pensionComplementaire;
+
+                          if (age < ageTauxPlein) {
+                            const anneesDecote = ageTauxPlein - age - (mois / 12);
+                            const tauxDecote = 1 - (anneesDecote * 0.05);
+                            pensionBruteAnnuelle = pensionBruteAnnuelle * Math.max(tauxDecote, 0.75);
+                          } else if (age > ageTauxPlein || (age === ageTauxPlein && mois > 0)) {
+                            const anneesSurcote = age - ageTauxPlein + (mois / 12);
+                            const tauxSurcote = 1 + (anneesSurcote * 0.05);
+                            pensionBruteAnnuelle = pensionBruteAnnuelle * tauxSurcote;
+                          }
+
+                          const pensionNetteAnnuelle = pensionBruteAnnuelle * 0.9;
+                          const pensionCumulee = pensionNetteAnnuelle * anneesRetraite;
+
+                          return pensionCumulee;
+                        });
+                      });
+
+                      // Trouver le maximum par carrière
+                      const maxParCarriere = cumulesParCarriere.map(cumules => Math.max(...cumules));
+
+                      return agesAvecMois.map(({ age, mois }, idx) => {
+                        const ageDecimal = age + (mois / 12);
+                        const anneesRetraite = esperanceVie - ageDecimal;
+
+                        // Calculer la date de départ
+                        const dateDepart = new Date(dateNaissance);
+                        dateDepart.setFullYear(dateNaissance.getFullYear() + age);
+                        dateDepart.setMonth(dateNaissance.getMonth() + mois);
+
+                        const jour = dateDepart.getDate();
+                        const jourFormate = jour === 1 ? '1er' : jour;
+                        const moisNoms = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
+                        const dateFormatee = `${jourFormate} ${moisNoms[dateDepart.getMonth()]} ${dateDepart.getFullYear()}`;
+
+                        // Formater l'âge
+                        const ageFormate = mois === 0 ? `${age} ans` : `${age} ans et ${mois} mois`;
+
+                        return (
+                          <tr key={`${age}-${mois}`} className={idx % 2 === 0 ? 'bg-gray-50' : 'bg-white'}>
+                            <td className="py-3 px-4 font-bold text-gray-800 border border-gray-300">
+                              {ageFormate}
+                              {age === ageTauxPlein && mois === 0 && <span className="ml-2 text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded">Taux plein</span>}
+                            </td>
+                            <td className="py-3 px-4 text-sm text-gray-600 border border-gray-300">
+                              {dateFormatee}
+                            </td>
+                            {carrieres.map((carriere, carriereIdx) => {
+                              const totalTrimestres = carriere.data.reduce((sum, ligne) => sum + ligne.trimestres, 0);
+                              const totalPointsBase = carriere.data.reduce((sum, ligne) => sum + ligne.pointsBase, 0);
+                              const totalPointsComplementaires = carriere.data.reduce((sum, ligne) => sum + ligne.pointsComplementaires, 0);
+
+                              const valeurPointBase = 0.6734;
+                              const valeurPointComplementaire = 1.4159;
+
+                              const pensionBase = totalPointsBase * valeurPointBase * 12;
+                              const pensionComplementaire = totalPointsComplementaires * valeurPointComplementaire * 12;
+                              let pensionBruteAnnuelle = pensionBase + pensionComplementaire;
+
+                              if (age < ageTauxPlein) {
+                                const anneesDecote = ageTauxPlein - age - (mois / 12);
+                                const tauxDecote = 1 - (anneesDecote * 0.05);
+                                pensionBruteAnnuelle = pensionBruteAnnuelle * Math.max(tauxDecote, 0.75);
+                              } else if (age > ageTauxPlein || (age === ageTauxPlein && mois > 0)) {
+                                const anneesSurcote = age - ageTauxPlein + (mois / 12);
+                                const tauxSurcote = 1 + (anneesSurcote * 0.05);
+                                pensionBruteAnnuelle = pensionBruteAnnuelle * tauxSurcote;
+                              }
+
+                              const pensionNetteAnnuelle = pensionBruteAnnuelle * 0.9;
+                              const pensionNetteMensuelle = pensionNetteAnnuelle / 12;
+                              const pensionCumulee = pensionNetteAnnuelle * anneesRetraite;
+
+                              // Vérifier si c'est le maximum pour cette carrière
+                              const isMax = Math.abs(pensionCumulee - maxParCarriere[carriereIdx]) < 1;
+
+                              return (
+                                <React.Fragment key={`${carriere.id}-${age}-${mois}`}>
+                                  <td className="py-3 px-4 text-right text-sm text-gray-700 border border-gray-300">
+                                    {pensionNetteMensuelle.toLocaleString('fr-FR', { maximumFractionDigits: 0 })} €
+                                  </td>
+                                  <td className="py-3 px-4 text-right font-semibold text-gray-800 border border-gray-300">
+                                    {pensionNetteAnnuelle.toLocaleString('fr-FR', { maximumFractionDigits: 0 })} €
+                                  </td>
+                                  <td className={`py-3 px-4 text-right font-semibold border border-gray-300 ${isMax ? 'bg-green-100 text-green-800' : 'text-blue-700'}`}>
+                                    {pensionCumulee.toLocaleString('fr-FR', { maximumFractionDigits: 0 })} €
+                                    {isMax && <span className="ml-2 text-xs">⭐</span>}
+                                  </td>
+                                </React.Fragment>
+                              );
+                            })}
+                          </tr>
+                        );
+                      });
+                    })()}
+                  </tbody>
+                </table>
+              </div>
+
+              <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                <h4 className="font-bold text-gray-800 mb-2">Légende et hypothèses</h4>
+                <ul className="text-xs text-gray-600 space-y-1">
+                  <li>• <strong>Âge du taux plein :</strong> 62 ans (âge légal)</li>
+                  <li>• <strong>Décote :</strong> -5% par année de départ avant 62 ans (minimum 75% de la pension)</li>
+                  <li>• <strong>Surcote :</strong> +5% par année de départ après 62 ans</li>
+                  <li>• <strong>Espérance de vie :</strong> 85 ans (estimation)</li>
+                  <li>• <strong>Prélèvements sociaux :</strong> 10% (CSG + CRDS)</li>
+                  <li>• <strong>Pension nette annuelle :</strong> Avant impôt sur le revenu</li>
+                  <li>• <strong>Cumul sur espérance de vie :</strong> Pension annuelle × (85 ans - âge de départ)</li>
+                </ul>
+              </div>
+            </div>
+
             {carrieres.map((carriere) => {
               const isExpanded = expandedCarrieres[carriere.id];
               const totalTrimestres = carriere.data.reduce((sum, ligne) => sum + ligne.trimestres, 0);
@@ -1099,114 +2043,9 @@ export default function VaultApp({ user, onLogout }) {
                 </div>
                 Suivi du dossier
               </h2>
-              
-              <div className="space-y-6">
-                {/* Timeline de suivi */}
-                <div className="relative border-l-4 border-indigo-200 pl-6 space-y-6">
-                  <div className="relative">
-                    <div className="absolute -left-8 w-6 h-6 bg-green-500 rounded-full border-4 border-white"></div>
-                    <div className="bg-green-50 rounded-lg p-4 border border-green-200">
-                      <div className="flex justify-between items-start mb-2">
-                        <h3 className="font-bold text-green-900">Dossier créé</h3>
-                        <span className="text-xs text-green-600">15/10/2025</span>
-                      </div>
-                      <p className="text-sm text-gray-700">Le dossier de Jean Dupont a été créé avec succès.</p>
-                    </div>
-                  </div>
 
-                  <div className="relative">
-                    <div className="absolute -left-8 w-6 h-6 bg-blue-500 rounded-full border-4 border-white"></div>
-                    <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
-                      <div className="flex justify-between items-start mb-2">
-                        <h3 className="font-bold text-blue-900">Documents reçus</h3>
-                        <span className="text-xs text-blue-600">22/10/2025</span>
-                      </div>
-                      <p className="text-sm text-gray-700">Réception du relevé de carrière et des bulletins de salaire.</p>
-                      <ul className="mt-2 text-xs text-gray-600 space-y-1">
-                        <li>• Relevé de carrière CNAV</li>
-                        <li>• 3 derniers bulletins de salaire</li>
-                      </ul>
-                    </div>
-                  </div>
-
-                  <div className="relative">
-                    <div className="absolute -left-8 w-6 h-6 bg-orange-500 rounded-full border-4 border-white"></div>
-                    <div className="bg-orange-50 rounded-lg p-4 border border-orange-200">
-                      <div className="flex justify-between items-start mb-2">
-                        <h3 className="font-bold text-orange-900">Analyse en cours</h3>
-                        <span className="text-xs text-orange-600">05/11/2025</span>
-                      </div>
-                      <p className="text-sm text-gray-700">Analyse des données de carrière et détection d'incohérences.</p>
-                      <div className="mt-3 flex items-center gap-2">
-                        <div className="flex-1 bg-orange-200 rounded-full h-2">
-                          <div className="bg-orange-600 h-2 rounded-full" style={{width: '65%'}}></div>
-                        </div>
-                        <span className="text-xs font-semibold text-orange-700">65%</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="relative">
-                    <div className="absolute -left-8 w-6 h-6 bg-gray-300 rounded-full border-4 border-white"></div>
-                    <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                      <div className="flex justify-between items-start mb-2">
-                        <h3 className="font-bold text-gray-600">Simulation pension</h3>
-                        <span className="text-xs text-gray-500">En attente</span>
-                      </div>
-                      <p className="text-sm text-gray-500">Calcul des projections de retraite.</p>
-                    </div>
-                  </div>
-
-                  <div className="relative">
-                    <div className="absolute -left-8 w-6 h-6 bg-gray-300 rounded-full border-4 border-white"></div>
-                    <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                      <div className="flex justify-between items-start mb-2">
-                        <h3 className="font-bold text-gray-600">Rapport final</h3>
-                        <span className="text-xs text-gray-500">En attente</span>
-                      </div>
-                      <p className="text-sm text-gray-500">Génération du rapport complet et recommandations.</p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Statistiques du dossier */}
-                <div className="grid grid-cols-3 gap-4 mt-8">
-                  <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-4 border border-blue-200">
-                    <p className="text-sm font-semibold text-blue-800 mb-1">Temps écoulé</p>
-                    <p className="text-2xl font-bold text-blue-600">29 jours</p>
-                  </div>
-                  <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg p-4 border border-purple-200">
-                    <p className="text-sm font-semibold text-purple-800 mb-1">Documents analysés</p>
-                    <p className="text-2xl font-bold text-purple-600">4/6</p>
-                  </div>
-                  <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-4 border border-green-200">
-                    <p className="text-sm font-semibold text-green-800 mb-1">Progression</p>
-                    <p className="text-2xl font-bold text-green-600">65%</p>
-                  </div>
-                </div>
-
-                {/* Actions rapides */}
-                <div className="bg-indigo-50 rounded-lg p-6 border-2 border-indigo-200 mt-6">
-                  <h3 className="font-bold text-indigo-900 mb-4">Actions rapides</h3>
-                  <div className="grid grid-cols-2 gap-3">
-                    <button className="flex items-center gap-2 px-4 py-3 bg-white rounded-lg hover:bg-indigo-100 transition border border-indigo-300">
-                      <Upload className="w-4 h-4 text-indigo-600" />
-                      <span className="text-sm font-medium text-gray-700">Ajouter un document</span>
-                    </button>
-                    <button className="flex items-center gap-2 px-4 py-3 bg-white rounded-lg hover:bg-indigo-100 transition border border-indigo-300">
-                      <MessageCircle className="w-4 h-4 text-indigo-600" />
-                      <span className="text-sm font-medium text-gray-700">Contacter le conseiller</span>
-                    </button>
-                    <button className="flex items-center gap-2 px-4 py-3 bg-white rounded-lg hover:bg-indigo-100 transition border border-indigo-300">
-                      <Download className="w-4 h-4 text-indigo-600" />
-                      <span className="text-sm font-medium text-gray-700">Télécharger le rapport</span>
-                    </button>
-                    <button className="flex items-center gap-2 px-4 py-3 bg-white rounded-lg hover:bg-indigo-100 transition border border-indigo-300">
-                      <Bell className="w-4 h-4 text-indigo-600" />
-                      <span className="text-sm font-medium text-gray-700">Gérer les notifications</span>
-                    </button>
-                  </div>
-                </div>
+              <div className="text-center py-12">
+                <p className="text-lg text-gray-600">Section en cours</p>
               </div>
             </div>
           </div>
